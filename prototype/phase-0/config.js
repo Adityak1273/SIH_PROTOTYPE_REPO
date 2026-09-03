@@ -1,2 +1,7 @@
-// Deployment configuration. Keep secrets on the server; this file contains only a public API endpoint.
-window.COGNITIVE_AI_ENDPOINT = 'https://sih-prototype-repo.zopcloud.zop.dev/api/chat';
+// Public client configuration. Never put service-role or private secrets here.
+window.CCNER_CONFIG = {
+  AI_ENDPOINT: 'https://sih-prototype-repo.zopcloud.zop.dev/api/chat',
+  SUPABASE_URL: 'https://mmgvgqtjlcrrfkehlqqe.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_cchVUBU7WOnxYH_sI8A1QA_05f1Sz4v'
+};
+window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
