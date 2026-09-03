@@ -22,6 +22,7 @@
       current.sequenceRound=0;
       current.sequenceScore=0;
       current.sequenceMistakes=0;
+      current.sequenceConsecutiveMistakes=0;
       current.sequenceStreak=0;
       current.sequenceMaxRound=5;
       current.sequenceRoundResults=[];
@@ -52,7 +53,7 @@
         <div class="sequence-meta">
           <span class="sequence-chip">Round <strong>${c.sequenceRound} / ${c.sequenceMaxRound}</strong></span>
           <span class="sequence-chip">Score <strong>${c.sequenceScore}</strong></span>
-          <span class="sequence-chip">Mistakes <strong>${c.sequenceMistakes} / 3</strong></span>
+          <span class="sequence-chip">Mistakes <strong>${c.sequenceConsecutiveMistakes} / 3</strong></span>
         </div>
         <div class="sequence-instruction">Watch the lights. Momo will show the order, then it is your turn.</div>
         <div class="sequence-board" aria-label="Sequence memory board">
@@ -90,7 +91,7 @@
         },flashMs);
       };
       $('#gamePrompt').textContent='Watch the sequence…';
-      say(`Remember this sequence of ${length} lights.`,`thinking`,'watching',{after:()=>setTimeout(flash,420)});
+      say(`Remember this sequence of ${length} lights.`,'thinking','watching',{after:()=>setTimeout(flash,420)});
 
       pads.forEach(p=>p.addEventListener('click',()=>handlePad(Number(p.dataset.pad))));
 
@@ -106,25 +107,24 @@
           if(c.sequenceInput.length===c.sequence.length){
             c.sequenceScore+=20;
             c.sequenceStreak++;
-            c.sequenceMistakes=0;
+            c.sequenceConsecutiveMistakes=0;
             c.sequenceRoundResults.push({round:c.sequenceRound,correct:true,length:c.sequence.length});
             const fb=$('#sequenceFeedback');
-            fb.textContent='Correct! Nice memory.';
+            fb.textContent='Correct! Nice memory. Next round is coming.';
             fb.className='sequence-feedback correct';
             setMood('celebrate','happy');
             setStatus('Correct! Moving to the next round.');
             setTimeout(runSequenceRound,650);
           }
         }else{
-          c.sequenceMistakes++;
+          c.sequenceConsecutiveMistakes=(c.sequenceConsecutiveMistakes||0)+1;
           c.sequenceStreak=0;
-          c.sequenceRoundResults.push({round:c.sequenceRound,correct:false,length:c.sequence.length,expected:expected,chosen});
+          c.sequenceRoundResults.push({round:c.sequenceRound,correct:false,length:c.sequence.length,expected,chosen});
           const fb=$('#sequenceFeedback');
-          fb.textContent='Incorrect — that is okay. Moving to the next round.';
+          fb.textContent=c.sequenceConsecutiveMistakes>=3?'Incorrect three times in a row. Moving to the next game.':'Incorrect — that is okay. Moving to the next round.';
           fb.className='sequence-feedback incorrect';
           setMood('encourage','encouraging');
-          setStatus(c.sequenceMistakes>=3?'Three misses in a row — moving on.':'Incorrect. Next round.');
-          c.sequenceConsecutiveMistakes=(c.sequenceConsecutiveMistakes||0)+1;
+          setStatus(c.sequenceConsecutiveMistakes>=3?'Three misses in a row — moving on.':'Incorrect. Next round.');
           if(c.sequenceConsecutiveMistakes>=3){
             setTimeout(completeSequenceGame,700);
             return;
@@ -155,9 +155,6 @@
       },800);
     }
 
-    window.addEventListener('load',()=>{
-      // Keep the reference-inspired interaction confined to this game; other games remain untouched for later redesign.
-    },{once:true});
     return true;
   }
   if(!install()){
