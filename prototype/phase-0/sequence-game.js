@@ -1,7 +1,7 @@
 /* Sequence Memory — interaction layer inspired by the supplied reference video, but using original UI/content. */
 (function(){
   function install(){
-    if(typeof state==='undefined' || typeof catalog==='undefined' || typeof $==='undefined') return false;
+    if(typeof state==='undefined' || typeof catalog==='undefined' || typeof $==='undefined' || typeof runGame!=='function' || typeof loadGame!=='function') return false;
 
     catalog.sequence={
       name:'Sequence Memory',
@@ -15,7 +15,7 @@
       ]
     };
 
-    const oldRunGame=window.runGame;
+    const oldRunGame=runGame;
     window.gameSequence=function(){
       const current=state.current;
       if(!current || current.answered) return;
@@ -46,7 +46,6 @@
       c.sequence=sequence;
       c.sequenceInput=[];
       c.sequenceLocked=true;
-      c.sequenceCurrentRound=length;
 
       const area=$('#gameArea');
       area.innerHTML=`<div class="sequence-stage sequence-transition">
@@ -92,7 +91,6 @@
       };
       $('#gamePrompt').textContent='Watch the sequence…';
       say(`Remember this sequence of ${length} lights.`,'thinking','watching',{after:()=>setTimeout(flash,420)});
-
       pads.forEach(p=>p.addEventListener('click',()=>handlePad(Number(p.dataset.pad))));
 
       function handlePad(chosen){
@@ -125,10 +123,7 @@
           fb.className='sequence-feedback incorrect';
           setMood('encourage','encouraging');
           setStatus(c.sequenceConsecutiveMistakes>=3?'Three misses in a row — moving on.':'Incorrect. Next round.');
-          if(c.sequenceConsecutiveMistakes>=3){
-            setTimeout(completeSequenceGame,700);
-            return;
-          }
+          if(c.sequenceConsecutiveMistakes>=3){setTimeout(completeSequenceGame,700);return;}
           setTimeout(runSequenceRound,700);
         }
       }
@@ -149,10 +144,7 @@
       if(window.CognitiveCareCompanion) window.CognitiveCareCompanion.onGameEvent({type:correctRounds?'correct':'incorrect'});
       setStatus('Game complete. Moving to the next game.');
       setMood(correctRounds>=Math.ceil(rounds/2)?'celebrate':'encourage',correctRounds>=Math.ceil(rounds/2)?'happy':'encouraging');
-      setTimeout(()=>{
-        if(state.index<4){state.index++;loadGame();}
-        else finishSession();
-      },800);
+      setTimeout(()=>{if(state.index<4){state.index++;loadGame();}else finishSession();},800);
     }
 
     return true;
