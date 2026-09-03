@@ -21,7 +21,6 @@
       if(!current || current.answered) return;
       current.sequenceRound=0;
       current.sequenceScore=0;
-      current.sequenceMistakes=0;
       current.sequenceConsecutiveMistakes=0;
       current.sequenceStreak=0;
       current.sequenceMaxRound=5;
@@ -137,7 +136,7 @@
       const rounds=Math.max(1,c.sequenceRoundResults?.length||1);
       const correctRounds=(c.sequenceRoundResults||[]).filter(r=>r.correct).length;
       const score=Math.round((correctRounds/rounds)*100);
-      c.correct=correctRounds;
+      c.correct=score>=50?1:0;
       c.score=score;
       c.seconds=(performance.now()-c.started)/1000;
       state.results.push({...c,name:catalog.sequence.name,skipped:false,rounds,correctRounds,consecutiveMistakes:c.sequenceConsecutiveMistakes||0});
