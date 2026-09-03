@@ -2,17 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#f7efe5" />
   <meta name="description" content="Cognitive Care NER — interactive cognitive training demo with Momo companion." />
-  <title>Cognitive Care NER — Demo Unit</title>
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <title>Cognitive Care NER — App</title>
   <style>[hidden]{display:none!important}</style>
   <link rel="stylesheet" href="./styles.css?v=0.1.2" />
 </head>
 <body>
 <main class="app-shell">
   <header class="topbar">
-    <div><p class="eyebrow">COGNITIVE CARE NER · DEMO UNIT v0.1</p><h1 id="pageTitle">Meet Momo</h1><p class="subtitle" id="pageSubtitle">Your playful companion for today's brain workout.</p></div>
+    <div><p class="eyebrow">COGNITIVE CARE NER · APP v0.2</p><h1 id="pageTitle">Meet Momo</h1><p class="subtitle" id="pageSubtitle">Your playful companion for today's brain workout.</p></div>
     <div class="top-actions"><button id="soundToggle" class="icon-button" type="button" aria-pressed="true" title="Toggle voice">🔊</button><button id="homeButton" class="icon-button" type="button" title="Home">⌂</button></div>
   </header>
 
@@ -44,8 +48,13 @@
   </section>
 
   <section id="overlayPanel" class="overlay-panel" hidden><div class="overlay-inner"><button id="closeOverlay" class="close-button" type="button" aria-label="Close">×</button><div id="overlayContent"></div></div></section>
-  <footer>Demo software only · no diagnosis · designed for accessible cognitive training.</footer>
+  <footer>App demo only · no diagnosis · designed for accessible cognitive training.</footer>
 </main>
 <script src="./app.js?v=0.1.2"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  }
+</script>
 </body>
 </html>
