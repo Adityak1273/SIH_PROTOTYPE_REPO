@@ -6,6 +6,9 @@ window.CCNER_CONFIG = {
 };
 window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
 (function(){
-  const css=document.createElement('link'); css.rel='stylesheet'; css.href='./phase2.css?v=0.6.0'; document.head.appendChild(css);
-  const script=document.createElement('script'); script.src='./phase2.js?v=0.6.0'; script.defer=true; document.head.appendChild(script);
+  const v='0.7.0';
+  const css=document.createElement('link'); css.rel='stylesheet'; css.href='./phase2.css?v='+v; document.head.appendChild(css);
+  const css3=document.createElement('link'); css3.rel='stylesheet'; css3.href='./phase3.css?v='+v; document.head.appendChild(css3);
+  const script=document.createElement('script'); script.src='./phase2.js?v='+v; script.defer=true; document.head.appendChild(script);
+  const script3=document.createElement('script'); script3.src='./phase3.js?v='+v; script3.defer=true; document.head.appendChild(script3);
 })();
