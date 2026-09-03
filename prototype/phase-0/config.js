@@ -6,7 +6,7 @@ window.CCNER_CONFIG = {
 };
 window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
 (function(){
-  const v='0.7.1';
+  const v='0.8.0';
   const addCss=(name)=>{const el=document.createElement('link');el.rel='stylesheet';el.href='./'+name+'?v='+v;document.head.appendChild(el)};
   const addScript=(name)=>{const el=document.createElement('script');el.src='./'+name+'?v='+v;el.defer=true;document.head.appendChild(el)};
   addCss('phase2.css'); addCss('phase3.css'); addCss('phase4.css');
