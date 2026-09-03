@@ -1,11 +1,11 @@
 /* Spot the Difference — original project content using the supplied video only for interaction structure. */
 (function(){
   const rounds=[
-    {items:['☕','🥄','📖','💊','💧','🍚'],changes:['☕','🥄','📅','💊','💧','🍚'],hint:'Look for the object that changed.'},
-    {items:['🍎','🍌','🍊','🥭','🍐','🍇'],changes:['🍎','🍌','🍊','🥭','🍎','🍇'],hint:'Compare each fruit with what you saw first.'},
-    {items:['🧹','🪣','🧽','🧺','🧴','🧹','🪣'],changes:['🧹','🪣','🧽','🧺','🧴','🧹','🧽'],hint:'One cleaning item is different.'},
-    {items:['🛏️','🪥','🧴','🧣','⏰','📖','👓','🪥'],changes:['🛏️','🪥','🧴','🧣','⏰','📖','🧢','🪥'],hint:'Check the familiar bedroom and morning items carefully.'},
-    {items:['🍽️','🥣','🥛','🥄','☕','🍚','🧂','🥣'],changes:['🍽️','🥣','🥛','🥄','☕','🍚','🌶️','🥣'],hint:'The changed item is in the dining or cooking group.'}
+    {items:['☕','🥄','📖','💊','💧','🍚'],replacements:['🍵','🍴','📰','🧴','🥛','🥣'],hint:'Look for the object that changed.'},
+    {items:['🍎','🍌','🍊','🥭','🍐','🍇'],replacements:['🍐','🍇','🍋','🍉','🍎','🍊'],hint:'Compare each fruit with what you saw first.'},
+    {items:['🧹','🪣','🧽','🧺','🧴','🧹','🪣'],replacements:['🧹','🧼','🧤','🧹','🧽','🪣','🧺'],hint:'One cleaning item is different.'},
+    {items:['🛏️','🪥','🧴','🧣','⏰','📖','👓','🪥'],replacements:['🛋️','🧴','🧼','🧤','📅','📰','🧢','🪮'],hint:'Check the familiar bedroom and morning items carefully.'},
+    {items:['🍽️','🥣','🥛','🥄','☕','🍚','🧂','🥣'],replacements:['🥘','🍲','🫗','🍴','🫖','🌾','🌶️','🍛'],hint:'The changed item is in the dining or cooking group.'}
   ];
 
   function install(){
@@ -26,8 +26,10 @@
       const base=rounds[c.diffRound-1];
       const level=Math.min(3,Math.max(1,Number(state.level)||1));
       const count=Math.min(base.items.length,6+level-1);
-      const items=base.items.slice(0,count),changes=base.changes.slice(0,count);
-      let changeIndex=Math.floor(Math.random()*items.length);
+      const items=base.items.slice(0,count),replacements=base.replacements.slice(0,count);
+      const changeIndex=Math.floor(Math.random()*items.length);
+      const changes=[...items];
+      changes[changeIndex]=replacements[changeIndex];
       c.diffItems=items;c.diffChanges=changes;c.diffExpected=changeIndex;c.diffLocked=true;c.diffStage='memorize';
       $('#gamePrompt').textContent=`Memorize ${items.length} familiar items. Look carefully…`;
       $('#gameArea').innerHTML=`<div class="difference-stage difference-transition">
