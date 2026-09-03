@@ -1,195 +1,32 @@
-const state = {
-  soundOn: true,
-  listening: false,
-  mood: "happy",
-};
-
-const stage = document.querySelector("#stage");
-const speechText = document.querySelector("#speechText");
-const thought = document.querySelector("#thought");
-const statusPill = document.querySelector("#statusPill");
-const statusText = document.querySelector("#statusText");
-const moodText = document.querySelector("#moodText");
-const chatInput = document.querySelector("#chatInput");
-const sendButton = document.querySelector("#sendButton");
-const soundToggle = document.querySelector("#soundToggle");
-const voiceHint = document.querySelector("#voiceHint");
-
-const replies = {
-  hello: [
-    "Hello! I was wondering when you would come back. 😸",
-    "Hi! Ready for a little fun? I promise there will be no boring lectures.",
-  ],
-  activity: [
-    "Game time! I am warming up my tiny paws. 🎮",
-    "Okay, let's play. You do the thinking, I will do the cheering!",
-  ],
-  reminder: [
-    "Reminders are important. In the full app, I can help you check today's medicine, water, appointments and tasks.",
-  ],
-  progress: [
-    "I can show your recent activity and how you are doing over time. In the full app, your caregiver can see the appropriate detailed report too.",
-  ],
-  thanks: [
-    "You're welcome! See? We make a pretty good team. 😸",
-  ],
-  default: [
-    "Hmm… I heard you. In the real AI version, I will understand much more and keep the conversation going.",
-    "Interesting! My ears are listening. The next version will connect me to the real AI brain.",
-    "Okay, I am thinking… and yes, I still look adorable while doing it. 😼",
-  ],
-};
-
-function pick(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function setMood(mood, label = mood) {
-  state.mood = mood;
-  stage.className = `stage mood-${mood}`;
-  moodText.textContent = `Mood: ${label}`;
-}
-
-function setStatus(text, busy = false) {
-  statusText.textContent = text;
-  statusPill.classList.toggle("busy", busy);
-}
-
-function speak(text) {
-  if (!state.soundOn || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.94;
-  utterance.pitch = 1.05;
-  utterance.volume = 1;
-  utterance.onstart = () => setStatus("Momo is talking", true);
-  utterance.onend = () => setStatus("Ready to talk", false);
-  window.speechSynthesis.speak(utterance);
-}
-
-function say(text, mood = "happy", label = mood) {
-  speechText.textContent = text;
-  thought.textContent = mood === "thinking" ? "Let me think…" : mood === "excited" ? "Ooooh!" : "I’m listening…";
-  setMood(mood, label);
-  speak(text);
-}
-
-function respond(raw) {
-  const text = raw.trim();
-  if (!text) return;
-  const lower = text.toLowerCase();
-  setStatus("Momo is thinking", true);
-  setMood("thinking", "thinking");
-
-  window.setTimeout(() => {
-    if (/\b(hi|hello|hey|good morning|good evening)\b/.test(lower)) {
-      say(pick(replies.hello), "happy", "happy");
-    } else if (/\b(play|game|activity|let's play)\b/.test(lower)) {
-      say(pick(replies.activity), "excited", "excited");
-    } else if (/\b(remind|reminder|medicine|water|appointment|task)\b/.test(lower)) {
-      say(pick(replies.reminder), "encourage", "helpful");
-    } else if (/\b(progress|score|result|performance)\b/.test(lower)) {
-      say(pick(replies.progress), "happy", "happy");
-    } else if (/\b(thank|thanks)\b/.test(lower)) {
-      say(pick(replies.thanks), "excited", "playful");
-    } else {
-      say(pick(replies.default), "happy", "curious");
-    }
-    setStatus("Ready to talk", false);
-  }, 520);
-}
-
-function startListening() {
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Recognition) {
-    say("Your browser does not provide speech recognition here. You can still type to me, and voice output will work if your browser supports it.", "encourage", "helpful");
-    return;
-  }
-
-  if (state.listening) return;
-  const recognition = new Recognition();
-  recognition.lang = document.documentElement.lang || "en-IN";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-  state.listening = true;
-  voiceHint.hidden = false;
-  setStatus("Listening…", true);
-  setMood("happy", "listening");
-
-  recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    chatInput.value = transcript;
-    respond(transcript);
-  };
-  recognition.onerror = () => {
-    say("I could not catch that. Try again, or type to me. 😸", "encourage", "encouraging");
-  };
-  recognition.onend = () => {
-    state.listening = false;
-    voiceHint.hidden = true;
-    if (!speechText.textContent) setStatus("Ready to talk", false);
-  };
-  recognition.start();
-}
-
-sendButton.addEventListener("click", () => {
-  respond(chatInput.value);
-  chatInput.value = "";
-});
-
-chatInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    sendButton.click();
-  }
-});
-
-soundToggle.addEventListener("click", () => {
-  state.soundOn = !state.soundOn;
-  soundToggle.textContent = state.soundOn ? "🔊" : "🔇";
-  soundToggle.setAttribute("aria-pressed", String(state.soundOn));
-  if (!state.soundOn && "speechSynthesis" in window) window.speechSynthesis.cancel();
-  setStatus(state.soundOn ? "Voice on" : "Voice muted", false);
-});
-
-document.querySelectorAll("[data-action]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const action = button.dataset.action;
-    if (action === "talk") startListening();
-    if (action === "activity") say(pick(replies.activity), "excited", "excited");
-    if (action === "reminder") say(pick(replies.reminder), "encourage", "helpful");
-    if (action === "progress") say(pick(replies.progress), "happy", "happy");
-  });
-});
-
-document.querySelectorAll("[data-mood]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const mood = button.dataset.mood;
-    const lines = {
-      happy: "Yay! I am feeling cheerful today! 😸",
-      excited: "Ooooh! Something fun is happening!",
-      thinking: "Hmm… give me a moment. My little brain wheels are turning.",
-      encourage: "That is okay. We can take it one step at a time. I am right here with you.",
-      surprised: "WHOA! I did not see that coming! 😮",
-      sleepy: "Mmm… I could use a tiny cat nap. But I am still listening.",
-    };
-    say(lines[mood], mood, mood);
-  });
-});
-
-// Tiny game-event hook for the future deterministic game engine.
-window.CognitiveCareCompanion = {
-  onGameEvent(event) {
-    if (!event) return;
-    if (event.type === "correct") say("Yes! You got it! That was a good memory. 😸", "excited", "celebrating");
-    if (event.type === "incorrect") say("Not quite — and that is completely okay. Let's keep going together.", "encourage", "encouraging");
-    if (event.type === "complete") say("We did it! Nice work finishing the activity.", "excited", "celebrating");
-  },
-};
-
-// Initial idle behavior: the character feels alive without becoming distracting.
-window.setInterval(() => {
-  if (state.listening || statusText.textContent.includes("thinking") || statusText.textContent.includes("talking")) return;
-  const lines = ["I’m ready when you are.", "Psst… want to play?", "My paws are warmed up!", "What shall we do next?"];
-  thought.textContent = pick(lines);
-}, 5200);
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const state={soundOn:true,listening:false,view:'home',games:[],index:0,results:[],current:null,level:1,history:JSON.parse(localStorage.getItem('ccner-history')||'[]')};
+const catalog={memory:{name:'Familiar Object Memory',category:'MEMORY',intro:'Look carefully. I will hide the objects, then ask what you remember.',objects:['☕','🍌','🥄','📖','💊','💧','🧴','🍚']},find:{name:'Find the Object',category:'ATTENTION',intro:'Find the object I ask for. Take your time and look carefully.',objects:['☕','🍌','🥄','📖','💊','💧','🧴','🍚','🧢','☂️']},sequence:{name:'Sequence Recall',category:'MEMORY + DAILY ROUTINE',intro:'Watch the order, then tap the steps in the same order.',objects:['🌅','🪥','🍽️','💊','💧','📖','🚶']},pattern:{name:'Pattern Completion',category:'PATTERN RECOGNITION',intro:'What comes next? Spot the repeating pattern.',objects:['🍎','🥭','☕','🍌']},local:{name:'Local Object Memory',category:'MEMORY + FAMILIAR OBJECTS',intro:'Remember familiar everyday items. This is training, not diagnosis.',objects:['🍚','☕','🥥','🧺','🪣','🌂','🥄','📖']}};
+const stage=$('#stage'),speechText=$('#speechText'),thought=$('#thought'),statusPill=$('#statusPill'),statusText=$('#statusText'),moodText=$('#moodText'),chatInput=$('#chatInput'),voiceHint=$('#voiceHint');
+function pick(a){return a[Math.floor(Math.random()*a.length)]}function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function setMood(m,label=m){stage.className=`stage mood-${m}`;moodText.textContent=`Mood: ${label}`}function setStatus(t,b=false){statusText.textContent=t;statusPill.classList.toggle('busy',b)}
+function speak(t){if(!state.soundOn||!('speechSynthesis'in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.94;u.pitch=1.06;u.onstart=()=>setStatus('Momo is talking',true);u.onend=()=>setStatus('Ready to play');window.speechSynthesis.speak(u)}
+function say(t,m='happy',label=m){speechText.textContent=t;thought.textContent=m==='thinking'?'Let me think…':m==='excited'?'Ooooh!':m==='encourage'?'One step at a time.':'I’m listening…';setMood(m,label);speak(t)}
+function showView(id){$$('.view').forEach(v=>v.hidden=true);$(id).hidden=false;state.view=id.slice(1)}
+function respond(raw){const l=raw.trim().toLowerCase();if(!l)return;setStatus('Momo is thinking',true);setMood('thinking','thinking');setTimeout(()=>{if(/\b(hi|hello|hey)\b/.test(l))say(pick(['Hello! I was wondering when you would come back. 😸','Hi! Ready for a little fun?']));else if(/play|game|activity/.test(l))say('Game time! I am warming up my tiny paws. 🎮','excited','excited');else if(/remind|medicine|water|appointment|task/.test(l))say('Reminders can cover medicine, hydration, appointments and daily activities in the full app.','encourage','helpful');else if(/progress|score|result|performance/.test(l))showResultsFromHistory();else if(/thank/.test(l))say('You’re welcome! We make a pretty good team. 😸','excited','playful');else say('My ears are listening! This demo uses a local companion brain; the same character interface can later connect to an LLM.','happy','curious')},420)}
+function startListening(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){say('Speech input is not available in this browser. You can still type to me.','encourage','helpful');return}if(state.listening)return;const r=new R();r.lang='en-IN';r.interimResults=false;r.maxAlternatives=1;state.listening=true;voiceHint.hidden=false;setStatus('Listening…',true);r.onresult=e=>{respond(e.results[0][0].transcript)};r.onerror=()=>say('I could not catch that. Try again, or type to me. 😸','encourage','encouraging');r.onend=()=>{state.listening=false;voiceHint.hidden=true};r.start()}
+$('#sendButton').onclick=()=>{respond(chatInput.value);chatInput.value=''};chatInput.onkeydown=e=>{if(e.key==='Enter')$('#sendButton').click()};$('#soundToggle').onclick=()=>{state.soundOn=!state.soundOn;$('#soundToggle').textContent=state.soundOn?'🔊':'🔇';if(!state.soundOn&&'speechSynthesis'in window)window.speechSynthesis.cancel()};
+$$('[data-action]').forEach(b=>b.onclick=()=>{const a=b.dataset.action;if(a==='start')startSession();if(a==='talk')startListening();if(a==='reminder')openOverlay('Reminders',`<div class="reminder"><span>💊 Medicine</span><strong>Check today’s reminder</strong></div><div class="reminder"><span>💧 Hydration</span><strong>Drink some water</strong></div><div class="reminder"><span>📅 Appointment</span><strong>No demo appointment set</strong></div><p>This demo does not send real alerts yet.</p>`);if(a==='progress')showResultsFromHistory()});
+$('#homeButton').onclick=()=>showView('#homeView');$('#backHome').onclick=()=>showView('#homeView');$('#playAgain').onclick=startSession;$('#closeOverlay').onclick=()=>$('#overlayPanel').hidden=true;
+function openOverlay(title,body){$('#overlayContent').innerHTML=`<p class="eyebrow">MOMO</p><h3>${title}</h3>${body}`;$('#overlayPanel').hidden=false}
+function adaptiveLevel(){if(!state.history.length)return 1;const a=state.history.at(-1).accuracy,l=state.history.at(-1).level||1;return a>=.85?Math.min(3,l+1):a<.6?Math.max(1,l-1):l}
+function startSession(){state.level=adaptiveLevel();state.games=shuffle(Object.keys(catalog));state.index=0;state.results=[];$('#todayStatus').textContent='In progress';showView('#gameView');say('Let’s go! Five tiny challenges, one at a time. I’ll gently adjust the next session. 😸','excited','excited');setTimeout(loadGame,600)}
+function loadGame(){const key=state.games[state.index],g=catalog[key];state.current={key,started:performance.now(),answered:false,score:0,correct:0,seconds:0};$('#gameCategory').textContent=g.category;$('#gameTitle').textContent=g.name;$('#gameCounter').textContent=`Game ${state.index+1} of 5`;$('#progressBar').style.width=`${state.index*20}%`;$('#gameFeedback').textContent='';$('#gameArea').innerHTML='';$('#gamePrimary').textContent='Start game';$('#gamePrimary').disabled=false;$('#gamePrimary').onclick=()=>runGame(key);$('#gameSkip').onclick=()=>finishGame(false,true);$('#gameMomoText').textContent=state.level===3?'A little extra challenge today!':'No rush. I’ll be your cheerleader.';say(g.intro,'happy','ready')}
+function runGame(key){const fn={memory:gameMemory,find:gameFind,sequence:gameSequence,pattern:gamePattern,local:gameLocal}[key];$('#gamePrimary').disabled=true;fn()}
+function finishGame(correct,skipped=false){if(state.current.answered)return;state.current.answered=true;state.current.correct=correct?1:0;state.current.score=correct?100:0;state.current.seconds=(performance.now()-state.current.started)/1000;state.results.push({...state.current,name:catalog[state.current.key].name,skipped});window.CognitiveCareCompanion.onGameEvent({type:correct?'correct':'incorrect'});setTimeout(()=>state.index<4?(state.index++,loadGame()):finishSession(),650)}
+function renderChoices(items,onPick){const area=$('#gameArea');area.innerHTML='<div class="answer-grid">'+items.map((x,i)=>`<button class="answer-tile" data-i="${i}" type="button">${x}</button>`).join('')+'</div>';$$('.answer-tile').forEach(b=>b.onclick=()=>onPick(items[+b.dataset.i]))}
+function gameMemory(){const n=state.level+2,items=shuffle(catalog.memory.objects).slice(0,n),seconds=Math.max(3.2,6-state.level);$('#gamePrompt').textContent=`Remember ${n} objects for ${seconds.toFixed(1)} seconds.`;$('#gameArea').innerHTML='<div class="memory-show">'+items.map(x=>`<div class="object-tile">${x}</div>`).join('')+'</div>';say('Eyes here… remember these little things!','thinking','watching');setTimeout(()=>{if(state.current.answered)return;const target=pick(items),d=shuffle(catalog.memory.objects.filter(x=>!items.includes(x))).slice(0,Math.min(3,items.length));$('#gamePrompt').textContent='Which object was shown?';renderChoices(shuffle([target,...d]),x=>finishGame(x===target))},seconds*1000)}
+function gameFind(){const items=shuffle(catalog.find.objects).slice(0,state.level+4),target=pick(items);$('#gamePrompt').textContent=`Find the ${target} and tap it.`;renderChoices(items,x=>finishGame(x===target));say(`Can you find ${target}? Detective eyes! 👀`,'happy','playful')}
+function gameSequence(){const seq=shuffle(catalog.sequence.objects).slice(0,state.level+2);$('#gamePrompt').textContent='Watch the sequence…';$('#gameArea').innerHTML='<div class="sequence-grid">'+seq.map((x,i)=>`<div class="sequence-tile" data-i="${i}">${x}</div>`).join('')+'</div>';const tiles=$$('.sequence-tile');let i=0;function flash(){tiles.forEach(t=>t.classList.remove('active'));if(i<seq.length){tiles[i++].classList.add('active');setTimeout(flash,700)}else setTimeout(()=>{tiles.forEach(t=>{t.textContent='?';t.classList.remove('active')});$('#gamePrompt').textContent='Tap the sequence in the same order.';let p=0;tiles.forEach(t=>t.onclick=()=>{const idx=+t.dataset.i;if(idx===seq[p]){t.textContent=seq[p++];if(p===seq.length)finishGame(true)}else finishGame(false)})},500)}flash();say('Watch closely… I’ll hide the order soon!','thinking','focused')}
+function gamePattern(){const [a,b]=pick([['🍎','🥭'],['☕','💧'],['🍚','🥥'],['🥄','🍌']]);const seq=state.level===1?[a,b,a,b]:state.level===2?[a,b,a,b,a]:[a,b,a,b,a,b];$('#gamePrompt').textContent='What comes next?';$('#gameArea').innerHTML=`<div class="pattern">${seq.map(x=>`<span>${x}</span>`).join('')}<span class="pattern-question">?</span></div>`;const wrong=pick(catalog.pattern.objects.filter(x=>x!==a&&x!==b));renderChoices(shuffle([a,b,wrong]),x=>finishGame(x===a));say('Hmm… I can see a rhythm. What comes next?','thinking','thinking')}
+function gameLocal(){const n=state.level+2,items=shuffle(catalog.local.objects).slice(0,n),seconds=Math.max(3,5.5-state.level*.6);$('#gamePrompt').textContent=`Remember these familiar everyday items for ${seconds.toFixed(1)} seconds.`;$('#gameArea').innerHTML='<div class="memory-show">'+items.map(x=>`<div class="object-tile">${x}</div>`).join('')+'</div>';say('Familiar everyday things. Ready?','happy','friendly');setTimeout(()=>{const target=pick(items),choices=shuffle([target,...shuffle(catalog.local.objects.filter(x=>!items.includes(x))).slice(0,3)]);$('#gamePrompt').textContent='Which one did you see?';renderChoices(choices,x=>finishGame(x===target))},seconds*1000)}
+function finishSession(){window.CognitiveCareCompanion.onGameEvent({type:'complete'});const correct=state.results.reduce((s,r)=>s+r.correct,0),avg=state.results.reduce((s,r)=>s+r.seconds,0)/5,session={date:new Date().toISOString(),score:correct*20,accuracy:correct/5,avgTime:avg,level:state.level,results:state.results};state.history.push(session);state.history=state.history.slice(-8);localStorage.setItem('ccner-history',JSON.stringify(state.history));renderResults(session);showView('#resultsView');$('#todayStatus').textContent='Complete'}
+function renderResults(s){$('#overallScore').textContent=`${s.score}%`;$('#overallAccuracy').textContent=`${Math.round(s.accuracy*100)}%`;$('#gamesCompleted').textContent=`${s.results.length} / 5`;$('#avgTime').textContent=`${s.avgTime.toFixed(1)}s`;const prev=state.history.length>1?state.history[state.history.length-2]:null;$('#trendBadge').textContent=prev?(s.score>prev.score?'↑ Improving':s.score<prev.score?'↓ Lower today':'→ Similar'):'First session';$('#resultRows').innerHTML=s.results.map(r=>`<div class="result-row"><div><div class="result-name">${r.name}</div><div class="result-detail">${r.correct?'Correct':'Not correct'} · ${r.seconds.toFixed(1)}s${r.skipped?' · skipped':''}</div></div><span class="result-detail">Training score</span><span class="score-pill">${r.score}%</span></div>`).join('');$('#resultHeading').textContent=s.score>=80?'Fantastic work!':s.score>=60?'Nice work!':'Good effort!';$('#resultMessage').textContent=s.score>=80?'Your paws… I mean brain… were on fire today!':s.score>=60?'A steady session. We can keep practicing together.':'Every session is practice. We can make the next one gentler and try again.'}
+function showResultsFromHistory(){if(!state.history.length){openOverlay('Progress','<p>No completed session yet. Start today’s activity and I’ll keep a simple local history of training performance.</p>');return}renderResults(state.history.at(-1));showView('#resultsView')}
+window.CognitiveCareCompanion={onGameEvent:e=>{if(e?.type==='correct')say('Yes! You got it! Nice one! 😸','excited','celebrating');if(e?.type==='incorrect')say('Not quite — and that is completely okay. Let’s keep going together.','encourage','encouraging');if(e?.type==='complete')say('We did it! Nice work finishing the activity.','excited','celebrating')}};
+setInterval(()=>{if(state.view!=='home'||state.listening||statusText.textContent.includes('thinking')||statusText.textContent.includes('talking'))return;thought.textContent=pick(['I’m ready when you are.','Psst… want to play?','My paws are warmed up!','What shall we do next?'])},5200);
+$('#todayStatus').textContent=state.history.length?'Last session complete':'Not started';
