@@ -27,7 +27,8 @@
       const level=Math.min(3,Math.max(1,Number(state.level)||1));
       const count=Math.min(base.items.length,6+level-1);
       const items=base.items.slice(0,count),replacements=base.replacements.slice(0,count);
-      const changeIndex=Math.floor(Math.random()*items.length);
+      const eligible=items.map((item,i)=>replacements[i]!==item?i:-1).filter(i=>i>=0);
+      const changeIndex=eligible[Math.floor(Math.random()*eligible.length)];
       const changes=[...items];
       changes[changeIndex]=replacements[changeIndex];
       c.diffItems=items;c.diffChanges=changes;c.diffExpected=changeIndex;c.diffLocked=true;c.diffStage='memorize';
