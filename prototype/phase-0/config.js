@@ -6,9 +6,9 @@ window.CCNER_CONFIG = {
 };
 window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
 (function(){
-  const v='0.8.0';
+  const v='0.9.1';
   const addCss=(name)=>{const el=document.createElement('link');el.rel='stylesheet';el.href='./'+name+'?v='+v;document.head.appendChild(el)};
-  const addScript=(name)=>{const el=document.createElement('script');el.src='./'+name+'?v='+v;el.defer=true;document.head.appendChild(el)};
-  addCss('phase2.css'); addCss('phase3.css'); addCss('phase4.css');
-  addScript('phase2.js'); addScript('phase3.js'); addScript('phase4.js');
+  const addScript=(name)=>{const el=document.createElement('script');el.src='./'+name+'?v='+v;document.head.appendChild(el)};
+  addCss('phase2.css'); addCss('phase3.css'); addCss('phase4.css'); addCss('multilingual.css'); addCss('sequence-game.css');
+  addScript('phase2.js'); addScript('phase3.js'); addScript('phase4.js'); addScript('sequence-game.js');
 })();
