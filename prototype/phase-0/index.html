@@ -4,99 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f7efe5" />
-  <title>Cognitive Care NER — Companion Prototype</title>
+  <meta name="description" content="Cognitive Care NER — interactive cognitive training demo with Momo companion." />
+  <title>Cognitive Care NER — Demo Unit</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="app-shell" aria-label="Cognitive Care NER companion prototype">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">COGNITIVE CARE NER · PHASE 0</p>
-        <h1>Meet Momo</h1>
-        <p class="subtitle">A playful AI companion prototype for older adults.</p>
-      </div>
-      <button id="soundToggle" class="icon-button" type="button" aria-pressed="true" title="Toggle companion voice">🔊</button>
-    </header>
+<main class="app-shell">
+  <header class="topbar">
+    <div><p class="eyebrow">COGNITIVE CARE NER · DEMO UNIT v0.1</p><h1 id="pageTitle">Meet Momo</h1><p class="subtitle" id="pageSubtitle">Your playful companion for today's brain workout.</p></div>
+    <div class="top-actions"><button id="soundToggle" class="icon-button" type="button" aria-pressed="true" title="Toggle voice">🔊</button><button id="homeButton" class="icon-button" type="button" title="Home">⌂</button></div>
+  </header>
 
-    <section class="companion-card" aria-label="Interactive companion">
-      <div class="status-row">
-        <span id="statusPill" class="status-pill"><span class="status-dot"></span><span id="statusText">Ready to talk</span></span>
-        <span id="moodText" class="mood-text">Mood: happy</span>
-      </div>
-
+  <section id="homeView" class="view">
+    <section class="companion-card">
+      <div class="status-row"><span id="statusPill" class="status-pill"><span class="status-dot"></span><span id="statusText">Ready to play</span></span><span id="moodText" class="mood-text">Mood: happy</span></div>
       <div id="stage" class="stage mood-happy" aria-live="polite">
-        <div class="spark spark-1">✦</div>
-        <div class="spark spark-2">✦</div>
-        <div class="spark spark-3">•</div>
-        <div class="thought" id="thought">Hmm… what shall we do?</div>
-
-        <div class="cat" id="cat" role="img" aria-label="Animated friendly cat companion">
-          <div class="tail"><span></span></div>
-          <div class="body"><span class="belly"></span></div>
-          <div class="paw paw-left"></div>
-          <div class="paw paw-right"></div>
-          <div class="head">
-            <div class="ear ear-left"><span></span></div>
-            <div class="ear ear-right"><span></span></div>
-            <div class="face">
-              <div class="brow brow-left"></div>
-              <div class="brow brow-right"></div>
-              <div class="eye eye-left"><span class="pupil"></span></div>
-              <div class="eye eye-right"><span class="pupil"></span></div>
-              <div class="nose"></div>
-              <div class="mouth"><span class="mouth-inner"></span></div>
-              <div class="whisker w1"></div><div class="whisker w2"></div>
-              <div class="whisker w3"></div><div class="whisker w4"></div>
-            </div>
-          </div>
-        </div>
+        <div class="spark spark-1">✦</div><div class="spark spark-2">✦</div><div class="spark spark-3">•</div><div class="thought" id="thought">I have a tiny plan… and it's fun.</div>
+        <div class="cat" role="img" aria-label="Animated friendly cat companion"><div class="tail"></div><div class="body"><span class="belly"></span></div><div class="paw paw-left"></div><div class="paw paw-right"></div><div class="head"><div class="ear ear-left"><span></span></div><div class="ear ear-right"><span></span></div><div class="face"><div class="brow brow-left"></div><div class="brow brow-right"></div><div class="eye eye-left"><span class="pupil"></span></div><div class="eye eye-right"><span class="pupil"></span></div><div class="nose"></div><div class="mouth"><span class="mouth-inner"></span></div><div class="whisker w1"></div><div class="whisker w2"></div><div class="whisker w3"></div><div class="whisker w4"></div></div></div></div>
       </div>
-
-      <div class="speech" id="speech" aria-live="polite">
-        <span class="speech-name">Momo</span>
-        <p id="speechText">Hello! I’m Momo. Tap something, or talk to me. I promise not to be boring. 😸</p>
-      </div>
-
-      <div class="quick-actions" aria-label="Companion actions">
-        <button class="action-button primary" data-action="talk" type="button">🎙️ Talk to Momo</button>
-        <button class="action-button" data-action="activity" type="button">🎮 Let's play</button>
-        <button class="action-button" data-action="reminder" type="button">⏰ Reminders</button>
-        <button class="action-button" data-action="progress" type="button">📈 My progress</button>
-      </div>
-
-      <div class="chat-row">
-        <input id="chatInput" type="text" autocomplete="off" placeholder="Say something to Momo…" aria-label="Message Momo" />
-        <button id="sendButton" class="send-button" type="button">Send</button>
-      </div>
-
-      <div id="voiceHint" class="voice-hint" hidden>Listening… speak naturally. Tap the microphone button again when finished.</div>
+      <div class="speech"><span class="speech-name">Momo</span><p id="speechText">Hello! I'm Momo. Shall we play a few little games together? 😸</p></div>
+      <div class="quick-actions"><button class="action-button primary" data-action="start" type="button">🎮 Start today's session</button><button class="action-button" data-action="talk" type="button">🎙️ Talk</button><button class="action-button" data-action="reminder" type="button">⏰ Reminders</button><button class="action-button" data-action="progress" type="button">📈 Progress</button></div>
+      <div class="chat-row"><input id="chatInput" type="text" autocomplete="off" placeholder="Talk to Momo…" aria-label="Message Momo" /><button id="sendButton" class="send-button" type="button">Send</button></div><div id="voiceHint" class="voice-hint" hidden>Listening… speak naturally.</div>
     </section>
+    <section class="info-grid"><article><span>Today's activity</span><strong id="todayStatus">Not started</strong></article><article><span>Games</span><strong>5 · mixed order</strong></article><article><span>Focus</span><strong>Memory · Attention · Patterns</strong></article></section>
+  </section>
 
-    <section class="test-panel" aria-label="Prototype controls">
-      <div>
-        <p class="eyebrow">LIVE TEST</p>
-        <h2>Try the character</h2>
-        <p>These controls are deliberately simple. The production version will replace the demo conversation with the real AI/voice backend while keeping the same character interface.</p>
-      </div>
-      <div class="test-buttons">
-        <button type="button" data-mood="happy">😊 Happy</button>
-        <button type="button" data-mood="excited">🤩 Excited</button>
-        <button type="button" data-mood="thinking">🤔 Thinking</button>
-        <button type="button" data-mood="encourage">💛 Encourage</button>
-        <button type="button" data-mood="surprised">😮 Surprise</button>
-        <button type="button" data-mood="sleepy">😴 Sleepy</button>
-      </div>
-      <div class="capabilities">
-        <span>✓ Voice output</span>
-        <span>✓ Optional speech input</span>
-        <span>✓ Animated expressions</span>
-        <span>✓ Contextual reactions</span>
-        <span>✓ Game-event hooks</span>
-      </div>
-    </section>
+  <section id="gameView" class="view" hidden>
+    <div class="game-top"><div><p class="eyebrow" id="gameCategory">MEMORY</p><h2 id="gameTitle">Familiar Object Memory</h2></div><div class="progress-box"><span id="gameCounter">Game 1 of 5</span><div class="progress-track"><i id="progressBar"></i></div></div></div>
+    <div class="game-card"><div id="gamePrompt" class="game-prompt">Remember these objects.</div><div id="gameArea" class="game-area"></div><div id="gameFeedback" class="game-feedback" aria-live="polite"></div><div class="game-actions"><button id="gamePrimary" class="action-button primary" type="button">Start game</button><button id="gameSkip" class="action-button" type="button">Skip</button></div></div>
+    <div class="mini-companion"><div class="mini-momo">😸</div><div><strong id="gameMomoTitle">Momo</strong><p id="gameMomoText">I'll stay with you. No rush.</p></div></div>
+  </section>
 
-    <footer>Prototype only — no medical assessment or diagnosis is performed.</footer>
-  </main>
-  <script src="./app.js"></script>
+  <section id="resultsView" class="view" hidden>
+    <section class="result-hero"><div class="result-cat">😸</div><p class="eyebrow">SESSION COMPLETE</p><h2 id="resultHeading">You did it!</h2><p id="resultMessage">That was a lovely little workout.</p></section>
+    <div class="result-grid"><article><span>Overall score</span><strong id="overallScore">0%</strong></article><article><span>Accuracy</span><strong id="overallAccuracy">0%</strong></article><article><span>Games completed</span><strong id="gamesCompleted">0 / 5</strong></article><article><span>Average response</span><strong id="avgTime">0.0s</strong></article></div>
+    <section class="results-card"><div class="section-heading"><div><p class="eyebrow">TRAINING PERFORMANCE</p><h3>Today's games</h3></div><span id="trendBadge" class="trend-badge">First session</span></div><div id="resultRows"></div><p class="disclaimer">These results describe game performance and training progress. They are not a dementia diagnosis or a clinical assessment.</p></section>
+    <div class="quick-actions"><button id="playAgain" class="action-button primary" type="button">🔁 Play again</button><button id="backHome" class="action-button" type="button">⌂ Home</button></div>
+  </section>
+
+  <section id="overlayPanel" class="overlay-panel" hidden><div class="overlay-inner"><button id="closeOverlay" class="close-button" type="button" aria-label="Close">×</button><div id="overlayContent"></div></div></section>
+  <footer>Demo software only · no diagnosis · designed for accessible cognitive training.</footer>
+</main>
+<script src="./app.js"></script>
 </body>
 </html>
