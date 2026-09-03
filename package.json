@@ -1,6 +1,6 @@
 {
   "name": "cognitive-care-ner",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Cognitive Care NER mobile app for elderly-friendly cognitive training.",
   "scripts": {
@@ -11,6 +11,7 @@
     "build:android": "npx cap sync android && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
+    "@capacitor-community/speech-recognition": "7.0.1",
     "@capacitor/android": "^7.4.3",
     "@capacitor/core": "^7.4.3"
   },
