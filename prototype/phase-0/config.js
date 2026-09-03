@@ -6,7 +6,7 @@ window.CCNER_CONFIG = {
 };
 window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
 (function(){
-  const v='0.9.5';
+  const v='0.9.6';
   const addCss=(name)=>{const el=document.createElement('link');el.rel='stylesheet';el.href='./'+name+'?v='+v;document.head.appendChild(el)};
   const addScript=(name)=>{const el=document.createElement('script');el.src='./'+name+'?v='+v;document.body.appendChild(el)};
   addCss('phase2.css'); addCss('phase3.css'); addCss('phase4.css'); addCss('multilingual.css'); addCss('sequence-game.css'); addCss('sorting-game.css'); addCss('category-game.css'); addCss('pattern-game.css'); addCss('spot-difference-game.css');
