@@ -24,6 +24,7 @@ jobs:
           test -f prototype/phase-0/notification-bridge.js
           test -f prototype/phase-0/security-center.js
           test -f prototype/phase-0/usability-validation.js
+          test -f prototype/phase-0/level2-auth.js
           grep -q "@capacitor/local-notifications" package.json
           grep -q "Content-Security-Policy" server.js
       - name: Deployment configuration consistency
@@ -32,25 +33,32 @@ jobs:
           test -f Dockerfile
           test -f zopday.yaml
           test -f docker-compose.yml
-          grep -q '"version": "0.17.1"' package.json
+          grep -q '"version": "0.18.4"' package.json
           grep -q '^ENV PORT=80$' Dockerfile
-          grep -q '^ENV BUILD_VERSION=0.17.1$' Dockerfile
-          grep -q "BUILD_VERSION.*0.17.1" server.js
-          grep -q 'styles.css?v=0.17.1' prototype/phase-0/index.html
-          grep -q 'core-boot.js?v=0.18.0' prototype/phase-0/index.html
-          grep -q 'phase8-video-override.js' prototype/phase-0/core-boot.js
-          grep -q 'v=0.18.0' prototype/phase-0/core-boot.js
+          grep -q '^ENV BUILD_VERSION=0.18.4$' Dockerfile
+          grep -q "BUILD_VERSION.*0.18.4" server.js
+          grep -q 'styles.css?v=0.18.4' prototype/phase-0/index.html
+          grep -q 'core-boot.js?v=0.18.4' prototype/phase-0/index.html
+          grep -q 'level2-auth.js?v=0.18.4' prototype/phase-0/core-boot.js
+          grep -q 'security-center.js?v=0.18.4' prototype/phase-0/core-boot.js
+          ! grep -q 'phase8-video-override.js' prototype/phase-0/core-boot.js
+          ! grep -q 'phase8-compat.js' prototype/phase-0/core-boot.js
           grep -q 'dockerfile: Dockerfile' zopday.yaml
           grep -q '"80:80"' zopday.yaml
           grep -q '"8080:80"' docker-compose.yml
       - name: Video game session checks
         run: |
           set -e
-          grep -q "shuffle(\['sequence','sorting','pattern','belong'\])" prototype/phase-0/phase8-video-override.js
-          grep -q "state.index<3" prototype/phase-0/phase8-video-override.js
-          grep -q "4 / 4" prototype/phase-0/phase8-video-override.js
-          grep -q "Around the House Sorting" prototype/phase-0/phase8-video-override.js
-          grep -q "Where Do They Belong?" prototype/phase-0/phase8-video-override.js
+          grep -q "Sequence Memory" prototype/phase-0/game-engine-adaptive.js
+          grep -q "Stroop Test" prototype/phase-0/game-engine-adaptive.js
+          grep -q "Around the House Sorting" prototype/phase-0/game-engine-adaptive.js
+          grep -q "Pattern Recognition" prototype/phase-0/game-engine-adaptive.js
+          grep -q "Spot the Difference" prototype/phase-0/game-engine-adaptive.js
+          grep -q "CCNER_VIDEO_GAMES" prototype/phase-0/game-engine-adaptive.js
+          grep -q "startSession" prototype/phase-0/game-engine-adaptive.js
+          grep -q "6" prototype/phase-0/game-engine-adaptive.js
+          grep -q "120" prototype/phase-0/game-engine-adaptive.js
+          grep -q "15" prototype/phase-0/game-engine-adaptive.js
       - name: Static asset reference check
         run: |
           node <<'NODE'
