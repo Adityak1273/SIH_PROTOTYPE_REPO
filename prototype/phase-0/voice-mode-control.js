@@ -115,10 +115,14 @@
   }
 
   function findVoiceRow() {
-    const label = [...document.querySelectorAll('body *')].find(el => el.children.length === 0 && el.textContent.trim() === 'Voice mode');
+    const label = [...document.querySelectorAll('body *')].find(el => {
+      if (el.children.length !== 0) return false;
+      const text = el.textContent.trim();
+      return /(?:🎙️|🎤|🎧|microphone|mic)?\s*Voice mode\b/i.test(text) && text.length < 80;
+    });
     if (!label) return null;
     let node = label.parentElement;
-    for (let i = 0; node && i < 6; i++, node = node.parentElement) {
+    for (let i = 0; node && i < 8; i++, node = node.parentElement) {
       if (node.tagName === 'BUTTON') return node.parentElement;
       const hasValue = [...node.querySelectorAll('*')].some(el => el.children.length === 0 && ['Continuous','Manual'].includes(el.textContent.trim()));
       if (hasValue) return node;
@@ -165,7 +169,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
   else boot();
 
-  // Do not use MutationObserver here: other app modules mutate the dashboard frequently.
+  // Poll instead of using MutationObserver: the dashboard has other mutation-heavy modules.
   setInterval(() => {
     hookMic();
     ensureSettingsControl();
