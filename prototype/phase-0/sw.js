@@ -1,21 +1,21 @@
-const CACHE = 'cognitive-care-ner-v0.9.8';
+const CACHE = 'cognitive-care-ner-v0.9.9';
 const APP_SHELL = [
   './',
   './index.html',
-  './config.js?v=0.9.8',
-  './styles.css?v=0.9.8',
-  './avatar.css?v=0.9.8',
-  './phase1.css?v=0.9.8',
-  './phase2.css?v=0.9.8',
-  './phase3.css?v=0.9.8',
-  './phase4.css?v=0.9.8',
-  './multilingual.css?v=0.9.8',
-  './sequence-game.css?v=0.9.8',
-  './sorting-game.css?v=0.9.8',
-  './category-game.css?v=0.9.8',
-  './pattern-game.css?v=0.9.8',
-  './spot-difference-game.css?v=0.9.8',
-  './game-controls.js?v=0.9.8',
+  './config.js?v=0.9.9',
+  './styles.css?v=0.9.9',
+  './avatar.css?v=0.9.9',
+  './phase1.css?v=0.9.9',
+  './phase2.css?v=0.9.9',
+  './phase3.css?v=0.9.9',
+  './phase4.css?v=0.9.9',
+  './multilingual.css?v=0.9.9',
+  './sequence-game.css?v=0.9.9',
+  './sorting-game.css?v=0.9.9',
+  './category-game.css?v=0.9.9',
+  './pattern-game.css?v=0.9.9',
+  './spot-difference-game.css?v=0.9.9',
+  './game-controls.js?v=0.9.9',
   './manifest.webmanifest'
 ];
 
