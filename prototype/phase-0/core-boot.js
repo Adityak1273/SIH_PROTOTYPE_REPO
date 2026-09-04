@@ -6,6 +6,7 @@ const app=document.querySelector('.app-shell');if(app)app.style.display='none';
 function loadAuth(){if(window.__CCNER_AUTH_LOADED)return;window.__CCNER_AUTH_LOADED=true;const css=document.createElement('link');css.rel='stylesheet';css.href='./level2-auth-v2.css?v=0.18.6';document.head.appendChild(css);const s=document.createElement('script');s.src='./level2-auth-v2.js?v=0.18.6';s.defer=true;document.head.appendChild(s)}
 function loadSecurity(){if(window.__CCNER_SECURITY_LOADED)return;window.__CCNER_SECURITY_LOADED=true;const s=document.createElement('script');s.src='./security-center.js?v=0.18.6';s.defer=true;document.head.appendChild(s)}
 function loadAdmin(){if(window.__CCNER_ADMIN_LOADED)return;window.__CCNER_ADMIN_LOADED=true;const css=document.createElement('link');css.rel='stylesheet';css.href='./admin-access.css?v=0.18.6';document.head.appendChild(css);const s=document.createElement('script');s.src='./admin-access.js?v=0.18.6';s.defer=true;document.head.appendChild(s)}
+function loadAuthRecovery(){if(window.__CCNER_AUTH_RECOVERY_LOADED)return;window.__CCNER_AUTH_RECOVERY_LOADED=true;const s=document.createElement('script');s.src='./auth-recovery.js?v=0.18.6';s.defer=true;document.head.appendChild(s)}
 function show(id){$$('.view').forEach(v=>v.hidden=true);const x=$(id);if(x)x.hidden=false;$$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===id.slice(1)));window.scrollTo?.({top:0,behavior:'smooth'})}
 function start(){const s=$('#todayStatus');const launch=()=>{if(!window.CCNER_ADAPTIVE_GAME_ENGINE_V4||!window.CCNER_VIDEO_GAMES?.startSession)return false;if(window.CCNER_LEVEL4_START_HOOK?.())return true;window.CCNER_VIDEO_GAMES.startSession();return true};if(launch())return;if(s)s.textContent='Loading today\'s five-game training…';let tries=0;const wait=setInterval(()=>{tries++;if(launch()){clearInterval(wait)}else if(tries>=40){clearInterval(wait);if(s)s.textContent='Game engine could not load. Please refresh once.'}},100)}
 function talk(){if(window.CCNERUIUpgrade?.openTalk)return window.CCNERUIUpgrade.openTalk();if(typeof window.armVoice==='function')return window.armVoice();if(typeof window.respond==='function')return window.respond('Hello Momo')}
@@ -22,5 +23,5 @@ function loadAdaptive(){if(window.CCNER_ADAPTIVE_GAME_ENGINE_REQUESTED)return;wi
 function load567(){if(window.CCNER_567_LOADED)return;window.CCNER_567_LOADED=true;load('level567-core.js','level567-core.css')}
 function bootModules(){loadPhase6();loadPhase7();loadPhase8();loadAdaptive();load567()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootModules,{once:true});else bootModules();
-setTimeout(loadAuth,0);setTimeout(loadSecurity,0);setTimeout(loadAdmin,0);
+setTimeout(loadAuth,0);setTimeout(loadSecurity,0);setTimeout(loadAdmin,0);setTimeout(loadAuthRecovery,250);
 })();
