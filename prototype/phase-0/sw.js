@@ -1,20 +1,21 @@
-const CACHE = 'cognitive-care-ner-v0.9.7';
+const CACHE = 'cognitive-care-ner-v0.9.8';
 const APP_SHELL = [
   './',
   './index.html',
-  './config.js?v=0.9.7',
-  './styles.css?v=0.9.7',
-  './avatar.css?v=0.9.7',
-  './phase1.css?v=0.9.7',
-  './phase2.css?v=0.9.7',
-  './phase3.css?v=0.9.7',
-  './phase4.css?v=0.9.7',
-  './multilingual.css?v=0.9.7',
-  './sequence-game.css?v=0.9.7',
-  './sorting-game.css?v=0.9.7',
-  './category-game.css?v=0.9.7',
-  './pattern-game.css?v=0.9.7',
-  './spot-difference-game.css?v=0.9.7',
+  './config.js?v=0.9.8',
+  './styles.css?v=0.9.8',
+  './avatar.css?v=0.9.8',
+  './phase1.css?v=0.9.8',
+  './phase2.css?v=0.9.8',
+  './phase3.css?v=0.9.8',
+  './phase4.css?v=0.9.8',
+  './multilingual.css?v=0.9.8',
+  './sequence-game.css?v=0.9.8',
+  './sorting-game.css?v=0.9.8',
+  './category-game.css?v=0.9.8',
+  './pattern-game.css?v=0.9.8',
+  './spot-difference-game.css?v=0.9.8',
+  './game-controls.js?v=0.9.8',
   './manifest.webmanifest'
 ];
 
@@ -36,8 +37,6 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Always prefer the deployed server for HTML and versioned application assets.
-  // This prevents an older PWA cache from hiding newly deployed game code.
   const isAppAsset = url.pathname.endsWith('.html') ||
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.css') ||
