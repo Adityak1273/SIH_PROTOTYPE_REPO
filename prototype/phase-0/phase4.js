@@ -32,13 +32,16 @@
     if(el) audit(el.dataset.productionAction, el.dataset.detail || '');
   });
 
-  // Load the native reminder bridge and the upgraded home/voice UI after the core app.
-  // Keeping these as separate modules lets the browser build remain usable while the
-  // Capacitor Android build gets true device-local scheduled notifications.
+  // The base HTML intentionally stays small. Phase 4 loads the completed feature
+  // modules here so the same browser/PWA shell and Capacitor Android shell share
+  // one entry point: game upgrades, adaptive AI, focused voice, reminders and UI.
   function loadUpgradeAssets(){
     if(!document.getElementById('ccner-upgrade-css')){const link=document.createElement('link');link.id='ccner-upgrade-css';link.rel='stylesheet';link.href='./ui-upgrade.css?v=0.10.0';document.head.appendChild(link)}
+    const css=['sequence-game.css','sorting-game.css','category-game.css','pattern-game.css','spot-difference-game.css','routine-game.css'];
+    css.forEach((src,i)=>{const id='ccner-css-'+i;if(!document.getElementById(id)){const link=document.createElement('link');link.id=id;link.rel='stylesheet';link.href='./'+src+'?v=0.10.0';document.head.appendChild(link)}});
+    const js=['sequence-game.js','sorting-game.js','category-game.js','pattern-game.js','spot-difference-game.js','routine-game.js','adaptive-engine.js','game-controls.js','dashboard-data-bridge.js','notification-bridge.js','ui-upgrade.js'];
     const load=(id,src)=>new Promise(resolve=>{if(document.getElementById(id)){resolve();return}const s=document.createElement('script');s.id=id;s.src=src+'?v=0.10.0';s.onload=resolve;s.onerror=resolve;document.body.appendChild(s)});
-    load('ccner-notification-bridge','./notification-bridge.js').then(()=>load('ccner-ui-upgrade','./ui-upgrade.js'));
+    let chain=Promise.resolve();js.forEach((src,i)=>{chain=chain.then(()=>load('ccner-module-'+i,'./'+src))});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(loadUpgradeAssets,0));else loadUpgradeAssets();
 })();
