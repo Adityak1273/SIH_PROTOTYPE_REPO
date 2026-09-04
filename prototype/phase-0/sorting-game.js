@@ -1,4 +1,4 @@
-/* Around the House Sorting — original content using the supplied reference only for interaction structure. */
+/* Around the House Sorting — adaptive difficulty + original interaction structure. */
 (function(){
   const rounds=[
     {question:'Where would you normally keep these things?',cats:['Kitchen','Study Table'],items:[['🥄','Steel spoon','Kitchen'],['🫙','Masala jar','Kitchen'],['📓','Notebook','Study Table'],['🖊️','Pen','Study Table'],['☕','Steel tumbler','Kitchen'],['📖','Story book','Study Table']]},
@@ -7,72 +7,23 @@
     {question:'Which room would you look in first?',cats:['Kitchen','Bedroom'],items:[['🍚','Rice container','Kitchen'],['🫖','Tea kettle','Kitchen'],['🧺','Clothes basket','Bedroom'],['🧣','Shawl','Bedroom'],['🍳','Tawa','Kitchen'],['👓','Reading glasses','Bedroom']]},
     {question:'Sort these familiar household things.',cats:['Study Table','Living Room'],items:[['✏️','Pencil','Study Table'],['📒','Exercise book','Study Table'],['🛋️','Sofa cushion','Living Room'],['🕰️','Wall clock','Living Room'],['📐','Ruler','Study Table'],['🪴','Plant pot','Living Room']]}
   ];
-
+  const difficulty=()=>Math.max(1,Math.min(5,Number(window.CCNERAdaptive?.choose?.('local')||state.level||2)));
   function install(){
     if(typeof state==='undefined'||typeof catalog==='undefined'||typeof $==='undefined'||typeof runGame!=='function'||typeof loadGame!=='function')return false;
     catalog.local={name:'Around the House Sorting',category:'DAILY-LIFE RECOGNITION',intro:'Sort familiar household items into the place where they belong.'};
-    const oldRunGame=runGame;
-    window.runGame=function(key){if(key==='local')return window.gameSorting();return oldRunGame(key)};
-    window.gameSorting=function(){
-      const c=state.current;if(!c||c.answered)return;
-      c.sortRound=0;c.sortCorrect=0;c.sortAnswered=0;c.sortConsecutiveMistakes=0;c.sortMaxRound=rounds.length;c.sortRoundResults=[];
-      runSortRound();
-    };
-
+    const oldRunGame=runGame;window.runGame=function(key){if(key==='local')return window.gameSorting();return oldRunGame(key)};
+    window.gameSorting=function(){const c=state.current;if(!c||c.answered)return;c.sortRound=0;c.sortCorrect=0;c.sortAnswered=0;c.sortConsecutiveMistakes=0;c.sortMaxRound=rounds.length;c.sortRoundResults=[];runSortRound()};
     function runSortRound(){
-      const c=state.current;if(!c||c.answered)return;
-      c.sortRound++;
-      if(c.sortRound>c.sortMaxRound){completeSorting();return;}
-      const round=rounds[c.sortRound-1];
-      c.sortSelections={};c.sortLocked=false;
-      const area=$('#gameArea');
-      area.innerHTML=`<div class="sorting-stage sorting-transition">
-        <div class="sorting-meta"><span class="sorting-chip">Round <strong>${c.sortRound} / ${c.sortMaxRound}</strong></span><span class="sorting-chip">Score <strong>${c.sortCorrect}</strong></span><span class="sorting-chip">Mistakes <strong>${c.sortConsecutiveMistakes} / 3</strong></span></div>
-        <div class="sorting-instruction">${round.question}<br><small>Tap one category for every item. You can change an answer before the round is checked.</small></div>
-        <div class="sorting-list">${round.items.map((it,i)=>`<div class="sorting-row" data-row="${i}"><div class="sorting-item"><span class="sorting-icon">${it[0]}</span><span>${it[1]}</span></div><div class="sorting-options">${round.cats.map(cat=>`<button class="sorting-option" type="button" data-row="${i}" data-cat="${cat}">${cat}</button>`).join('')}</div></div>`).join('')}</div>
-        <div class="sorting-feedback" id="sortingFeedback"></div><div class="sorting-next" id="sortingNext">0 of ${round.items.length} sorted</div>
-      </div>`;
-      $('#gamePrompt').textContent=round.question;
-      say('Take your time. Choose where each familiar item belongs.','happy','friendly');
+      const c=state.current;if(!c||c.answered)return;c.sortRound++;if(c.sortRound>c.sortMaxRound){completeSorting();return}
+      const round=rounds[c.sortRound-1],level=difficulty(),itemCount=Math.min(round.items.length,3+level),items=round.items.slice(0,itemCount),cats=level>=4?[...round.cats,'Other place']:round.cats;
+      c.sortSelections={};c.sortLocked=false;c.sortDifficulty=level;
+      const area=$('#gameArea');area.innerHTML=`<div class="sorting-stage sorting-transition"><div class="sorting-meta"><span class="sorting-chip">Round <strong>${c.sortRound} / ${c.sortMaxRound}</strong></span><span class="sorting-chip">Level <strong>${level}</strong></span><span class="sorting-chip">Score <strong>${c.sortCorrect}</strong></span><span class="sorting-chip">Mistakes <strong>${c.sortConsecutiveMistakes} / 3</strong></span></div><div class="sorting-instruction">${round.question}<br><small>Tap one category for every item. You can change an answer before the round is checked.</small></div><div class="sorting-list">${items.map((it,i)=>`<div class="sorting-row" data-row="${i}"><div class="sorting-item"><span class="sorting-icon">${it[0]}</span><span>${it[1]}</span></div><div class="sorting-options">${cats.map(cat=>`<button class="sorting-option" type="button" data-row="${i}" data-cat="${cat}">${cat}</button>`).join('')}</div></div>`).join('')}</div><div class="sorting-feedback" id="sortingFeedback"></div><div class="sorting-next" id="sortingNext">0 of ${items.length} sorted</div></div>`;
+      $('#gamePrompt').textContent=round.question;say(level>=4?'A little extra challenge today. Sort each item carefully.':'Take your time. Choose where each familiar item belongs.','happy','friendly');
       $$('.sorting-option').forEach(btn=>btn.addEventListener('click',()=>selectCategory(Number(btn.dataset.row),btn.dataset.cat)));
     }
-
-    function selectCategory(row,cat){
-      const c=state.current;if(!c||c.sortLocked)return;
-      c.sortSelections[row]=cat;
-      $$(`.sorting-option[data-row="${row}"]`).forEach(b=>b.classList.toggle('selected',b.dataset.cat===cat));
-      const count=Object.keys(c.sortSelections).length;
-      const next=$('#sortingNext');if(next)next.textContent=`${count} of ${rounds[c.sortRound-1].items.length} sorted`;
-      if(count===rounds[c.sortRound-1].items.length)checkRound();
-    }
-
-    function checkRound(){
-      const c=state.current;if(!c||c.sortLocked)return;c.sortLocked=true;
-      const round=rounds[c.sortRound-1];let roundCorrect=0;
-      round.items.forEach((it,i)=>{
-        const row=document.querySelector(`.sorting-row[data-row="${i}"]`);const ok=c.sortSelections[i]===it[2];
-        row?.classList.add(ok?'correct':'incorrect');
-        if(ok)roundCorrect++;else c.sortConsecutiveMistakes++;
-      });
-      c.sortCorrect+=roundCorrect;c.sortAnswered+=round.items.length;
-      c.sortRoundResults.push({round:c.sortRound,correct:roundCorrect,total:round.items.length});
-      const perfect=roundCorrect===round.items.length;
-      const fb=$('#sortingFeedback');
-      if(perfect){fb.textContent='Excellent sorting! Moving to the next round.';fb.className='sorting-feedback correct';setMood('celebrate','happy');setStatus('All correct. Next round.');}
-      else if(c.sortConsecutiveMistakes>=3){fb.textContent='A few tricky ones — that is okay. We will move to the next game.';fb.className='sorting-feedback incorrect';setMood('encourage','encouraging');setStatus('Three misses in a row — moving on.');}
-      else{fb.textContent=`You got ${roundCorrect} of ${round.items.length} right. Let’s keep going.`;fb.className='sorting-feedback incorrect';setMood('encourage','encouraging');setStatus('Round complete. Next round.');}
-      setTimeout(()=>{if(c.sortConsecutiveMistakes>=3)completeSorting();else runSortRound()},850);
-    }
-
-    function completeSorting(){
-      const c=state.current;if(!c||c.sortCompleted)return;c.sortCompleted=true;c.answered=true;
-      const total=Math.max(1,c.sortAnswered||1),score=Math.round((c.sortCorrect/total)*100);
-      c.correct=score>=50?1:0;c.score=score;c.seconds=(performance.now()-c.started)/1000;
-      state.results.push({...c,name:catalog.local.name,skipped:false,rounds:c.sortRoundResults?.length||0,correctItems:c.sortCorrect,totalItems:total,consecutiveMistakes:c.sortConsecutiveMistakes||0});
-      if(window.CognitiveCareCompanion)window.CognitiveCareCompanion.onGameEvent({type:c.correct?'correct':'incorrect'});
-      setStatus('Game complete. Moving to the next game.');setMood(score>=50?'celebrate':'encourage',score>=50?'happy':'encouraging');
-      setTimeout(()=>{if(state.index<4){state.index++;loadGame()}else finishSession()},800);
-    }
+    function selectCategory(row,cat){const c=state.current;if(!c||c.sortLocked)return;c.sortSelections[row]=cat;$$(`.sorting-option[data-row="${row}"]`).forEach(b=>b.classList.toggle('selected',b.dataset.cat===cat));const count=Object.keys(c.sortSelections).length,next=$('#sortingNext');if(next)next.textContent=`${count} of ${Math.min(rounds[c.sortRound-1].items.length,3+difficulty())} sorted`;if(count===Math.min(rounds[c.sortRound-1].items.length,3+difficulty()))checkRound()}
+    function checkRound(){const c=state.current;if(!c||c.sortLocked)return;c.sortLocked=true;const round=rounds[c.sortRound-1],level=difficulty(),items=round.items.slice(0,Math.min(round.items.length,3+level));let roundCorrect=0;items.forEach((it,i)=>{const row=document.querySelector(`.sorting-row[data-row="${i}"]`),ok=c.sortSelections[i]===it[2];row?.classList.add(ok?'correct':'incorrect');if(ok)roundCorrect++;else c.sortConsecutiveMistakes++});c.sortCorrect+=roundCorrect;c.sortAnswered+=items.length;c.sortRoundResults.push({round:c.sortRound,correct:roundCorrect,total:items.length,difficulty:level});const perfect=roundCorrect===items.length,fb=$('#sortingFeedback');if(perfect){fb.textContent='Excellent sorting! Moving to the next round.';fb.className='sorting-feedback correct';setMood('celebrate','happy');setStatus('All correct. Next round.')}else if(c.sortConsecutiveMistakes>=3){fb.textContent='A few tricky ones — that is okay. We will move to the next game.';fb.className='sorting-feedback incorrect';setMood('encourage','encouraging');setStatus('Three misses in a row — moving on.')}else{fb.textContent=`You got ${roundCorrect} of ${items.length} right. Let’s keep going.`;fb.className='sorting-feedback incorrect';setMood('encourage','encouraging');setStatus('Round complete. Next round.')}setTimeout(()=>{if(c.sortConsecutiveMistakes>=3)completeSorting();else runSortRound()},850)}
+    function completeSorting(){const c=state.current;if(!c||c.sortCompleted)return;c.sortCompleted=true;c.answered=true;const total=Math.max(1,c.sortAnswered||1),score=Math.round((c.sortCorrect/total)*100);c.correct=score>=50?1:0;c.score=score;c.seconds=(performance.now()-c.started)/1000;state.results.push({...c,name:catalog.local.name,skipped:false,rounds:c.sortRoundResults?.length||0,correctItems:c.sortCorrect,totalItems:total,consecutiveMistakes:c.sortConsecutiveMistakes||0,difficulty:c.sortDifficulty||state.level});if(window.CognitiveCareCompanion)window.CognitiveCareCompanion.onGameEvent({type:c.correct?'correct':'incorrect'});setStatus('Game complete. Moving to the next game.');setMood(score>=50?'celebrate':'encourage',score>=50?'happy':'encouraging');setTimeout(()=>{if(state.index<4){state.index++;loadGame()}else finishSession()},800)}
     return true;
   }
   if(!install()){const timer=setInterval(()=>{if(install())clearInterval(timer)},50);setTimeout(()=>clearInterval(timer),10000)}
