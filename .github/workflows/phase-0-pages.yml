@@ -2,9 +2,11 @@ name: Deploy Phase 0 Companion Prototype
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
     paths:
       - "prototype/phase-0/**"
+      - "server.js"
+      - "Dockerfile"
       - ".github/workflows/phase-0-pages.yml"
   workflow_dispatch:
 
@@ -26,20 +28,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
       - name: Prepare site
         run: |
           mkdir -p _site
           cp -R prototype/phase-0/. _site/
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
