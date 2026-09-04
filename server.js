@@ -1,6 +1,6 @@
 const http=require('http');const fs=require('fs');const path=require('path');
 const PORT=Number(process.env.PORT||80);const ROOT=path.join(__dirname,'prototype','phase-0');const MAX_BODY=12000;const AI_WINDOW_MS=60000;const AI_LIMIT=Math.max(1,Number(process.env.AI_RATE_LIMIT||20));const rate=new Map();
-const BUILD_VERSION=process.env.BUILD_VERSION||'0.14.0';
+const BUILD_VERSION=process.env.BUILD_VERSION||'0.17.1';
 const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json','.png':'image/png','.svg':'image/svg+xml'};
 const ALLOWED_ORIGINS=new Set(String(process.env.CORS_ORIGIN||'https://sih-prototype-repo.zopcloud.zop.dev,capacitor://localhost,http://localhost').split(',').map(x=>x.trim()).filter(Boolean));
 function corsOrigin(req){const o=String(req.headers.origin||'');return ALLOWED_ORIGINS.has(o)?o:''}
