@@ -1,0 +1,31 @@
+name: Quality Gate
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: JavaScript syntax check
+        run: |
+          set -e
+          for f in prototype/phase-0/*.js; do node --check "$f"; done
+      - name: JSON/config validation
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('package.json','utf8')); JSON.parse(require('fs').readFileSync('capacitor.config.json','utf8')); JSON.parse(require('fs').readFileSync('prototype/phase-0/manifest.webmanifest','utf8'));"
+      - name: Required production assets
+        run: |
+          test -f prototype/phase-0/notification-bridge.js
+          test -f prototype/phase-0/security-center.js
+          test -f prototype/phase-0/usability-validation.js
+          grep -q "@capacitor/local-notifications" package.json
+          grep -q "Content-Security-Policy" server.js
+      - name: Secret-pattern guard
+        run: |
+          ! grep -RInE "sk-[A-Za-z0-9_-]{20,}|service_role|SUPABASE_SERVICE_ROLE_KEY" --exclude-dir=.git .
