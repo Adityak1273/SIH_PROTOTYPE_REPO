@@ -22,8 +22,6 @@
   style.textContent = `.ccner-voice-mode-control{display:flex;gap:8px;align-items:center;margin-left:auto}.ccner-voice-mode-control button{border:1px solid #dfd1c2;background:#fffaf5;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;color:#4f443b}.ccner-voice-mode-control button.active{background:#6d4ca5;color:#fff;border-color:#6d4ca5}.ccner-voice-mode-control button:focus-visible{outline:3px solid rgba(109,76,165,.25);outline-offset:2px}@media(max-width:560px){.ccner-voice-mode-control{margin-left:0;margin-top:6px;flex-wrap:wrap}}`;
   document.head.appendChild(style);
 
-  // Manual mode owns each microphone interaction. One tap = one listening turn.
-  // After Momo replies, listening stops and the user must tap the microphone again.
   let manualRecognition = null;
   let manualListening = false;
 
@@ -91,9 +89,11 @@
 
   function updateVoicePrompt() {
     const p = document.querySelector('#l3VoiceBox p');
-    if (p) p.textContent = getMode() === 'manual'
+    if (!p) return;
+    const next = getMode() === 'manual'
       ? 'Manual mode: tap the microphone each time you want to speak to Momo.'
       : 'Continuous mode: after Momo replies, he listens again automatically.';
+    if (p.textContent !== next) p.textContent = next;
   }
 
   function updateSettingsUI() {
@@ -102,7 +102,6 @@
       const row = label.closest('div, li, section, article') || label.parentElement;
       if (!row || row.dataset.ccnerVoiceRow === '1') return;
       row.dataset.ccnerVoiceRow = '1';
-      // Replace the old single-value "Continuous" display with two explicit controls.
       [...row.querySelectorAll('*')].filter(el => el.children.length === 0 && el.textContent.trim() === 'Continuous').forEach(el => {
         if (el !== label) el.hidden = true;
       });
@@ -120,8 +119,9 @@
     const mode = getMode();
     document.querySelectorAll('[data-ccner-voice]').forEach(btn => {
       const active = btn.dataset.ccnerVoice === mode;
-      btn.classList.toggle('active', active);
-      btn.setAttribute('aria-pressed', String(active));
+      if (btn.classList.contains('active') !== active) btn.classList.toggle('active', active);
+      const pressed = String(active);
+      if (btn.getAttribute('aria-pressed') !== pressed) btn.setAttribute('aria-pressed', pressed);
     });
   }
 
