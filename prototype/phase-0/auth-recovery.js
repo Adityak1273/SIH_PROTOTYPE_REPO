@@ -8,6 +8,7 @@ const $=s=>document.querySelector(s);
 function demo(){
   const gate=$('#l2AuthGate');if(!gate)return;
   gate.querySelectorAll('button').forEach(b=>b.disabled=true);
+  window.CCNER_DEMO_MODE=true;
   window.CCNERAuth?.__set?.(DEMO_USER,DEMO_PROFILE);
   gate.remove();
   const app=$('.app-shell');if(app)app.style.display='';
@@ -32,6 +33,11 @@ async function recoverAuthUrl(){
     }
   }catch(e){console.warn('[CCNER Auth Recovery]',e)}
 }
+function directPrototype(){
+  if(new URLSearchParams(location.search).get('prototype')!=='1')return;
+  const timer=setInterval(()=>{if($('#l2AuthGate')){clearInterval(timer);demo()}},250);
+  setTimeout(()=>clearInterval(timer),15000);
+}
 let tries=0;const timer=setInterval(()=>{addDemo();recoverAuthUrl();if(++tries>90)clearInterval(timer)},1000);
-setTimeout(()=>{addDemo();recoverAuthUrl()},500);
+setTimeout(()=>{addDemo();recoverAuthUrl();directPrototype()},500);
 })();
