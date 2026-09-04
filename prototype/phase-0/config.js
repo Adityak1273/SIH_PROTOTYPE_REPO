@@ -6,9 +6,9 @@ window.CCNER_CONFIG = {
 };
 window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
 (function(){
-  const v='0.9.10';
+  const v='0.9.11';
   const addCss=(name)=>{const el=document.createElement('link');el.rel='stylesheet';el.href='./'+name+'?v='+v;document.head.appendChild(el)};
   const addScript=(name)=>{const el=document.createElement('script');el.src='./'+name+'?v='+v;document.body.appendChild(el)};
   addCss('phase2.css');addCss('phase3.css');addCss('phase4.css');addCss('multilingual.css');addCss('sequence-game.css');addCss('sorting-game.css');addCss('category-game.css');addCss('pattern-game.css');addCss('spot-difference-game.css');addCss('routine-game.css');
-  addScript('phase2.js');addScript('phase3.js');addScript('phase4.js');addScript('adaptive-engine.js');addScript('sequence-game.js');addScript('sorting-game.js');addScript('category-game.js');addScript('pattern-game.js');addScript('spot-difference-game.js');addScript('routine-game.js');addScript('game-controls.js');addScript('production-hardening.js');
+  addScript('phase2.js');addScript('phase3.js');addScript('phase4.js');addScript('adaptive-engine.js');addScript('sequence-game.js');addScript('sorting-game.js');addScript('category-game.js');addScript('pattern-game.js');addScript('spot-difference-game.js');addScript('routine-game.js');addScript('game-controls.js');addScript('production-hardening.js');addScript('data-bridge.js');
 })();
