@@ -1,6 +1,6 @@
-const CACHE = 'cognitive-care-ner-v0.9.9';
+const CACHE = 'cognitive-care-ner-v0.9.10';
 const APP_SHELL = [
-  './','./index.html','./config.js?v=0.9.9','./styles.css?v=0.9.9','./avatar.css?v=0.9.9','./phase1.css?v=0.9.9','./phase2.css?v=0.9.9','./phase3.css?v=0.9.9','./phase4.css?v=0.9.9','./multilingual.css?v=0.9.9','./sequence-game.css?v=0.9.9','./sorting-game.css?v=0.9.9','./category-game.css?v=0.9.9','./pattern-game.css?v=0.9.9','./spot-difference-game.css?v=0.9.9','./routine-game.css?v=0.9.9','./multilingual.js?v=0.9.9','./regional-language-runtime.js?v=0.9.9','./regional-language-feedback.js?v=0.9.9','./adaptive-engine.js?v=0.9.9','./game-controls.js?v=0.9.9','./routine-game.js?v=0.9.9','./manifest.webmanifest'
+  './','./index.html','./config.js?v=0.9.10','./styles.css?v=0.9.10','./avatar.css?v=0.9.10','./phase1.css?v=0.9.10','./phase2.css?v=0.9.10','./phase3.css?v=0.9.10','./phase4.css?v=0.9.10','./multilingual.css?v=0.9.10','./sequence-game.css?v=0.9.10','./sorting-game.css?v=0.9.10','./category-game.css?v=0.9.10','./pattern-game.css?v=0.9.10','./spot-difference-game.css?v=0.9.10','./routine-game.css?v=0.9.10','./multilingual.js?v=0.9.10','./regional-language-runtime.js?v=0.9.10','./regional-language-feedback.js?v=0.9.10','./adaptive-engine.js?v=0.9.10','./game-controls.js?v=0.9.10','./routine-game.js?v=0.9.10','./production-hardening.js?v=0.9.10','./manifest.webmanifest'
 ];
 self.addEventListener('install',(event)=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)).catch(()=>{}));self.skipWaiting()});
 self.addEventListener('activate',(event)=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
