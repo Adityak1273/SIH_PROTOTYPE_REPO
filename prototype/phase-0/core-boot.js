@@ -6,6 +6,21 @@
   'use strict';
   if (window.__ccnerCoreBoot) return;
   window.__ccnerCoreBoot = true;
+  /* Level 2 is a hard entry gate: unauthenticated users never get direct dashboard access. */
+  try{
+    const auth=JSON.parse(localStorage.getItem('ccner.level2.auth.v1')||'null');
+    const profile=JSON.parse(localStorage.getItem('ccner.level2.profile.v1')||'null');
+    if(!(auth?.verified&&auth?.profileComplete&&profile?.fullName)){
+      const app=document.querySelector('.app-shell');
+      if(app)app.style.display='none';
+      const css=document.createElement('link');css.rel='stylesheet';css.href='./level2-auth.css?v=0.17.1';document.head.appendChild(css);
+      const script=document.createElement('script');script.src='./level2-auth.js?v=0.17.1';document.head.appendChild(script);
+    }
+  }catch(_){
+    const app=document.querySelector('.app-shell');if(app)app.style.display='none';
+    const css=document.createElement('link');css.rel='stylesheet';css.href='./level2-auth.css?v=0.17.1';document.head.appendChild(css);
+    const script=document.createElement('script');script.src='./level2-auth.js?v=0.17.1';document.head.appendChild(script);
+  }
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
   function show(id){$$('.view').forEach(v=>v.hidden=true);const target=$(id);if(target)target.hidden=false;$$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===id.slice(1)));window.scrollTo?.({top:0,behavior:'smooth'});}
   function openPanel(name){if(window.CCNERPhase1?.openPanel)return window.CCNERPhase1.openPanel(name);const panel=$('#overlayPanel');if(panel)panel.hidden=false;}
