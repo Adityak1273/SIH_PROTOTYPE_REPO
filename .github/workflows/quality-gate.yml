@@ -32,6 +32,7 @@ jobs:
           test -f Dockerfile
           test -f zopday.yaml
           test -f docker-compose.yml
+          grep -q '"version": "0.17.1"' package.json
           grep -q '^ENV PORT=80$' Dockerfile
           grep -q '^ENV BUILD_VERSION=0.17.1$' Dockerfile
           grep -q "BUILD_VERSION.*0.17.1" server.js
@@ -40,6 +41,19 @@ jobs:
           grep -q 'dockerfile: Dockerfile' zopday.yaml
           grep -q '"80:80"' zopday.yaml
           grep -q '"8080:80"' docker-compose.yml
+      - name: Static asset reference check
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const root='prototype/phase-0';
+          const text=fs.readFileSync(`${root}/index.html`,'utf8')+'\n'+fs.readFileSync(`${root}/core-boot.js`,'utf8');
+          const refs=[...text.matchAll(/(?:src|href)=["']\.\/([^?"']+)/g)].map(m=>m[1]);
+          for(const ref of refs){
+            const p=`${root}/${ref}`;
+            if(!fs.existsSync(p)) throw new Error(`Missing referenced asset: ${p}`);
+          }
+          console.log(`Validated ${refs.length} static/dynamic asset references.`);
+          NODE
       - name: Docker build and HTTP smoke test
         run: |
           set -euxo pipefail
