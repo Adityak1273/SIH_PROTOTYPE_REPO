@@ -18,7 +18,6 @@
     resetLocalProductionData(){ localStorage.removeItem(KEY); location.reload(); }
   };
 
-  // Never claim clinical meaning from game performance.
   window.CognitiveCareClinicalSafety = {
     disclaimer: 'Cognitive training performance is not a dementia diagnosis or clinical staging assessment.',
     interpret(score){
@@ -32,4 +31,14 @@
     const el=e.target.closest('[data-production-action]');
     if(el) audit(el.dataset.productionAction, el.dataset.detail || '');
   });
+
+  // Load the native reminder bridge and the upgraded home/voice UI after the core app.
+  // Keeping these as separate modules lets the browser build remain usable while the
+  // Capacitor Android build gets true device-local scheduled notifications.
+  function loadUpgradeAssets(){
+    if(!document.getElementById('ccner-upgrade-css')){const link=document.createElement('link');link.id='ccner-upgrade-css';link.rel='stylesheet';link.href='./ui-upgrade.css?v=0.10.0';document.head.appendChild(link)}
+    const load=(id,src)=>new Promise(resolve=>{if(document.getElementById(id)){resolve();return}const s=document.createElement('script');s.id=id;s.src=src+'?v=0.10.0';s.onload=resolve;s.onerror=resolve;document.body.appendChild(s)});
+    load('ccner-notification-bridge','./notification-bridge.js').then(()=>load('ccner-ui-upgrade','./ui-upgrade.js'));
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(loadUpgradeAssets,0));else loadUpgradeAssets();
 })();
