@@ -57,18 +57,18 @@
 
   function stopVoice(){try{window.speechSynthesis?.cancel()}catch(_){} }
   function speak(text){stopVoice();try{if('speechSynthesis' in window){const u=new SpeechSynthesisUtterance(text);u.lang=lang();u.rate=.9;u.pitch=1.06;window.speechSynthesis.speak(u)}}catch(_){} }
-  function cleanBars(){document.querySelectorAll('.l4-gamebar,.l4v-bar,#l4CleanExit').forEach(e=>e.remove());}
+  function removeLegacyBars(){document.querySelectorAll('.l4-gamebar,.l4v-bar').forEach(e=>e.remove());}
   function ensureExit(){
     const game=$('#gameView'); if(!game||game.hidden)return;
-    cleanBars();
+    removeLegacyBars();
+    if($('#l4CleanExit'))return;
     game.insertAdjacentHTML('afterbegin',`<div id="l4CleanExit"><span>Game mode</span><button type="button">${t('exit')}</button></div>`);
     $('#l4CleanExit button')?.addEventListener('click',showExitConfirm,{once:true});
   }
   function modal(html){document.querySelector('.ccner-l4-modal')?.remove();const e=document.createElement('div');e.className='ccner-l4-modal';e.innerHTML=html;document.body.appendChild(e);return e}
-  function currentInfo(title){return INFO[title]||null}
   function askTutorial(title){
     if(tutorialOpen||exitModalOpen)return;
-    const info=currentInfo(title); if(!info)return;
+    const info=INFO[title]; if(!info)return;
     tutorialOpen=true; stopVoice();
     const e=modal(`<div class="ccner-l4-dialog" role="dialog" aria-modal="true"><div class="ccner-l4-momo">🐶</div><small>MOMO</small><h2>${t('ask')}</h2><div class="ccner-l4-row"><button id="ccnerL4Yes" class="ccner-l4-primary">${t('yes')}</button><button id="ccnerL4No" class="ccner-l4-secondary">${t('no')}</button></div></div>`);
     $('#ccnerL4Yes')?.addEventListener('click',()=>showTutorial(title));
@@ -76,7 +76,7 @@
     speak(t('ask'));
   }
   function showTutorial(title){
-    const info=currentInfo(title); if(!info)return;
+    const info=INFO[title]; if(!info)return;
     stopVoice();
     const get=x=>x[lk()]||x.en;
     const e=modal(`<div class="ccner-l4-dialog" role="dialog" aria-modal="true"><div class="ccner-l4-momo">🐶</div><small>MOMO</small><h2>${t('title')}</h2><h3>${t('objective')}</h3><p>${get(info.o)}</p><h3>${t('rules')}</h3><p>${get(info.r)}</p><h3>${t('interaction')}</h3><p>${get(info.i)}</p><div class="ccner-l4-row"><button id="ccnerL4Continue" class="ccner-l4-primary">${t('continue')}</button></div></div>`);
@@ -91,11 +91,10 @@
   }
   function leaveGame(){
     stopVoice();
-    // The adaptive engine already listens for this existing home button event and
-    // uses it to cancel the active session/timers. Trigger it before hiding game UI.
     try{document.getElementById('homeButton')?.click()}catch(_){}
     document.body.classList.remove('ccner-game-only','ccner-adaptive-v4');
-    cleanBars();
+    removeLegacyBars();
+    document.getElementById('l4CleanExit')?.remove();
     const game=$('#gameView'),home=$('#homeView'),results=$('#resultsView');
     if(game)game.hidden=true;if(results)results.hidden=true;if(home)home.hidden=false;
     const status=$('#todayStatus');if(status)status.textContent='Session exited';
