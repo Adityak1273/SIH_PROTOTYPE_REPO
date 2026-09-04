@@ -21,10 +21,16 @@
     if(window.CCNER_VIDEO_GAMES_LOADED)return;
     window.CCNER_VIDEO_GAMES_LOADED=true;
     const s=document.createElement('script');
-    s.src='./phase8-video-override.js?v=0.18.1';
+    s.src='./phase8-video-override.js?v=0.18.2';
     s.onload=()=>{
       const v=document.createElement('script');
-      v.src='./game-set-override.js?v=0.18.1';
+      v.src='./game-set-override.js?v=0.18.2';
+      v.onload=()=>{
+        const a=document.createElement('script');
+        a.src='./game-engine-adaptive.js?v=0.18.2';
+        a.defer=true;
+        document.head.appendChild(a);
+      };
       v.defer=true;
       document.head.appendChild(v);
     };
