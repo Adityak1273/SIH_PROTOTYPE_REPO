@@ -67,7 +67,8 @@
     try{window.say?.('No problem. We are back home. We can play whenever you are ready. 😸','happy','ready',{silent:false})}catch(_){}
   }
 
-  function stopGameVoice(){try{window.stopListening?.(false)}catch(_){}try{window.speechSynthesis?.cancel()}catch(_){}}
+  function stopGameVoice(){try{window.stopListening?.(false)}catch(_){}try{window.speechSynthesis?.cancel()}catch(_){}
+  }
   function resumeGameVoice(){if(window.state?.voiceArmed)window.queueListening?.(250)}
 
   function tutorialFor(key){return TUTORIALS[key]||'Momo will guide you step by step. Watch the screen, listen to the instruction, and tap the large answer buttons. After each answer, feedback appears and the game continues automatically. You do not need to restart.'}
@@ -76,7 +77,7 @@
     const gameName=window.catalog?.[key]?.name||'this game';
     stopGameVoice();
     const o=overlay(`Would you like a tutorial for ${gameName}?`,'If you know how to play, choose No and the game will start normally. Choose Yes and Momo will explain the complete game step by step. If Voice mode is on, you can also say “yes” or “no”.',`<button id="tutorialNo" class="game-controls-secondary" type="button">No, start game</button><button id="tutorialYes" class="game-controls-primary" type="button">Yes, explain</button>`);
-    o.querySelector('#tutorialNo').onclick=()=>{o.remove();resumeGameVoice();continueGame()};
+    o.querySelector('#tutorialNo').onclick=()=>{window.__tutorialPending=null;o.remove();resumeGameVoice();continueGame()};
     o.querySelector('#tutorialYes').onclick=()=>{o.remove();playTutorial(key,continueGame)};
     window.__tutorialPending={key,continueGame};
     window.say?.('Would you like me to explain how this game works? You can say yes or no.','happy','ready',{silent:false});
@@ -85,14 +86,16 @@
   function playTutorial(key,continueGame){
     window.__tutorialPending=null;
     const text=tutorialFor(key);
-    overlay('How to play',text,`<button id="tutorialContinue" class="game-controls-primary" type="button">Start Game</button>`).querySelector('#tutorialContinue').onclick=()=>{document.getElementById('gameControlsOverlay')?.remove();resumeGameVoice();continueGame()};
-    window.say?.(text,'happy','teaching',{silent:false});
+    const o=overlay('How to play',text,`<button id="tutorialContinue" class="game-controls-primary" type="button" disabled>Start Game</button>`);
+    const startButton=o.querySelector('#tutorialContinue');
+    window.say?.(text,'happy','teaching',{after:()=>{startButton.disabled=false;resumeGameVoice()}});
+    startButton.onclick=()=>{if(startButton.disabled)return;document.getElementById('gameControlsOverlay')?.remove();continueGame()};
   }
 
   function handleSpecialVoice(raw){
     const text=String(raw||'').trim().toLowerCase();
     if(!text)return false;
-    if(window.state?.sessionStarted && /\b(exit|quit|leave|stop|end|cancel)\b.*\b(game|session|play)?\b|\b(go home|back home|exit game|quit game|leave game|stop game|end game)\b/.test(text)){
+    if(window.state?.sessionStarted && /^(exit|quit|leave|stop|end|cancel)(\s+(the\s+)?(game|session|playing))?$/.test(text) || /^(go home|back home|exit game|quit game|leave game|stop game|end game|cancel game)$/.test(text)){
       confirmExit();return true;
     }
     const p=window.__tutorialPending;
@@ -106,21 +109,29 @@
   function install(){
     if(typeof window.state==='undefined'||typeof window.loadGame!=='function'||typeof window.runGame!=='function'||typeof window.respond!=='function')return false;
     injectStyles();ensureExitButton();
-    if(window.__gameControlsInstalled)return true;
-    window.__gameControlsInstalled=true;
-    const oldRunGame=window.runGame;
-    window.runGame=function(key){
-      if(window.state.current?.tutorialShown){return oldRunGame(key)}
-      if(window.state.current)window.state.current.tutorialShown=true;
-      askTutorial(key,()=>oldRunGame(key));
-    };
-    const oldRespond=window.respond;
-    window.respond=function(text){if(handleSpecialVoice(text))return;return oldRespond(text)};
-    const oldShowView=window.showView;
-    window.showView=function(id){const result=oldShowView(id);if(id==='#gameView')ensureExitButton();else removeExitButton();return result};
+    if(!window.__gameControlsRespondWrapped){
+      const oldRespond=window.respond;
+      window.respond=function(text){if(handleSpecialVoice(text))return;return oldRespond(text)};
+      window.__gameControlsRespondWrapped=true;
+    }
+    const currentRun=window.runGame;
+    if(currentRun!==window.__gameControlsRunWrapper){
+      const oldRun=currentRun;
+      window.__gameControlsRunWrapper=function(key){
+        if(window.state.current?.tutorialShown)return oldRun(key);
+        if(window.state.current)window.state.current.tutorialShown=true;
+        askTutorial(key,()=>oldRun(key));
+      };
+      window.runGame=window.__gameControlsRunWrapper;
+    }
+    if(!window.__gameControlsShowWrapped){
+      const oldShowView=window.showView;
+      window.showView=function(id){const result=oldShowView(id);if(id==='#gameView')ensureExitButton();else removeExitButton();return result};
+      window.__gameControlsShowWrapped=true;
+    }
     return true;
   }
 
-  const timer=setInterval(()=>{if(install())clearInterval(timer)},100);
-  setTimeout(()=>clearInterval(timer),15000);
+  const timer=setInterval(install,100);
+  setTimeout(()=>clearInterval(timer),20000);
 })();
