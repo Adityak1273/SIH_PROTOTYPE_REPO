@@ -8,10 +8,12 @@
     localStorage.setItem(KEY, value);
     document.documentElement.dataset.ccnerVoiceMode = value;
     updateSettingsUI();
+    refreshButtons();
     if (value === 'manual') {
       try { window.stopListening?.(false); } catch (_) {}
       stopManual();
     }
+    updateVoicePrompt();
   };
 
   document.documentElement.dataset.ccnerVoiceMode = getMode();
@@ -21,8 +23,7 @@
   document.head.appendChild(style);
 
   // Manual mode owns each microphone interaction. One tap = one listening turn.
-  // Momo's normal speech synthesis remains unchanged; after the reply there is
-  // deliberately no automatic re-listen until the user taps the microphone again.
+  // After Momo replies, listening stops and the user must tap the microphone again.
   let manualRecognition = null;
   let manualListening = false;
 
@@ -88,19 +89,31 @@
     manualListening = false;
   }
 
+  function updateVoicePrompt() {
+    const p = document.querySelector('#l3VoiceBox p');
+    if (p) p.textContent = getMode() === 'manual'
+      ? 'Manual mode: tap the microphone each time you want to speak to Momo.'
+      : 'Continuous mode: after Momo replies, he listens again automatically.';
+  }
+
   function updateSettingsUI() {
     const labels = [...document.querySelectorAll('body *')].filter(el => el.children.length === 0 && el.textContent.trim() === 'Voice mode');
     labels.forEach(label => {
       const row = label.closest('div, li, section, article') || label.parentElement;
       if (!row || row.dataset.ccnerVoiceRow === '1') return;
       row.dataset.ccnerVoiceRow = '1';
+      // Replace the old single-value "Continuous" display with two explicit controls.
+      [...row.querySelectorAll('*')].filter(el => el.children.length === 0 && el.textContent.trim() === 'Continuous').forEach(el => {
+        if (el !== label) el.hidden = true;
+      });
       const control = document.createElement('div');
       control.className = 'ccner-voice-mode-control';
       control.innerHTML = '<button type="button" data-ccner-voice="continuous">Continuous</button><button type="button" data-ccner-voice="manual">Manual</button>';
       row.appendChild(control);
       control.querySelectorAll('[data-ccner-voice]').forEach(btn => btn.addEventListener('click', () => setMode(btn.dataset.ccnerVoice)));
-      refreshButtons();
     });
+    refreshButtons();
+    updateVoicePrompt();
   }
 
   function refreshButtons() {
@@ -112,7 +125,6 @@
     });
   }
 
-  // Keep the setting visible even when the settings drawer is rendered later.
   const observer = new MutationObserver(() => {
     installManualButtonHook();
     updateSettingsUI();
@@ -122,6 +134,7 @@
     installManualButtonHook();
     updateSettingsUI();
     refreshButtons();
+    updateVoicePrompt();
     observer.observe(document.body, { childList: true, subtree: true });
   };
 
