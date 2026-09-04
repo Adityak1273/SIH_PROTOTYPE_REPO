@@ -10,10 +10,15 @@
     updateSettingsUI();
     if (value === 'manual') {
       try { window.stopListening?.(false); } catch (_) {}
+      stopManual();
     }
   };
 
   document.documentElement.dataset.ccnerVoiceMode = getMode();
+
+  const style = document.createElement('style');
+  style.textContent = `.ccner-voice-mode-control{display:flex;gap:8px;align-items:center;margin-left:auto}.ccner-voice-mode-control button{border:1px solid #dfd1c2;background:#fffaf5;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;color:#4f443b}.ccner-voice-mode-control button.active{background:#6d4ca5;color:#fff;border-color:#6d4ca5}.ccner-voice-mode-control button:focus-visible{outline:3px solid rgba(109,76,165,.25);outline-offset:2px}@media(max-width:560px){.ccner-voice-mode-control{margin-left:0;margin-top:6px;flex-wrap:wrap}}`;
+  document.head.appendChild(style);
 
   // Manual mode owns each microphone interaction. One tap = one listening turn.
   // Momo's normal speech synthesis remains unchanged; after the reply there is
@@ -25,10 +30,7 @@
     if (getMode() !== 'manual' || manualListening) return;
     try { window.stopListening?.(false); } catch (_) {}
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Recognition) {
-      window.respond?.('');
-      return;
-    }
+    if (!Recognition) return;
     const r = new Recognition();
     manualRecognition = r;
     manualListening = true;
