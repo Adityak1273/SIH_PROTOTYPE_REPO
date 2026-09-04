@@ -26,6 +26,35 @@ jobs:
           test -f prototype/phase-0/usability-validation.js
           grep -q "@capacitor/local-notifications" package.json
           grep -q "Content-Security-Policy" server.js
+      - name: Deployment configuration consistency
+        run: |
+          set -e
+          test -f Dockerfile
+          test -f zopday.yaml
+          test -f docker-compose.yml
+          grep -q '^ENV PORT=80$' Dockerfile
+          grep -q '^ENV BUILD_VERSION=0.17.1$' Dockerfile
+          grep -q "BUILD_VERSION.*0.17.1" server.js
+          grep -q 'styles.css?v=0.17.1' prototype/phase-0/index.html
+          grep -q 'core-boot.js?v=0.17.1' prototype/phase-0/index.html
+          grep -q 'dockerfile: Dockerfile' zopday.yaml
+          grep -q '"80:80"' zopday.yaml
+          grep -q '"8080:80"' docker-compose.yml
+      - name: Docker build and HTTP smoke test
+        run: |
+          set -euxo pipefail
+          IMAGE="cognitive-care-ner:${GITHUB_SHA}"
+          docker build --pull -t "$IMAGE" .
+          docker run -d --name ccner-smoke -p 18080:80 "$IMAGE"
+          cleanup() { docker logs ccner-smoke || true; docker rm -f ccner-smoke || true; }
+          trap cleanup EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:18080/health; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:18080/health | grep -q '"ok":true'
+          curl -fsS http://127.0.0.1:18080/ | grep -q 'Cognitive Care NER'
+          test "$(docker inspect -f '{{.State.Running}}' ccner-smoke)" = "true"
       - name: Secret-pattern guard
         run: |
           ! grep -RInE "sk-[A-Za-z0-9_-]{20,}|service_role|SUPABASE_SERVICE_ROLE_KEY" --include='*.js' --include='*.json' prototype server.js package.json capacitor.config.json
