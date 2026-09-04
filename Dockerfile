@@ -10,7 +10,7 @@ COPY prototype/phase-0/ ./prototype/phase-0/
 
 ENV NODE_ENV=production
 ENV PORT=80
-ENV BUILD_VERSION=0.18.2
+ENV BUILD_VERSION=0.18.4
 
 EXPOSE 80
 
