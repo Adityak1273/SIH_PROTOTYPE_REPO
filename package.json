@@ -1,6 +1,6 @@
 {
   "name": "cognitive-care-ner",
-  "version": "0.17.1",
+  "version": "0.18.2",
   "private": true,
   "description": "Cognitive Care NER mobile app for elderly-friendly cognitive training.",
   "scripts": {
