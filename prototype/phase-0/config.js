@@ -12,5 +12,6 @@ window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
   const css = document.createElement('link'); css.rel='stylesheet'; css.href='./clinical-intelligence.css?v=0.19.0'; document.head.appendChild(css);
   load('voice-mode-control.js');
   load('clinical-intelligence.js');
+  load('clinical-report-file.js');
   load('clinical-adaptive-bridge.js');
 })();
