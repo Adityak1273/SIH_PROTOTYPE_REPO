@@ -7,11 +7,10 @@ let sb=null;
 const $=(s,r=document)=>r.querySelector(s);
 function config(){return window.CCNER_CONFIG||{};}
 async function initClient(){
+  const shared=window.CCNERAuth?.client?.();
+  if(shared){sb=shared;return sb;}
   if(sb)return sb;
-  if(!window.supabase?.createClient)return null;
-  const c=config();if(!c.SUPABASE_URL||!c.SUPABASE_ANON_KEY)return null;
-  sb=window.supabase.createClient(c.SUPABASE_URL,c.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'ccner-auth-session'}});
-  return sb;
+  return null;
 }
 function addAdminButton(){
   const gate=$('#l2AuthGate'),choice=$('.l2v-choice',gate);if(!gate||!choice||$('#ccnerAdminLogin'))return false;
@@ -27,12 +26,12 @@ function modal(){
 function adminMsg(t,bad=false){const e=$('#ccnerAdminMsg');if(!e)return;e.textContent=t;e.classList.toggle('bad',bad);}
 function openAdminLogin(){modal();}
 async function sendAdminLink(){
-  const c=await initClient();if(!c)return adminMsg('Authentication service is not ready. Please refresh.',true);
+  const c=await initClient();if(!c)return adminMsg('Authentication service is still starting. Please wait a moment and try again.',true);
   const b=$('#ccnerAdminSend');b.disabled=true;adminMsg('Sending secure admin login link…');
   try{
-    const {error}=await c.auth.signInWithOtp({email:ADMIN_EMAIL,options:{shouldCreateUser:true,emailRedirectTo:location.href}});
+    const {error}=await c.auth.signInWithOtp({email:ADMIN_EMAIL,options:{shouldCreateUser:true,emailRedirectTo:location.origin+location.pathname}});
     if(error)throw error;
-    adminMsg('Link sent. Open it from this email on this device to enter the Admin Dashboard.');
+    adminMsg('Link sent. Open it on this device. If email delivery is rate-limited, wait for the limit to reset instead of repeatedly requesting new links.');
   }catch(e){adminMsg(e?.message||'Could not send the admin login link.',true);}finally{b.disabled=false;}
 }
 async function ensureAdmin(){
@@ -44,8 +43,7 @@ async function ensureAdmin(){
     if(error){console.warn('[CCNER Admin] profile bootstrap failed',error);return false;}
     p=np;
   }
-  if(p.role!=='admin')return false;
-  return true;
+  return p?.role==='admin';
 }
 async function renderDashboard(){
   if($('#ccnerAdminDashboard'))return;
@@ -68,9 +66,7 @@ async function loadReports(){
   $('#ccnerAdminRows').innerHTML=rows.length?rows.map(r=>`<tr><td><strong>${esc(r.full_name)}</strong><small>${esc(r.email||'')}</small></td><td><span class="ccner-role">${esc(r.role)}</span></td><td>${+r.sessions_count||0}</td><td>${Math.round((+r.average_accuracy||0)*100)}%</td><td>${Math.round(+r.average_score||0)}%</td><td>${+r.games_played||0}</td><td>${r.last_session_at?new Date(r.last_session_at).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}):'—'}</td><td>${+r.active_alerts||0}</td></tr>`).join(''):`<tr><td colspan="8" class="ccner-empty">No registered patient/care activity yet.</td></tr>`;
   if(st)st.textContent=`${rows.length} account${rows.length===1?'':'s'} · updated just now`;
 }
-async function check(){
-  addAdminButton();
-  if(await ensureAdmin())await renderDashboard();
-}
+async function check(){addAdminButton();if(await ensureAdmin())await renderDashboard();}
 const timer=setInterval(()=>{addAdminButton();check().catch(()=>{});},1200);setTimeout(()=>clearInterval(timer),60000);setTimeout(()=>check().catch(()=>{}),2500);
+window.addEventListener('ccner:profile-ready',()=>check().catch(()=>{}));
 })();
