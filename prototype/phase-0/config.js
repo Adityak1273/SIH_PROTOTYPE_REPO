@@ -3,14 +3,23 @@ window.CCNER_CONFIG = {
   AI_ENDPOINT: 'https://sih-prototype-repo.zopcloud.zop.dev/api/chat',
   SUPABASE_URL: 'https://mmgvgqtjlcrrfkehlqqe.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_cchVUBU7WOnxYH_sI8A1QA_05f1Sz4v',
-  APP_VERSION: '0.18.13'
+  APP_VERSION: '0.18.14'
 };
 window.COGNITIVE_AI_ENDPOINT = window.CCNER_CONFIG.AI_ENDPOINT;
 
 // Load the voice-mode controller after the core app is present.
 (() => {
   const s = document.createElement('script');
-  s.src = './voice-mode-control.js?v=0.18.13';
+  s.src = './voice-mode-control.js?v=0.18.14';
+  s.defer = true;
+  document.head.appendChild(s);
+})();
+
+// Keep the patient dashboard clean: non-essential configuration/care-mode panels
+// are not part of the main dashboard experience.
+(() => {
+  const s = document.createElement('script');
+  s.src = './dashboard-cleanup.js?v=0.18.14';
   s.defer = true;
   document.head.appendChild(s);
 })();
