@@ -24,17 +24,17 @@ jobs:
         run: npm install
       - name: Create Android project
         run: npx cap add android
-      - name: Declare Android notification permission
+      - name: Declare Android notification permissions
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('android/app/src/main/AndroidManifest.xml')
           s=p.read_text()
-          perm='<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />'
-          if perm not in s:
-              s=s.replace('<manifest ', '<manifest ', 1)
-              pos=s.find('>')+1
-              s=s[:pos]+'\n    '+perm+s[pos:]
+          perms=['android.permission.POST_NOTIFICATIONS','android.permission.SCHEDULE_EXACT_ALARM']
+          pos=s.find('>')+1
+          additions=''.join(f'\n    <uses-permission android:name="{x}" />' for x in perms if f'android:name="{x}"' not in s)
+          if additions:
+              s=s[:pos]+additions+s[pos:]
               p.write_text(s)
           PY
       - name: Sync web app into Android
