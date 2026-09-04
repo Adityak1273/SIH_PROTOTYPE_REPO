@@ -5,13 +5,17 @@ try{const auth=JSON.parse(localStorage.getItem('ccner.level2.auth.v1')||'null'),
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 function show(id){$$('.view').forEach(v=>v.hidden=true);const x=$(id);if(x)x.hidden=false;$$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===id.slice(1)));window.scrollTo?.({top:0,behavior:'smooth'})}
 function start(){
-  if(window.CCNER_LEVEL4_START_HOOK?.())return;
-  // The legacy Phase-8 engines are loaded for compatibility, but MUST NOT win the
-  // race against the current adaptive five-game engine. If the new engine has not
-  // finished loading yet, wait briefly instead of starting a legacy game set.
-  if(window.CCNER_ADAPTIVE_GAME_ENGINE_V4 && window.CCNER_VIDEO_GAMES?.startSession)return window.CCNER_VIDEO_GAMES.startSession();
-  const s=$('#todayStatus');if(s)s.textContent='Loading today\'s five-game training…';
-  let tries=0;const wait=setInterval(()=>{tries++;if(window.CCNER_ADAPTIVE_GAME_ENGINE_V4 && window.CCNER_VIDEO_GAMES?.startSession){clearInterval(wait);window.CCNER_VIDEO_GAMES.startSession()}else if(tries>=30){clearInterval(wait);if(s)s.textContent='Game engine could not load. Please refresh once.'}},100);
+  const s=$('#todayStatus');
+  const launch=()=>{
+    if(!window.CCNER_ADAPTIVE_GAME_ENGINE_V4||!window.CCNER_VIDEO_GAMES?.startSession)return false;
+    // Level 4 is optional UI guidance, but when present it must wrap the CURRENT
+    // adaptive engine, never the legacy Phase-8 engine.
+    if(window.CCNER_LEVEL4_START_HOOK?.())return true;
+    window.CCNER_VIDEO_GAMES.startSession();return true;
+  };
+  if(launch())return;
+  if(s)s.textContent='Loading today\'s five-game training…';
+  let tries=0;const wait=setInterval(()=>{tries++;if(launch()){clearInterval(wait)}else if(tries>=40){clearInterval(wait);if(s)s.textContent='Game engine could not load. Please refresh once.'}},100);
 }
 function talk(){if(window.CCNERUIUpgrade?.openTalk)return window.CCNERUIUpgrade.openTalk();if(typeof window.armVoice==='function')return window.armVoice();if(typeof window.respond==='function')return window.respond('Hello Momo')}
 function progress(){if(typeof window.showResultsFromHistory==='function')return window.showResultsFromHistory();show('#resultsView')}
@@ -22,7 +26,8 @@ function load(src,css){if(css){const l=document.createElement('link');l.rel='sty
 function loadPhase6(){if(window.CCNER_PHASE6_LOADED)return;window.CCNER_PHASE6_LOADED=true;load('phase6.js','phase6.css')}
 function loadPhase7(){if(window.CCNER_PHASE7_LOADED)return;window.CCNER_PHASE7_LOADED=true;load('phase7.js','phase7.css')}
 function loadLevel4(){if(window.CCNER_LEVEL4_LOADED)return;window.CCNER_LEVEL4_LOADED=true;load('level4-game.js','level4-game.css');load('level4-video-bridge.js','level4-video-bridge.css')}
-function loadPhase8(){if(window.CCNER_PHASE8_LOADED)return;window.CCNER_PHASE8_LOADED=true;const s=document.createElement('script');s.src='./phase8.js?v=0.18.2';s.onload=()=>setTimeout(loadLevel4,0);s.defer=true;document.head.appendChild(s);load('phase8-compat.js');load('phase8-video-override.js')}
+function loadPhase8(){if(window.CCNER_PHASE8_LOADED)return;window.CCNER_PHASE8_LOADED=true;const s=document.createElement('script');s.src='./phase8.js?v=0.18.2';s.onload=()=>setTimeout(loadLevel4,0);s.defer=true;document.head.appendChild(s)}
+function loadAdaptive(){if(window.CCNER_ADAPTIVE_GAME_ENGINE_REQUESTED)return;window.CCNER_ADAPTIVE_GAME_ENGINE_REQUESTED=true;load('game-engine-adaptive.js')}
 function load567(){if(window.CCNER_567_LOADED)return;window.CCNER_567_LOADED=true;load('level567-core.js','level567-core.css')}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{loadPhase6();loadPhase7();loadPhase8();load567()},{once:true});else{loadPhase6();loadPhase7();loadPhase8();load567()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{loadPhase6();loadPhase7();loadPhase8();loadAdaptive();load567()},{once:true});else{loadPhase6();loadPhase7();loadPhase8();loadAdaptive();load567()}
 })();
