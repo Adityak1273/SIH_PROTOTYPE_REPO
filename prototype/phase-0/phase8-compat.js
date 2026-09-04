@@ -1,4 +1,4 @@
-/* Compatibility bridge for the restored Phase 8 game records. */
+/* Compatibility bridge + video-structure loader for Phase 8. */
 (() => {
   'use strict';
   const KEY='ccner-history';
@@ -17,4 +17,6 @@
   normalize();
   window.addEventListener('storage',normalize);
   setInterval(normalize,3000);
+  const load=()=>{if(window.CCNER_VIDEO_GAMES_LOADED)return;window.CCNER_VIDEO_GAMES_LOADED=true;const s=document.createElement('script');s.src='./phase8-video-override.js?v=0.17.1';s.defer=true;document.head.appendChild(s)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();
