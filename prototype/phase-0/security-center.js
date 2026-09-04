@@ -72,7 +72,7 @@ async function exportExcel(){
 function printPdf(out){
  const rows=rowsFor(out);
  const table='<table><thead><tr>'+rows[0].map(esc).map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(v=>`<td>${esc(v)}</td>`).join('')+'</tr>').join('')+'</tbody></table>';
- const w=window.open('','_blank','noopener,noreferrer,width=1100,height=800');
+ const w=window.open('','_blank','width=1100,height=800');
  if(!w){alert('Please allow pop-ups to create the PDF.');return false}
  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cognitive Care NER — Personal Data Export</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;color:#17251d;font-size:9px}h1{font-size:18px;margin:0 0 4px}p{margin:0 0 12px;color:#56645b}table{border-collapse:collapse;width:100%;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #aeb8b1;padding:5px;vertical-align:top;word-break:break-word}th{background:#dfeee5;font-weight:700}th:nth-child(1){width:18%}th:nth-child(2){width:25%}th:nth-child(3){width:57%}</style></head><body><h1>Cognitive Care NER — Personal Data Export</h1><p>Generated '+esc(out.exportedAt)+' · Training results are not a medical diagnosis.</p>'+table+'<script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>');
  w.document.close();
