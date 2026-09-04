@@ -1,21 +1,28 @@
 /* Cognitive Care NER — hard core interaction boot. */
 (function(){
 'use strict';if(window.__ccnerCoreBoot)return;window.__ccnerCoreBoot=true;
-try{const auth=JSON.parse(localStorage.getItem('ccner.level2.auth.v1')||'null'),profile=JSON.parse(localStorage.getItem('ccner.level2.profile.v1')||'null');if(!(auth?.verified&&auth?.profileComplete&&profile?.fullName)){const app=document.querySelector('.app-shell');if(app)app.style.display='none';const css=document.createElement('link');css.rel='stylesheet';css.href='./level2-auth.css?v=0.18.0';document.head.appendChild(css);const s=document.createElement('script');s.src='./level2-auth.js?v=0.18.0';document.head.appendChild(s)}}catch(_){const app=document.querySelector('.app-shell');if(app)app.style.display='none';const css=document.createElement('link');css.rel='stylesheet';css.href='./level2-auth.css?v=0.18.0';document.head.appendChild(css);const s=document.createElement('script');s.src='./level2-auth.js?v=0.18.0';document.head.appendChild(s)}
+try{const auth=JSON.parse(localStorage.getItem('ccner.level2.auth.v1')||'null'),profile=JSON.parse(localStorage.getItem('ccner.level2.profile.v1')||'null');if(!(auth?.verified&&auth?.profileComplete&&profile?.fullName)){const app=document.querySelector('.app-shell');if(app)app.style.display='none';const css=document.createElement('link');css.rel='stylesheet';css.href='./level2-auth.css?v=0.18.2';document.head.appendChild(css);const s=document.createElement('script');s.src='./level2-auth.js?v=0.18.2';document.head.appendChild(s)}}catch(_){const app=document.querySelector('.app-shell');if(app)app.style.display='none';const css=document.createElement('link');css.rel='stylesheet';css.href='./level2-auth.css?v=0.18.2';document.head.appendChild(css);const s=document.createElement('script');s.src='./level2-auth.js?v=0.18.2';document.head.appendChild(s)}
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 function show(id){$$('.view').forEach(v=>v.hidden=true);const x=$(id);if(x)x.hidden=false;$$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===id.slice(1)));window.scrollTo?.({top:0,behavior:'smooth'})}
-function openPanel(name){if(window.CCNERPhase1?.openPanel)return window.CCNERPhase1.openPanel(name);const p=$('#overlayPanel');if(p)p.hidden=false}
-function start(){if(window.CCNER_LEVEL4_START_HOOK?.())return;if(window.CCNER_VIDEO_GAMES?.startSession)return window.CCNER_VIDEO_GAMES.startSession();if(window.CCNERGameRestored?.startSession)return window.CCNERGameRestored.startSession();if(typeof window.startSession==='function')return window.startSession();const s=$('#todayStatus');if(s)s.textContent='App is still loading…'}
+function start(){
+  if(window.CCNER_LEVEL4_START_HOOK?.())return;
+  // The legacy Phase-8 engines are loaded for compatibility, but MUST NOT win the
+  // race against the current adaptive five-game engine. If the new engine has not
+  // finished loading yet, wait briefly instead of starting a legacy game set.
+  if(window.CCNER_ADAPTIVE_GAME_ENGINE_V4 && window.CCNER_VIDEO_GAMES?.startSession)return window.CCNER_VIDEO_GAMES.startSession();
+  const s=$('#todayStatus');if(s)s.textContent='Loading today\'s five-game training…';
+  let tries=0;const wait=setInterval(()=>{tries++;if(window.CCNER_ADAPTIVE_GAME_ENGINE_V4 && window.CCNER_VIDEO_GAMES?.startSession){clearInterval(wait);window.CCNER_VIDEO_GAMES.startSession()}else if(tries>=30){clearInterval(wait);if(s)s.textContent='Game engine could not load. Please refresh once.'}},100);
+}
 function talk(){if(window.CCNERUIUpgrade?.openTalk)return window.CCNERUIUpgrade.openTalk();if(typeof window.armVoice==='function')return window.armVoice();if(typeof window.respond==='function')return window.respond('Hello Momo')}
 function progress(){if(typeof window.showResultsFromHistory==='function')return window.showResultsFromHistory();show('#resultsView')}
 function send(){const i=$('#chatInput'),text=i?.value?.trim();if(!text)return;i.value='';if(typeof window.respond==='function')return window.respond(text)}
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.action==='start')return start();if(b.dataset.action==='talk')return talk();if(b.dataset.action==='reminder')return openPanel('reminders');if(b.dataset.action==='progress')return progress();if(b.id==='sendButton')return send();if(b.id==='homeButton'||b.id==='backHome')return show('#homeView');if(b.id==='playAgain')return start();if(b.dataset.nav==='homeView')return show('#homeView');if(b.dataset.nav==='resultsView')return progress();if(b.dataset.nav==='reminders')return openPanel('reminders');if(b.dataset.nav==='settings')return openPanel('settings')},true);
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='chatInput')send()});
-function load(src,css){if(css){const l=document.createElement('link');l.rel='stylesheet';l.href='./'+css+'?v=0.18.0';document.head.appendChild(l)}const s=document.createElement('script');s.src='./'+src+'?v=0.18.0';s.defer=true;document.head.appendChild(s)}
+function load(src,css){if(css){const l=document.createElement('link');l.rel='stylesheet';l.href='./'+css+'?v=0.18.2';document.head.appendChild(l)}const s=document.createElement('script');s.src='./'+src+'?v=0.18.2';s.defer=true;document.head.appendChild(s);return s}
 function loadPhase6(){if(window.CCNER_PHASE6_LOADED)return;window.CCNER_PHASE6_LOADED=true;load('phase6.js','phase6.css')}
 function loadPhase7(){if(window.CCNER_PHASE7_LOADED)return;window.CCNER_PHASE7_LOADED=true;load('phase7.js','phase7.css')}
 function loadLevel4(){if(window.CCNER_LEVEL4_LOADED)return;window.CCNER_LEVEL4_LOADED=true;load('level4-game.js','level4-game.css');load('level4-video-bridge.js','level4-video-bridge.css')}
-function loadPhase8(){if(window.CCNER_PHASE8_LOADED)return;window.CCNER_PHASE8_LOADED=true;const s=document.createElement('script');s.src='./phase8.js?v=0.18.0';s.onload=()=>setTimeout(loadLevel4,0);s.defer=true;document.head.appendChild(s);load('phase8-compat.js');load('phase8-video-override.js')}
+function loadPhase8(){if(window.CCNER_PHASE8_LOADED)return;window.CCNER_PHASE8_LOADED=true;const s=document.createElement('script');s.src='./phase8.js?v=0.18.2';s.onload=()=>setTimeout(loadLevel4,0);s.defer=true;document.head.appendChild(s);load('phase8-compat.js');load('phase8-video-override.js')}
 function load567(){if(window.CCNER_567_LOADED)return;window.CCNER_567_LOADED=true;load('level567-core.js','level567-core.css')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{loadPhase6();loadPhase7();loadPhase8();load567()},{once:true});else{loadPhase6();loadPhase7();loadPhase8();load567()}
 })();
