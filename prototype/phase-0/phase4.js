@@ -1,9 +1,33 @@
 /* Phase 4 — production-readiness layer
  * Safety-first: training analytics are never presented as a diagnosis.
  * Critical startup intentionally contains no dynamic asset loader.
+ * Phase 5 stability guard: multilingual.js must not observe characterData,
+ * otherwise its own text replacement creates a MutationObserver feedback loop.
  */
 (() => {
   'use strict';
+
+  // Install before multilingual.js loads. The existing app only needs childList
+  // observation for dynamic screens; disabling characterData breaks the recursive
+  // text-node -> mutation -> text-node loop introduced by Phase 5 localization.
+  if (!window.__CCNER_PHASE5_GUARD__) {
+    const NativeMutationObserver = window.MutationObserver;
+    if (typeof NativeMutationObserver === 'function') {
+      window.__CCNER_PHASE5_GUARD__ = true;
+      window.MutationObserver = function Phase5SafeMutationObserver(callback) {
+        const observer = new NativeMutationObserver(callback);
+        return {
+          observe(target, options = {}) {
+            observer.observe(target, { ...options, characterData: false, characterDataOldValue: false });
+          },
+          disconnect() { observer.disconnect(); },
+          takeRecords() { return observer.takeRecords(); }
+        };
+      };
+      window.MutationObserver.prototype = NativeMutationObserver.prototype;
+    }
+  }
+
   const KEY = 'ccner_phase4';
   let state = {};
   try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (_) { state = {}; }
