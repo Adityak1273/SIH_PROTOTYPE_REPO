@@ -37,10 +37,20 @@ jobs:
           grep -q '^ENV BUILD_VERSION=0.17.1$' Dockerfile
           grep -q "BUILD_VERSION.*0.17.1" server.js
           grep -q 'styles.css?v=0.17.1' prototype/phase-0/index.html
-          grep -q 'core-boot.js?v=0.17.1' prototype/phase-0/index.html
+          grep -q 'core-boot.js?v=0.18.0' prototype/phase-0/index.html
+          grep -q 'phase8-video-override.js' prototype/phase-0/core-boot.js
+          grep -q 'v=0.18.0' prototype/phase-0/core-boot.js
           grep -q 'dockerfile: Dockerfile' zopday.yaml
           grep -q '"80:80"' zopday.yaml
           grep -q '"8080:80"' docker-compose.yml
+      - name: Video game session checks
+        run: |
+          set -e
+          grep -q "shuffle(\['sequence','sorting','pattern','belong'\])" prototype/phase-0/phase8-video-override.js
+          grep -q "state.index<3" prototype/phase-0/phase8-video-override.js
+          grep -q "4 / 4" prototype/phase-0/phase8-video-override.js
+          grep -q "Around the House Sorting" prototype/phase-0/phase8-video-override.js
+          grep -q "Where Do They Belong?" prototype/phase-0/phase8-video-override.js
       - name: Static asset reference check
         run: |
           node <<'NODE'
