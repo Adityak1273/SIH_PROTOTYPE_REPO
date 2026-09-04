@@ -1,13 +1,14 @@
 /* Momo voice-mode control: Continuous or Manual. */
 (() => {
   'use strict';
+  if (window.__CCNER_VOICE_MODE_CONTROLLER__) return;
+  window.__CCNER_VOICE_MODE_CONTROLLER__ = true;
   const KEY = 'ccner-momo-voice-mode';
   const getMode = () => localStorage.getItem(KEY) === 'manual' ? 'manual' : 'continuous';
   const getLanguage = () => {
     const raw = localStorage.getItem('ccner-p1-language') || window.CCNER_CONFIG?.LANGUAGE || 'en-IN';
-    return ({ en: 'en-IN', 'en-IN': 'en-IN', hi: 'hi-IN', 'hi-IN': 'hi-IN', bn: 'bn-IN', 'bn-IN': 'bn-IN', as: 'as-IN', 'as-IN': 'as-IN' })[raw] || 'en-IN';
+    return ({en:'en-IN','en-IN':'en-IN',hi:'hi-IN','hi-IN':'hi-IN',bn:'bn-IN','bn-IN':'bn-IN',as:'as-IN','as-IN':'as-IN'})[raw] || 'en-IN';
   };
-
   let manualRecognition = null;
   let manualListening = false;
 
@@ -15,13 +16,15 @@
     const mode = getMode();
     document.querySelectorAll('[data-ccner-voice]').forEach(btn => {
       const active = btn.dataset.ccnerVoice === mode;
-      btn.classList.toggle('active', active);
-      btn.setAttribute('aria-pressed', String(active));
+      if (btn.classList.contains('active') !== active) btn.classList.toggle('active', active);
+      const pressed = String(active);
+      if (btn.getAttribute('aria-pressed') !== pressed) btn.setAttribute('aria-pressed', pressed);
     });
     const mic = document.querySelector('#l3VoiceBtn');
     if (mic) {
-      mic.title = mode === 'manual' ? 'Tap to talk to Momo' : 'Talk to Momo';
-      mic.setAttribute('aria-label', mode === 'manual' ? 'Tap to talk to Momo' : 'Talk to Momo');
+      const title = mode === 'manual' ? 'Tap to talk to Momo' : 'Talk to Momo';
+      if (mic.title !== title) mic.title = title;
+      if (mic.getAttribute('aria-label') !== title) mic.setAttribute('aria-label', title);
     }
   }
 
@@ -35,19 +38,18 @@
   }
 
   function stopManual() {
-    try { manualRecognition?.stop(); } catch (_) {}
+    const r = manualRecognition;
     manualRecognition = null;
     manualListening = false;
+    try { r?.stop(); } catch (_) {}
   }
 
   function setMode(mode) {
     const value = mode === 'manual' ? 'manual' : 'continuous';
     localStorage.setItem(KEY, value);
     document.documentElement.dataset.ccnerVoiceMode = value;
-    if (value === 'manual') {
-      try { window.stopListening?.(false); } catch (_) {}
-      stopManual();
-    }
+    try { window.stopListening?.(false); } catch (_) {}
+    if (value === 'manual') stopManual();
     refreshButtons();
     updateVoicePrompt();
   }
@@ -72,8 +74,9 @@
     const status = document.querySelector('#statusText');
     if (hint) hint.hidden = false;
     if (status) status.textContent = 'Listening for you';
-    let finalText = '';
+    let submitted = false;
     r.onresult = e => {
+      let finalText = '';
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const text = e.results[i][0]?.transcript || '';
@@ -82,26 +85,24 @@
       }
       const speech = document.querySelector('#speechText');
       if (interim && speech) speech.textContent = interim;
-      if (finalText.trim()) {
-        const text = finalText.trim();
-        finalText = '';
-        window.respond?.(text);
+      if (!submitted && finalText.trim()) {
+        submitted = true;
+        window.respond?.(finalText.trim());
         try { r.stop(); } catch (_) {}
       }
     };
     const finish = () => {
+      if (manualRecognition === r) manualRecognition = null;
       manualListening = false;
-      manualRecognition = null;
       if (hint) hint.hidden = true;
       if (status) status.textContent = 'Ready to play';
-      refreshButtons();
     };
     r.onerror = finish;
     r.onend = finish;
     try { r.start(); } catch (_) { finish(); }
   }
 
-  function installManualButtonHook() {
+  function hookMic() {
     const button = document.querySelector('#l3VoiceBtn');
     if (!button || button.dataset.ccnerManualHook === '1') return;
     button.dataset.ccnerManualHook = '1';
@@ -113,70 +114,62 @@
     }, true);
   }
 
+  function findVoiceRow() {
+    const label = [...document.querySelectorAll('body *')].find(el => el.children.length === 0 && el.textContent.trim() === 'Voice mode');
+    if (!label) return null;
+    let node = label.parentElement;
+    for (let i = 0; node && i < 6; i++, node = node.parentElement) {
+      if (node.tagName === 'BUTTON') return node.parentElement;
+      const hasValue = [...node.querySelectorAll('*')].some(el => el.children.length === 0 && ['Continuous','Manual'].includes(el.textContent.trim()));
+      if (hasValue) return node;
+    }
+    return label.parentElement;
+  }
+
   function ensureSettingsControl() {
-    const leaves = [...document.querySelectorAll('body *')].filter(el => {
-      return el.children.length === 0 && el.textContent.trim() === 'Voice mode';
-    });
-
-    leaves.forEach(label => {
-      // Prefer the immediate row containing the Voice mode label.
-      let row = label.parentElement;
-      if (!row) return;
-      for (let i = 0; i < 3 && row.parentElement; i++) {
-        if (row.querySelector('button, [role="button"]')) break;
-        row = row.parentElement;
-      }
-
-      if (row.querySelector('.ccner-voice-mode-control')) return;
-
-      const control = document.createElement('div');
-      control.className = 'ccner-voice-mode-control';
-      control.setAttribute('aria-label', 'Momo voice mode');
-      control.innerHTML = '<button type="button" data-ccner-voice="continuous" aria-pressed="false">Continuous</button><button type="button" data-ccner-voice="manual" aria-pressed="false">Manual</button>';
-      control.querySelectorAll('[data-ccner-voice]').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.preventDefault();
-          e.stopPropagation();
-          setMode(btn.dataset.ccnerVoice);
-        });
-      });
-
-      // Replace the old static value if it is present in this row.
-      [...row.querySelectorAll('*')].forEach(el => {
-        if (el === label || el.closest('.ccner-voice-mode-control')) return;
-        if (el.children.length === 0 && el.textContent.trim() === 'Continuous') el.hidden = true;
-      });
-
-      row.appendChild(control);
-      refreshButtons();
-    });
+    const row = findVoiceRow();
+    if (!row || row.querySelector('.ccner-voice-mode-control')) return;
+    const control = document.createElement('div');
+    control.className = 'ccner-voice-mode-control';
+    control.setAttribute('aria-label', 'Momo voice mode');
+    control.innerHTML = '<button type="button" data-ccner-voice="continuous" aria-pressed="false">Continuous</button><button type="button" data-ccner-voice="manual" aria-pressed="false">Manual</button>';
+    const oldValue = [...row.querySelectorAll('*')].find(el => el.children.length === 0 && ['Continuous','Manual'].includes(el.textContent.trim()));
+    if (oldValue && oldValue.tagName !== 'BUTTON') oldValue.replaceWith(control);
+    else row.appendChild(control);
+    control.querySelectorAll('[data-ccner-voice]').forEach(btn => btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      setMode(btn.dataset.ccnerVoice);
+    }));
+    refreshButtons();
   }
 
   const style = document.createElement('style');
   style.textContent = `
-    .ccner-voice-mode-control{display:flex!important;gap:8px;align-items:center;margin-left:auto;flex-shrink:0}
+    .ccner-voice-mode-control{display:flex!important;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-left:auto;flex-shrink:0}
     .ccner-voice-mode-control button{border:1px solid #dfd1c2!important;background:#fffaf5!important;color:#4f443b!important;border-radius:10px!important;padding:8px 12px!important;font-weight:800!important;cursor:pointer!important;line-height:1.1!important}
     .ccner-voice-mode-control button.active{background:#6d4ca5!important;color:#fff!important;border-color:#6d4ca5!important}
     .ccner-voice-mode-control button:focus-visible{outline:3px solid rgba(109,76,165,.25);outline-offset:2px}
-    @media(max-width:560px){.ccner-voice-mode-control{margin-left:0;margin-top:6px;flex-wrap:wrap}}
+    @media(max-width:560px){.ccner-voice-mode-control{margin-left:0;justify-content:flex-start;margin-top:6px}}
   `;
   document.head.appendChild(style);
-
   document.documentElement.dataset.ccnerVoiceMode = getMode();
-  window.CCNERVoiceMode = { getMode, setMode, manualListen, stopManual };
+  window.CCNERVoiceMode = {getMode,setMode,manualListen,stopManual};
 
-  const boot = () => {
-    installManualButtonHook();
+  function boot() {
+    hookMic();
     ensureSettingsControl();
     refreshButtons();
     updateVoicePrompt();
-  };
-
-  const observer = new MutationObserver(() => boot());
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot, { once: true });
-  } else {
-    boot();
   }
-  observer.observe(document.body, { childList: true, subtree: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true});
+  else boot();
+
+  // Do not use MutationObserver here: other app modules mutate the dashboard frequently.
+  setInterval(() => {
+    hookMic();
+    ensureSettingsControl();
+    refreshButtons();
+    updateVoicePrompt();
+  }, 1000);
 })();
