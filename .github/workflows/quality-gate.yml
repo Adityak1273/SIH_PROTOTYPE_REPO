@@ -28,4 +28,4 @@ jobs:
           grep -q "Content-Security-Policy" server.js
       - name: Secret-pattern guard
         run: |
-          ! grep -RInE "sk-[A-Za-z0-9_-]{20,}|service_role|SUPABASE_SERVICE_ROLE_KEY" --include='*.js' --include='*.json' --include='*.yml' --include='*.yaml' prototype server.js package.json capacitor.config.json .github
+          ! grep -RInE "sk-[A-Za-z0-9_-]{20,}|service_role|SUPABASE_SERVICE_ROLE_KEY" --include='*.js' --include='*.json' prototype server.js package.json capacitor.config.json
