@@ -1,5 +1,13 @@
-const CACHE='cognitive-care-ner-v0.13.1';
-const APP_SHELL=['./','./index.html','./app.js?v=0.13.1','./config.js?v=0.13.1','./api-bridge.js?v=0.13.1','./core-boot.js?v=0.13.1','./recovery-boot.js?v=0.13.0','./styles.css?v=0.13.1','./avatar.css?v=0.13.1','./phase1.css?v=0.13.1','./phase4.css?v=0.13.1','./multilingual.css?v=0.13.1','./manifest.webmanifest'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(APP_SHELL)).catch(()=>{}));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==self.location.origin)return;const asset=u.pathname.endsWith('.html')||u.pathname.endsWith('.js')||u.pathname.endsWith('.css')||u.pathname==='/'||u.pathname.endsWith('.webmanifest');if(asset){e.respondWith(fetch(e.request,{cache:'no-store'}).then(r=>{if(r?.ok){const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c)).catch(()=>{})}return r}).catch(()=>caches.match(e.request).then(x=>x||caches.match('./index.html'))));return}e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(x=>x.put(e.request,cp)).catch(()=>{});return r}).catch(()=>caches.match('./index.html'))))});
+/* Cognitive Care NER — web cache guard.
+ * The web app is served directly by Node/ZopCloud. Do not cache application
+ * HTML/JS here: deployment revisions must become visible immediately.
+ */
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.map(key => caches.delete(key))))
+      .then(() => self.registration.unregister())
+      .then(() => self.clients.claim())
+  );
+});
