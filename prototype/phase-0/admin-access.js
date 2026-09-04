@@ -2,16 +2,10 @@
 (()=>{
 'use strict';
 if(window.__CCNER_ADMIN_ACCESS__)return;window.__CCNER_ADMIN_ACCESS__=true;
-const ADMIN_EMAIL='adityak1273@gmail.com',VERSION='0.18.6';
+const ADMIN_EMAIL='adityak1273@gmail.com',VERSION='0.18.7';
 let sb=null;
 const $=(s,r=document)=>r.querySelector(s);
-function config(){return window.CCNER_CONFIG||{};}
-async function initClient(){
-  const shared=window.CCNERAuth?.client?.();
-  if(shared){sb=shared;return sb;}
-  if(sb)return sb;
-  return null;
-}
+function initClient(){const shared=window.CCNERAuth?.client?.();if(shared){sb=shared;return sb;}return sb;}
 function addAdminButton(){
   const gate=$('#l2AuthGate'),choice=$('.l2v-choice',gate);if(!gate||!choice||$('#ccnerAdminLogin'))return false;
   const b=document.createElement('button');b.id='ccnerAdminLogin';b.type='button';b.className='l2v-btn ghost l2v-admin-btn';b.textContent='Admin Login';b.onclick=openAdminLogin;choice.appendChild(b);return true;
@@ -26,7 +20,7 @@ function modal(){
 function adminMsg(t,bad=false){const e=$('#ccnerAdminMsg');if(!e)return;e.textContent=t;e.classList.toggle('bad',bad);}
 function openAdminLogin(){modal();}
 async function sendAdminLink(){
-  const c=await initClient();if(!c)return adminMsg('Authentication service is still starting. Please wait a moment and try again.',true);
+  const c=initClient();if(!c)return adminMsg('Authentication service is still starting. Please wait a moment and try again.',true);
   const b=$('#ccnerAdminSend');b.disabled=true;adminMsg('Sending secure admin login link…');
   try{
     const {error}=await c.auth.signInWithOtp({email:ADMIN_EMAIL,options:{shouldCreateUser:true,emailRedirectTo:location.origin+location.pathname}});
@@ -35,7 +29,7 @@ async function sendAdminLink(){
   }catch(e){adminMsg(e?.message||'Could not send the admin login link.',true);}finally{b.disabled=false;}
 }
 async function ensureAdmin(){
-  const c=await initClient();if(!c)return false;
+  const c=initClient();if(!c)return false;
   const {data}=await c.auth.getSession();const u=data?.session?.user;if(!u||String(u.email||'').toLowerCase()!==ADMIN_EMAIL.toLowerCase())return false;
   let {data:p}=await c.from('profiles').select('*').eq('user_id',u.id).maybeSingle();
   if(!p||p.role!=='admin'){
@@ -51,12 +45,12 @@ async function renderDashboard(){
   $('#l2AuthGate')?.remove();
   document.body.insertAdjacentHTML('afterbegin',`<main id="ccnerAdminDashboard" class="ccner-admin-dashboard"><header class="ccner-admin-head"><div><p class="ccner-admin-kicker">COGNITIVE CARE NER · ADMIN</p><h1>Administrator Dashboard</h1><p>Protected overview of registered users and cognitive-training activity.</p></div><div class="ccner-admin-actions"><button id="ccnerAdminRefresh" type="button">↻ Refresh reports</button><button id="ccnerAdminLogout" type="button">Sign out</button></div></header><section class="ccner-admin-summary"><article><span>Registered users</span><strong id="adminUsers">—</strong></article><article><span>Total sessions</span><strong id="adminSessions">—</strong></article><article><span>Average accuracy</span><strong id="adminAccuracy">—</strong></article><article><span>Open alerts</span><strong id="adminAlerts">—</strong></article></section><section class="ccner-admin-panel"><div class="ccner-admin-panel-head"><div><p class="ccner-admin-kicker">REPORTS</p><h2>Patient & care activity</h2></div><span id="ccnerAdminStatus">Loading…</span></div><div class="ccner-admin-table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Sessions</th><th>Accuracy</th><th>Score</th><th>Games</th><th>Last session</th><th>Alerts</th></tr></thead><tbody id="ccnerAdminRows"></tbody></table></div><p class="ccner-admin-disclaimer">Training metrics describe game performance and engagement. They are not a dementia diagnosis or clinical staging result.</p></section><footer>Admin access · build ${VERSION} · restricted by server-side allowlist</footer></main>`);
   $('#ccnerAdminRefresh').onclick=loadReports;
-  $('#ccnerAdminLogout').onclick=async()=>{const c=await initClient();await c?.auth.signOut();location.reload();};
+  $('#ccnerAdminLogout').onclick=async()=>{const c=initClient();await c?.auth.signOut();location.reload();};
   await loadReports();
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function loadReports(){
-  const c=await initClient();if(!c)return;
+  const c=initClient();if(!c)return;
   const st=$('#ccnerAdminStatus');if(st)st.textContent='Refreshing…';
   const {data,error}=await c.rpc('get_admin_patient_reports');
   if(error){if(st)st.textContent='Report access error';$('#ccnerAdminRows').innerHTML=`<tr><td colspan="8">${esc(error.message||'Unable to load reports.')}</td></tr>`;return;}
