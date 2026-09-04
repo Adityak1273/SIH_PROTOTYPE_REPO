@@ -31,7 +31,12 @@ jobs:
           p=Path('android/app/src/main/AndroidManifest.xml')
           s=p.read_text()
           perms=['android.permission.POST_NOTIFICATIONS','android.permission.SCHEDULE_EXACT_ALARM']
-          pos=s.find('>')+1
+          start=s.find('<manifest')
+          if start < 0:
+              raise SystemExit('AndroidManifest.xml has no manifest element')
+          pos=s.find('>', start)+1
+          if pos <= start:
+              raise SystemExit('Could not locate manifest opening tag')
           additions=''.join(f'\n    <uses-permission android:name="{x}" />' for x in perms if f'android:name="{x}"' not in s)
           if additions:
               s=s[:pos]+additions+s[pos:]
