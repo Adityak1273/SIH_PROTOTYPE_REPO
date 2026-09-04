@@ -3,6 +3,10 @@
   'use strict';
   const KEY = 'ccner-momo-voice-mode';
   const getMode = () => localStorage.getItem(KEY) === 'manual' ? 'manual' : 'continuous';
+  const getLanguage = () => {
+    const raw = localStorage.getItem('ccner-p1-language') || window.CCNER_CONFIG?.LANGUAGE || 'en-IN';
+    return ({ en: 'en-IN', 'en-IN': 'en-IN', hi: 'hi-IN', 'hi-IN': 'hi-IN', bn: 'bn-IN', 'bn-IN': 'bn-IN', as: 'as-IN', 'as-IN': 'as-IN' })[raw] || 'en-IN';
+  };
   const setMode = mode => {
     const value = mode === 'manual' ? 'manual' : 'continuous';
     localStorage.setItem(KEY, value);
@@ -29,11 +33,15 @@
     if (getMode() !== 'manual' || manualListening) return;
     try { window.stopListening?.(false); } catch (_) {}
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Recognition) return;
+    if (!Recognition) {
+      const status = document.querySelector('#statusText');
+      if (status) status.textContent = 'Voice recognition unavailable';
+      return;
+    }
     const r = new Recognition();
     manualRecognition = r;
     manualListening = true;
-    r.lang = 'en-IN';
+    r.lang = getLanguage();
     r.interimResults = true;
     r.continuous = false;
     r.maxAlternatives = 1;
@@ -63,6 +71,7 @@
       manualRecognition = null;
       if (hint) hint.hidden = true;
       if (status) status.textContent = 'Ready to play';
+      refreshButtons();
     };
     r.onerror = finish;
     r.onend = finish;
@@ -123,6 +132,12 @@
       const pressed = String(active);
       if (btn.getAttribute('aria-pressed') !== pressed) btn.setAttribute('aria-pressed', pressed);
     });
+    const mic = document.querySelector('#l3VoiceBtn');
+    if (mic) {
+      const manual = mode === 'manual';
+      mic.title = manual ? 'Tap to talk to Momo' : 'Talk to Momo';
+      mic.setAttribute('aria-label', manual ? 'Tap to talk to Momo' : 'Talk to Momo');
+    }
   }
 
   const observer = new MutationObserver(() => {
