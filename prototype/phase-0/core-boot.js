@@ -69,4 +69,15 @@
   document.addEventListener('keydown', function(e){
     if (e.key === 'Enter' && document.activeElement?.id === 'chatInput') send();
   });
+
+  /* Phase 6 loader: kept outside index.html so the diagnostic page remains stable.
+     Cache-bust with the current phase version and fail silently if unavailable. */
+  function loadPhase6(){
+    if (window.CCNER_PHASE6_LOADED) return;
+    window.CCNER_PHASE6_LOADED = true;
+    const version='0.15.0';
+    const css=document.createElement('link'); css.rel='stylesheet'; css.href='./phase6.css?v='+version; document.head.appendChild(css);
+    const script=document.createElement('script'); script.src='./phase6.js?v='+version; script.defer=true; document.head.appendChild(script);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadPhase6, {once:true}); else loadPhase6();
 })();
