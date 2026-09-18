@@ -4,7 +4,6 @@
 (()=>{
 'use strict';
 if(window.__ccnerCoreBoot)return;window.__ccnerCoreBoot=true;
-const app=document.querySelector('.app-shell');if(app)app.style.display='none';
 const loaded=new Set();
 function load(src,css){
  if(loaded.has(src))return;loaded.add(src);
@@ -20,11 +19,10 @@ function boot(){
  loadOnce('spot-difference-ux.js');
 }
 function recover(){
- const reveal=()=>{const a=document.querySelector('.app-shell');if(a)a.style.display='';};
+ const reveal=()=>{};
  window.addEventListener('error',e=>{console.error('[CCNER]',e.error||e.message);reveal();window.dispatchEvent(new CustomEvent('ccner:runtime-error',{detail:{message:String(e.message||'Runtime error')}}))});
  window.addEventListener('unhandledrejection',e=>{console.error('[CCNER promise]',e.reason);e.preventDefault();reveal();window.dispatchEvent(new CustomEvent('ccner:runtime-error',{detail:{message:String(e.reason?.message||e.reason||'Async error')}}))});
  window.addEventListener('ccner:runtime-ready',reveal,{once:true});
- setTimeout(reveal,4000);
 }
 function authSecurity(){
  loadOnce('level2-auth-v2.js','level2-auth-v2.css');
