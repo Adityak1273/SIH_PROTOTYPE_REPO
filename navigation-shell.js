@@ -17,6 +17,7 @@ function mount(){if($('#ccnerDrawer'))return;const d=document.createElement('asi
 <button type="button" data-drawer-action="dashboard">⌂ <span>Dashboard</span></button>
 <button type="button" data-drawer-action="profile">👤 <span>Profile</span></button>
 <button type="button" data-drawer-action="mino">🐶 <span>Mimo</span></button>
+<button type="button" data-drawer-action="mimo-settings">⚙️ <span>Mimo Settings</span></button>
 <button type="button" data-drawer-action="games">🎮 <span>Game settings</span></button>
 <button type="button" data-drawer-action="reminders">⏰ <span>Reminders</span></button>
 <button type="button" data-drawer-action="progress">📈 <span>Progress</span></button>
