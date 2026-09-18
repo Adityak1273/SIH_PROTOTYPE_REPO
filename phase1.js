@@ -30,7 +30,7 @@
 
   const langNames = {'en-IN':'English (India)','hi-IN':'हिन्दी','bn-IN':'বাংলা','as-IN':'অসমীয়া'};
   const translations = {
-    'en-IN': {welcome:'Hello! I’m Momo. Shall we take today one small step at a time?',today:'Today',progress:'Progress',reminders:'Reminders',settings:'Settings',caregiver:'Caregiver dashboard',save:'Save',close:'Close'},
+    'en-IN': {welcome:'Hello! I’m Mino. Shall we take today one small step at a time?',today:'Today',progress:'Progress',reminders:'Reminders',settings:'Settings',caregiver:'Caregiver dashboard',save:'Save',close:'Close'},
     'hi-IN': {welcome:'नमस्ते! मैं मोमो हूँ। आज हम एक छोटा कदम साथ में उठाएँ?',today:'आज',progress:'प्रगति',reminders:'रिमाइंडर',settings:'सेटिंग्स',caregiver:'देखभालकर्ता डैशबोर्ड',save:'सहेजें',close:'बंद करें'},
     'bn-IN': {welcome:'নমস্কার! আমি মোমো। আজ আমরা একসাথে একটি ছোট পদক্ষেপ নেব?',today:'আজ',progress:'অগ্রগতি',reminders:'রিমাইন্ডার',settings:'সেটিংস',caregiver:'কেয়ারগিভার ড্যাশবোর্ড',save:'সংরক্ষণ',close:'বন্ধ'},
     'as-IN': {welcome:'নমস্কাৰ! মই মোমো। আজি আমি একেলগে এটা সৰু খোজ লওঁ আহক?',today:'আজি',progress:'অগ্ৰগতি',reminders:'সোঁৱৰনী',settings:'ছেটিংছ',caregiver:'কেয়াৰগিভাৰ ডেশ্বব’ৰ্ড',save:'সংৰক্ষণ',close:'বন্ধ'}
@@ -157,7 +157,7 @@
 
   function applyLanguage(){
     const t=translations[language]||translations['en-IN'];
-    const pageTitle=$('#pageTitle'); if(pageTitle && !pageTitle.dataset.customized) pageTitle.textContent=profile.name?`Meet Momo, ${profile.name}`:'Meet Momo';
+    const pageTitle=$('#pageTitle'); if(pageTitle && !pageTitle.dataset.customized) pageTitle.textContent=profile.name?`Meet Mino, ${profile.name}`:'Meet Mino';
     document.documentElement.lang=language.slice(0,2);
     window.CCNER_LANGUAGE=language;
     window.CCNER_TTS_LANG=language;
