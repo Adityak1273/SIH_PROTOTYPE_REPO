@@ -46,8 +46,8 @@ jobs:
           grep -q '^ENV PORT=80$' Dockerfile
           grep -q '^ENV BUILD_VERSION=0.20.1$' Dockerfile
           grep -q "const ROOT=__dirname" server.js
-          grep -q 'styles.css?v=0.20.0' index.html
-          grep -q 'core-boot.js?v=0.20.0' index.html
+          grep -q 'styles.css?v=0.20.1' index.html
+          grep -q 'core-boot.js?v=0.20.1' index.html
           grep -q 'level2-auth-v2.js?v=0.18.15' core-boot.js
           grep -q 'security-center.js?v=0.19.1' core-boot.js
           grep -q '"webDir": "."' capacitor.config.json
