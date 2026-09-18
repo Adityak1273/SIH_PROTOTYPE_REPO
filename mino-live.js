@@ -37,10 +37,10 @@ async function startMic(){if(!state.ws||state.ws.readyState!==WebSocket.OPEN)ret
 function stopMicOnly(){try{state.processor?.disconnect()}catch{}try{state.source?.disconnect()}catch{}try{state.mic?.getTracks().forEach(t=>t.stop())}catch{}try{state.inputCtx?.close()}catch{}state.processor=null;state.source=null;state.mic=null;state.inputCtx=null}
 async function start(){if(state.running||state.connecting)return;state.connecting=true;status('Connecting Mino voice',true);setMood('thinking','thinking');try{if(!navigator.mediaDevices?.getUserMedia||!window.WebSocket)throw Error('Voice input is unavailable');const t=await token();state.outputCtx=new (window.AudioContext||window.webkitAudioContext)({sampleRate:24000});await state.outputCtx.resume();await openSocket(t);await startMic();state.running=true;state.connecting=false;status('Mino is listening',true);speech('I’m listening. You can talk naturally.');setMood('listening','listening')}catch(e){state.connecting=false;stopMicOnly();try{state.ws?.close()}catch{}state.ws=null;state.running=false;console.warn('[Mino Live] fallback:',e?.message||e);status('Voice ready');window.armVoice?.__ccnerOriginal?.();}}
 function stop(){state.running=false;stopMicOnly();try{state.ws?.close()}catch{}state.ws=null;if(state.outputCtx){try{state.outputCtx.close()}catch{}state.outputCtx=null}state.nextPlay=0;status('Voice ready');}
-const originalArm=window.armVoice;
+let fallbackArm=null,liveArm=null;
+function installVoiceHook(){const base=window.armVoice;if(!base||base===liveArm)return;fallbackArm=base;liveArm=()=>{if(cfg().GEMINI_LIVE_ENABLED===false)return fallbackArm?.();return start()};liveArm.__ccnerOriginal=fallbackArm;window.armVoice=liveArm}
 window.CCNERMinoLive={start,stop,isRunning:()=>state.running};
-window.armVoice=()=>{if(cfg().GEMINI_LIVE_ENABLED===false)return originalArm?.();start()};
-window.armVoice.__ccnerOriginal=originalArm;
+installVoiceHook();setInterval(installVoiceHook,500);
 window.stopListening=(()=>{const old=window.stopListening;return keep=>{if(state.running)stop();return old?.(keep)}})();
 window.__CCNER_MINO_LIVE_READY__=true;
 })();
