@@ -25,22 +25,32 @@ jobs:
 
       - name: Canonical runtime assets
         run: |
-          set -e
-          for f in index.html styles.css app.js core-boot.js navigation-shell.js secure-sync-bridge.js game-engine-v6.js security-center.js level2-auth-v2.js; do test -f "$f"; done
-          grep -q '"version": "0.20.3"' package.json
-          grep -q 'game-engine-v6.js' core-boot.js
-          grep -q 'navigation-shell.js' index.html
-          ! grep -q 'phase4.js' index.html
-          ! grep -q 'game-controls.js' index.html
-          ! grep -q 'game-engine-adaptive' index.html
-          ! grep -q 'game-set-override.js' index.html
-          grep -q 'CCNER_SAFE_START_SESSION' game-engine-v6.js
-          grep -q 'crypto.randomUUID' game-engine-v6.js
-          grep -q 'BUILD_VERSION.*0.20.3' server.js
-          grep -q 'BUILD_VERSION=0.20.3' Dockerfile
-          grep -q 'v6Exit' game-engine-v6.js
-          grep -q 'ccner:game-session-exit' game-engine-v6.js
-
+          node <<'NODE'
+          const fs=require('fs');
+          const mustExist=['index.html','styles.css','app.js','core-boot.js','navigation-shell.js','secure-sync-bridge.js','game-engine-v6.js','security-center.js','level2-auth-v2.js'];
+          for(const f of mustExist) if(!fs.existsSync(f)) throw new Error('Missing canonical asset: '+f);
+          const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+          if(pkg.version!=='0.20.3') throw new Error('Unexpected package version: '+pkg.version);
+          const index=fs.readFileSync('index.html','utf8');
+          const core=fs.readFileSync('core-boot.js','utf8');
+          const game=fs.readFileSync('game-engine-v6.js','utf8');
+          const server=fs.readFileSync('server.js','utf8');
+          const docker=fs.readFileSync('Dockerfile','utf8');
+          const checks=[
+            ['game engine boot',core,'game-engine-v6.js'],
+            ['navigation shell boot',index,'navigation-shell.js'],
+            ['safe session start',game,'CCNER_SAFE_START_SESSION'],
+            ['stable session ids',game,'crypto.randomUUID'],
+            ['build version server',server,'0.20.3'],
+            ['build version docker',docker,'BUILD_VERSION=0.20.3'],
+            ['single exit control',game,'v6Exit'],
+            ['game exit event',game,'ccner:game-session-exit']
+          ];
+          for(const [label,text,needle] of checks) if(!text.includes(needle)) throw new Error('Missing '+label+': '+needle);
+          for(const forbidden of ['phase4.js','game-controls.js','game-engine-adaptive','game-set-override.js'])
+            if(index.includes(forbidden)) throw new Error('Obsolete runtime reference: '+forbidden);
+          console.log('Canonical runtime checks passed.');
+          NODE
       - name: Navigation and accessibility checks
         run: |
           set -e
