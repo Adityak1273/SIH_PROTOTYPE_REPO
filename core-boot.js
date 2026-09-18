@@ -7,8 +7,8 @@ if(window.__ccnerCoreBoot)return;window.__ccnerCoreBoot=true;
 const loaded=new Set();
 function load(src,css){
  if(loaded.has(src))return;loaded.add(src);
- if(css&&!document.querySelector('link[data-ccner="'+css+'"]')){const l=document.createElement('link');l.rel='stylesheet';l.dataset.ccner=css;l.href='./'+css+'?v=0.20.2';document.head.appendChild(l)}
- const s=document.createElement('script');s.src='./'+src+'?v=0.20.2';s.defer=true;document.head.appendChild(s);
+ if(css&&!document.querySelector('link[data-ccner="'+css+'"]')){const l=document.createElement('link');l.rel='stylesheet';l.dataset.ccner=css;l.href='./'+css+'?v=0.20.3';document.head.appendChild(l)}
+ const s=document.createElement('script');s.src='./'+src+'?v=0.20.3';s.defer=true;document.head.appendChild(s);
 }
 function loadOnce(src,css){load(src,css)}
 function boot(){
@@ -19,11 +19,15 @@ function boot(){
  loadOnce('spot-difference-ux.js');
 }
 function recover(){
- const reveal=()=>{};
- const report=message=>{console.error('[CCNER runtime]',message);let b=document.getElementById('ccnerRuntimeError');if(!b){b=document.createElement('div');b.id='ccnerRuntimeError';b.className='ccner-runtime-error';b.setAttribute('role','alert');document.body.appendChild(b)}b.replaceChildren();const t=document.createElement('span');t.textContent='A feature hit a temporary error. Your saved data is safe.';const r=document.createElement('button');r.type='button';r.textContent='Reload app';r.className='action-button';r.onclick=()=>location.reload();b.append(t,r);window.dispatchEvent(new CustomEvent('ccner:runtime-error',{detail:{message:String(message)}}))};
- window.addEventListener('error',e=>{report(e.message||'Runtime error');reveal()});
- window.addEventListener('unhandledrejection',e=>{e.preventDefault();report(e.reason?.message||e.reason||'Async error');reveal()});
- window.addEventListener('ccner:runtime-ready',reveal,{once:true});
+  const report=message=>{
+    console.error('[CCNER runtime]',message);
+    window.dispatchEvent(new CustomEvent('ccner:runtime-error',{detail:{message:String(message)}}));
+  };
+  window.addEventListener('error',e=>report(e.message||'Runtime error'));
+  window.addEventListener('unhandledrejection',e=>{
+    e.preventDefault();
+    report(e.reason?.message||e.reason||'Async error');
+  });
 }
 function authSecurity(){
  loadOnce('level2-auth-v2.js','level2-auth-v2.css');
