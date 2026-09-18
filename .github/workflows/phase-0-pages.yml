@@ -4,7 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - "prototype/phase-0/**"
+      - "*.html"
+      - "*.js"
+      - "*.css"
+      - "*.webmanifest"
       - "server.js"
       - "Dockerfile"
       - ".github/workflows/phase-0-pages.yml"
@@ -33,7 +36,7 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p _site
-          cp -R prototype/phase-0/. _site/
+          cp -R ./*.html ./*.js ./*.css ./*.webmanifest _site/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
