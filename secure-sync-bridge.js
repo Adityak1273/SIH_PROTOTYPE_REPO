@@ -25,21 +25,58 @@ function sessionPayloads(ids,userId){
 function profileOps(userId){return read(P1,[]).filter(x=>x?.status==='pending').map(x=>({user_id:userId,client_event_id:'p1:'+String(x.id),entity_type:String(x.type||'profile'),operation:'upsert',payload:x.payload??{},client_created_at:x.createdAt||new Date().toISOString()}))}
 function routineOps(userId){return read(L6,[]).filter(x=>x?.status==='pending').map(x=>({user_id:userId,client_event_id:String(x.id),entity_type:String(x.resource||'routine'),operation:String(x.op||'upsert'),payload:x.payload??{},client_created_at:x.createdAt||new Date().toISOString()}))}
 async function upload(detail={}){
- if(running)return;const {sb,profile}=auth();if(!sb||!profile?.user_id)return;
- const ids=Array.isArray(detail.ids)?detail.ids:[];const built=sessionPayloads(ids,profile.user_id);const routines=routineOps(profile.user_id);const profileRows=profileOps(profile.user_id);
- if(!built.queue.length&&!routines.length&&!profileRows.length)return;running=true;
- try{
-   if(built.sessions.length){const r=await sb.from('cognitive_sessions').upsert(built.sessions);if(r.error)throw r.error}
-   if(built.games.length){const r=await sb.from('game_results').upsert(built.games);if(r.error)throw r}
-   const queueRows=[...built.queue,...routines,...profileRows];
-   if(queueRows.length){const r=await sb.from('sync_queue').upsert(queueRows,{onConflict:'user_id,client_event_id'});if(r.error)throw r.error}
-   const at=new Date().toISOString();
-   if(built.queue.length){const q=read(P6,[]),set=new Set(ids.map(String));write(P6,q.map(x=>set.has(String(x.id))?{...x,status:'synced',syncedAt:at}:x))}
-   if(routines.length){const rq=read(L6,[]),sent=new Set(routines.map(x=>x.client_event_id));write(L6,rq.map(x=>sent.has(String(x.id))?{...x,status:'synced',syncedAt:at}:x))}
-   if(profileRows.length){const pq=read(P1,[]),sent=new Set(profileRows.map(x=>x.client_event_id.replace(/^p1:/,'')));write(P1,pq.map(x=>sent.has(String(x.id))?{...x,status:'synced',syncedAt:at}:x))}
-   detail.onAck?.(ids);window.dispatchEvent(new CustomEvent('ccner:sync-complete',{detail:{count:built.sessions.length+built.games.length+routines.length}});
- }catch(error){console.warn('[CCNER sync]',error?.message||error);detail.onFailure?.(ids)}
- finally{running=false;window.CCNER567?.roleUI?.();window.CCNER_PHASE6?.refresh?.()}
+  if(running)return;
+  const authState=auth();
+  const sb=authState.sb;
+  const profile=authState.profile;
+  if(!sb||!profile?.user_id)return;
+  const ids=Array.isArray(detail.ids)?detail.ids:[];
+  const built=sessionPayloads(ids,profile.user_id);
+  const routines=routineOps(profile.user_id);
+  const profileRows=profileOps(profile.user_id);
+  if(!built.queue.length&&!routines.length&&!profileRows.length)return;
+  running=true;
+  try{
+    if(built.sessions.length){
+      const sessionWrite=await sb.from('cognitive_sessions').upsert(built.sessions);
+      if(sessionWrite.error)throw sessionWrite.error;
+    }
+    if(built.games.length){
+      const gameWrite=await sb.from('game_results').upsert(built.games);
+      if(gameWrite.error)throw gameWrite.error;
+    }
+    const queueRows=[...built.queue,...routines,...profileRows];
+    if(queueRows.length){
+      const queueWrite=await sb.from('sync_queue').upsert(queueRows,{onConflict:'user_id,client_event_id'});
+      if(queueWrite.error)throw queueWrite.error;
+    }
+    const at=new Date().toISOString();
+    if(built.queue.length){
+      const q=read(P6,[]);
+      const idsSet=new Set(ids.map(String));
+      write(P6,q.map(x=>idsSet.has(String(x.id))?{...x,status:'synced',syncedAt:at}:x));
+    }
+    if(routines.length){
+      const rq=read(L6,[]);
+      const sent=new Set(routines.map(x=>x.client_event_id));
+      write(L6,rq.map(x=>sent.has(String(x.id))?{...x,status:'synced',syncedAt:at}:x));
+    }
+    if(profileRows.length){
+      const pq=read(P1,[]);
+      const sent=new Set(profileRows.map(x=>x.client_event_id.replace(/^p1:/,'')));
+      write(P1,pq.map(x=>sent.has(String(x.id))?{...x,status:'synced',syncedAt:at}:x));
+    }
+    detail.onAck?.(ids);
+    window.dispatchEvent(new CustomEvent('ccner:sync-complete',{detail:{count:built.sessions.length+built.games.length+routines.length+profileRows.length}}));
+    window.dispatchEvent(new CustomEvent('ccner:profile-sync-complete',{detail:{ids:profileRows.map(x=>x.client_event_id.replace(/^p1:/,''))}}));
+  }catch(error){
+    console.warn('[CCNER sync]',error?.message||error);
+    detail.onFailure?.(ids);
+  }finally{
+    running=false;
+    window.CCNER567?.roleUI?.();
+    window.CCNER_PHASE6?.refresh?.();
+  }
 }
 window.addEventListener('ccner:sync-request',e=>upload(e.detail||{}));
 window.addEventListener('ccner:secure-outbox-request',e=>upload(e.detail||{}));
