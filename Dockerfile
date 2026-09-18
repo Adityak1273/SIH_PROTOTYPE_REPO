@@ -10,7 +10,7 @@ COPY *.html *.js *.css *.webmanifest ./
 
 ENV NODE_ENV=production
 ENV PORT=80
-ENV BUILD_VERSION=0.18.4
+ENV BUILD_VERSION=0.20.1
 
 EXPOSE 80
 
