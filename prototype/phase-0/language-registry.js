@@ -51,7 +51,8 @@
     search: q => {
       const needle = String(q || '').trim().toLocaleLowerCase();
       if (!needle) return languages.slice();
-      return languages.filter(x => [x.name,x.native,...x.aliases,x.state].join(' ').toLocaleLowerCase().includes(needle));
+      const nameMatches = languages.filter(x => [x.name,x.native,...x.aliases].join(' ').toLocaleLowerCase().includes(needle));
+      return nameMatches.length ? nameMatches : languages.filter(x => x.state.toLocaleLowerCase().includes(needle));
     }
   };
 })();
