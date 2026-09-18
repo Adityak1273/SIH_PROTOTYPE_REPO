@@ -48,13 +48,10 @@
     el.className = `p1-status${online && !syncQueue.some(x=>x.status==='pending')?'':' offline'}`;
     el.innerHTML = `<span class="p1-dot"></span>${online ? (syncQueue.some(x=>x.status==='pending') ? `${syncQueue.filter(x=>x.status==='pending').length} changes waiting to sync` : 'Online · all changes saved') : 'Offline · changes saved on this device'}`;
   }
-  function markQueueSynced(){
-    if(!navigator.onLine) return;
-    if(!syncQueue.some(x=>x.status==='pending')) return;
-    syncQueue = syncQueue.map(x=>({...x,status:'synced',syncedAt:now().toISOString()})).slice(-100);
-    write(KEY.sync,syncQueue); updateSyncBadge();
-  }
-  window.addEventListener('online', markQueueSynced); window.addEventListener('offline', updateSyncBadge);
+  function requestQueueSync(){if(!navigator.onLine)return;const pending=syncQueue.filter(x=>x.status==='pending');if(!pending.length)return;window.dispatchEvent(new CustomEvent('ccner:profile-sync-request',{detail:{ids:pending.map(x=>x.id)}}));}
+  function markQueueSynced(ids=[]){const set=new Set(ids.map(String));syncQueue=syncQueue.map(x=>set.has(String(x.id))?({...x,status:'synced',syncedAt:now().toISOString()}):x);write(KEY.sync,syncQueue);updateSyncBadge();}
+  window.addEventListener('ccner:profile-sync-complete',e=>markQueueSynced(e.detail?.ids||[]));
+  window.addEventListener('offline', updateSyncBadge);
 
   function average(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
   function sessions(){ return Array.isArray(window.state?.history) ? window.state.history : read('ccner-history', []); }
@@ -82,7 +79,7 @@
     $('#p1Close')?.addEventListener('click',closePanel); el.addEventListener('click',e=>{if(e.target===el)closePanel()});
   }
   const $ = (s) => document.querySelector(s);
-  function openPanel(kind){ addDrawer(); const c=$('#p1Content'), d=$('#p1Drawer'); if(!c||!d)return; d.hidden=false; c.innerHTML=renderPanel(kind); bindPanel(kind); }
+  function openPanel(kind){ if(kind==='settings')return window.CCNERNavigation?.open?.(); if(kind==='reminders')return window.CCNERUI?.reminders?.(); if(kind==='report'||kind==='monthly')return window.CCNERUI?.progress?.(); addDrawer(); const c=$('#p1Content'), d=$('#p1Drawer'); if(!c||!d)return; d.hidden=false; c.innerHTML=renderPanel(kind); bindPanel(kind); }
   function closePanel(){ const d=$('#p1Drawer'); if(d)d.hidden=true; }
 
   function renderPanel(kind){
@@ -181,14 +178,7 @@
     });
   }
 
-  function enhanceSessionHistory(){
-    // Keep the local-first sync layer in step with the existing game session engine.
-    const originalFinish=window.finishSession;
-    if(typeof originalFinish==='function' && !window.__p1Wrapped){
-      window.finishSession=function(){ originalFinish(); const last=sessions().at(-1); if(last) queueSync('session.completed',last); renderHomeMetrics(); };
-      window.__p1Wrapped=true;
-    }
-  }
+  function enhanceSessionHistory(){window.addEventListener('ccner:session-complete',()=>{const last=sessions().at(-1);if(last)queueSync('session.completed',last);renderHomeMetrics()})}
   function renderHomeMetrics(){
     const last=sessions().at(-1), el=$('#todayStatus'); if(el&&last)el.textContent=`Complete · ${Math.round(last.score||0)}%`;
   }
