@@ -16,13 +16,12 @@ function mount(){if($('#ccnerDrawer'))return;const d=document.createElement('asi
 <nav class="ccner-drawer-nav" aria-label="App menu">
 <button type="button" data-drawer-action="dashboard">⌂ <span>Dashboard</span></button>
 <button type="button" data-drawer-action="profile">👤 <span>Profile</span></button>
-<button type="button" data-drawer-action="games">🎮 <span>Game settings</span></button>
-<button type="button" data-drawer-action="reminders">⏰ <span>Reminders</span></button>
-<button type="button" data-drawer-action="reminder-settings">⚙️ <span>Reminder settings</span></button>
-<button type="button" data-drawer-action="progress">📈 <span>Progress</span></button>
-<button type="button" data-drawer-action="progress-settings">⚙️ <span>Progress settings</span></button>
-<button type="button" data-drawer-action="family">👨‍👩‍👧 <span>Care team</span></button>
-<button type="button" data-drawer-action="sound">🔊 <span>Sound & accessibility</span></button>
+<button type="button" data-drawer-action="mimo-settings">🐶 <span>Mimo Settings</span></button>
+<button type="button" data-drawer-action="games">🎮 <span>Game Settings</span></button>
+<button type="button" data-drawer-action="reminder-settings">🔔 <span>Reminders Settings</span></button>
+<button type="button" data-drawer-action="progress-settings">📊 <span>Progress Settings</span></button>
+<button type="button" data-drawer-action="family">👨‍👩‍👧 <span>Care Team</span></button>
+<button type="button" data-drawer-action="sound">🔊 <span>Sound & Accessibility</span></button>
 </nav>
 <details class="ccner-drawer-section" name="drawer-settings"><summary>🌐 Language</summary><div id="ccnerLanguageList" class="ccner-language-list"></div></details>
 <details class="ccner-drawer-section" name="drawer-settings"><summary>🔐 Privacy & security</summary><div class="ccner-security-box"><p>Your account uses authenticated access and protected cloud sync.</p><button type="button" data-drawer-action="security">Open privacy & security</button></div></details>
