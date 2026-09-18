@@ -25,3 +25,5 @@ body.ccner-quiet-mode .game-card *{animation-duration:.001ms!important;transitio
 body.ccner-quiet-mode .live-dot,.ccner-quiet-mode .voice-banner{display:none!important}
 body.ccner-game-paused #gameArea{opacity:.72}
 @media(max-width:650px){.ccner-gs-option{flex:1;min-width:90px}.ccner-gs-switch{min-height:48px}}
+
+body.ccner-mino-voice-off .voice-banner{opacity:.65}body.ccner-mino-voice-off .quick-actions [data-action="talk"]{opacity:.65}body.ccner-mino-voice-off .quick-actions [data-action="talk"]::after{content:' (off)';font-size:.78em}
