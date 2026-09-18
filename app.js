@@ -91,7 +91,7 @@ function showResultsFromHistory(){
 }
 function openOverlay(title,body){
  const p=$('#overlayPanel'),c=$('#overlayContent');if(!p||!c)return;c.textContent='';
- const head=document.createElement('p');head.className='eyebrow';head.textContent='MOMO';const h=document.createElement('h3');h.textContent=title;c.append(head,h);
+ const head=document.createElement('p');head.className='eyebrow';head.textContent='MINO';const h=document.createElement('h3');h.textContent=title;c.append(head,h);
  const wrap=document.createElement('div');wrap.innerHTML=body;c.append(wrap);p.hidden=false;$('#closeOverlay')?.focus();
 }
 function closeOverlay(){const p=$('#overlayPanel');if(p)p.hidden=true}
