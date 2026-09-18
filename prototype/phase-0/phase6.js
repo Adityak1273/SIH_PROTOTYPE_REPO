@@ -34,9 +34,25 @@
     const q=queue();if(!q.length){toast('Everything is already synchronized.');return}
     /* Phase 2 owns cloud authentication/upload. Dispatch a neutral event so
        the existing cloud layer can synchronize without Phase 6 duplicating it. */
-    window.dispatchEvent(new CustomEvent('ccner:sync-request',{detail:{ids:q.map(x=>x.id)}}));
-    setQueue(q.map(x=>({...x,status:'synced',syncedAt:new Date().toISOString()})));
-    render();toast('Sync request sent. Local data is retained safely.');
+    const ids=q.filter(x=>x.status!=='synced').map(x=>x.id);
+    setQueue(q.map(x=>ids.includes(x.id)?({...x,status:'uploading',attempts:(x.attempts||0)+1}):x));
+    window.dispatchEvent(new CustomEvent('ccner:sync-request',{detail:{ids,onAck:(ackIds)=>{
+      const ack=new Set(Array.isArray(ackIds)?ackIds:[]);
+      setQueue(queue().map(x=>ack.has(x.id)?({...x,status:'synced',syncedAt:new Date().toISOString()}):x));
+      render();
+    },onFailure:(failedIds)=>{
+      const failed=new Set(Array.isArray(failedIds)?failedIds:ids);
+      setQueue(queue().map(x=>failed.has(x.id)?({...x,status:'failed',lastError:new Date().toISOString()}):x));
+      render();
+    }}}));
+    // Never claim success before the cloud layer acknowledges the records.
+    setTimeout(()=>{
+      const stillUploading=queue().filter(x=>ids.includes(x.id)&&x.status==='uploading');
+      if(stillUploading.length){
+        setQueue(queue().map(x=>stillUploading.some(y=>y.id===x.id)?({...x,status:'failed',lastError:'No server acknowledgement'}):x));
+        render();toast('Sync is waiting for server confirmation. We will retry.');
+      }
+    },10000);
   }
   window.addEventListener('online',()=>{render();sync()});
   window.addEventListener('offline',render);
