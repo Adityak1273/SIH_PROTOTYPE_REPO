@@ -7,7 +7,7 @@ This guide preserves the five-game MVP structure agreed for the Cognitive Care N
 - One continuous session.
 - Exactly five games, one after another.
 - No separate game-selection menu for the elderly user.
-- Momo introduces each game and explains what to do.
+- Mino introduces each game and explains what to do.
 - Each game has three short rounds.
 - Difficulty is Easy / Medium / Hard and is personalized from prior performance.
 - The engine records score, accuracy, correct/incorrect answers, response time, attempts, difficulty and completion.
@@ -18,7 +18,7 @@ This guide preserves the five-game MVP structure agreed for the Cognitive Care N
 **Purpose:** short-term visual memory.
 
 **GUI:**
-1. Momo says: “Look carefully and remember these objects.”
+1. Mino says: “Look carefully and remember these objects.”
 2. Large familiar-object cards appear in the centre of the screen.
 3. Easy: 3 objects for 10 seconds.
 4. Medium: 5 objects for 8 seconds.
@@ -29,14 +29,14 @@ This guide preserves the five-game MVP structure agreed for the Cognitive Care N
 
 **Adaptive variables:** number of objects and viewing time.
 
-**Video sequence:** Momo intro → object cards → countdown/wait → recall choices → correct/encouraging feedback.
+**Video sequence:** Mino intro → object cards → countdown/wait → recall choices → correct/encouraging feedback.
 
 ## Game 2 — Find the Object 🔍
 
 **Purpose:** attention and concentration.
 
 **GUI:**
-1. Momo names the target object.
+1. Mino names the target object.
 2. Large object choices fill the screen.
 3. Easy: 4 choices.
 4. Medium: 6 choices.
@@ -52,7 +52,7 @@ This guide preserves the five-game MVP structure agreed for the Cognitive Care N
 **Purpose:** daily-routine recall and ordering.
 
 **GUI:**
-1. Momo introduces a familiar routine.
+1. Mino introduces a familiar routine.
 2. Example: Wake up → Brush teeth → Breakfast → Medicine.
 3. Easy: 4 steps; Medium: 5; Hard: 6.
 4. The sequence is shown clearly.
@@ -76,14 +76,14 @@ This guide preserves the five-game MVP structure agreed for the Cognitive Care N
 
 **Adaptive variables:** sequence length and pattern complexity.
 
-**Video sequence:** pattern appears → Momo asks “What comes next?” → three large choices → feedback.
+**Video sequence:** pattern appears → Mino asks “What comes next?” → three large choices → feedback.
 
 ## Game 5 — Local Object Memory 🌏
 
 **Purpose:** memory training using familiar NER-style everyday content.
 
 **GUI:**
-1. Momo presents familiar objects such as tea, bamboo, bamboo basket, rice, coconut, shawl, earthen lamp and betel leaf.
+1. Mino presents familiar objects such as tea, bamboo, bamboo basket, rice, coconut, shawl, earthen lamp and betel leaf.
 2. Easy: 3 objects for 10 seconds.
 3. Medium: 5 objects for 8 seconds.
 4. Hard: 6 objects for 6 seconds.
