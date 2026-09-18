@@ -26,7 +26,7 @@ jobs:
       - name: Canonical runtime assets
         run: |
           set -e
-          for f in index.html styles.css app.js core-boot.js navigation-shell.js game-engine-v6.js security-center.js level2-auth-v2.js; do test -f "$f"; done
+          for f in index.html styles.css app.js core-boot.js navigation-shell.js secure-sync-bridge.js game-engine-v6.js security-center.js level2-auth-v2.js; do test -f "$f"; done
           grep -q '"version": "0.20.2"' package.json
           grep -q 'game-engine-v6.js' core-boot.js
           grep -q 'navigation-shell.js' index.html
@@ -35,6 +35,9 @@ jobs:
           ! grep -q 'game-engine-adaptive' index.html
           ! grep -q 'game-set-override.js' index.html
           grep -q 'CCNER_SAFE_START_SESSION' game-engine-v6.js
+          grep -q 'crypto.randomUUID' game-engine-v6.js
+          grep -q 'BUILD_VERSION.*0.20.2' server.js
+          grep -q 'BUILD_VERSION=0.20.2' Dockerfile
           grep -q 'v6Exit' game-engine-v6.js
           grep -q 'ccner:game-session-exit' game-engine-v6.js
 
