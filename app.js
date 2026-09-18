@@ -102,7 +102,7 @@ function settings(){
  openOverlay('Settings','<div class="setting-row"><span>🔊 Mino voice</span><button class="action-button" id="overlaySound" type="button">Toggle</button></div><div class="setting-row"><span>🎙️ Voice mode</span><strong>Continuous</strong></div><div class="setting-row"><span>🌐 Language</span><strong>English (India)</strong></div>');
  $('#overlaySound')?.addEventListener('click',()=>{$('#soundToggle')?.click();closeOverlay()},{once:true});
 }
-window.CCNERUI={home:()=>showView('#homeView'),progress:showResultsFromHistory,reminders,settings};
+window.CCNERUI={home:()=>showView('#homeView'),progress:showResultsFromHistory,reminders,settings,closeOverlay};
 window.CCNERGameShell={showView,setStatus,setMood,say,openOverlay,closeOverlay};
 window.CCNERCompanion=window.CognitiveCareCompanion={onGameEvent:e=>say(e?.type==='correct'?pick(['Yes!','Lovely!','You got it!']):'That’s okay. Let’s keep going.',e?.type==='correct'?'celebrate':'encourage',e?.type==='correct'?'proud':'encouraging')};
 window.startSession=startSession;window.respond=respond;window.armVoice=armVoice;window.queueListening=queueListening;window.stopListening=stopListening;window.showView=showView;window.setStatus=setStatus;window.setMood=setMood;window.say=say;window.showResultsFromHistory=showResultsFromHistory;window.openPanel=(name)=>({reminders,settings,progress:showResultsFromHistory}[name]||(()=>{}))();
