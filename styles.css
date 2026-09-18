@@ -109,3 +109,25 @@ button:focus-visible,input:focus-visible{outline-color:rgba(139,124,246,.42)}
 .ccner-drawer-nav button:first-child{background:#f5f1ff}
 .ccner-runtime-error{background:#fff5ef;border-color:#f0c9b5}
 
+
+/* Unified Mino drawer */
+.ccner-profile{display:flex;align-items:center;gap:12px;min-width:0}
+.ccner-profile-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#a996ff,#7dcbad);color:#fff;font-weight:900;font-size:1.05rem;overflow:hidden}
+.ccner-profile-avatar img{width:100%;height:100%;object-fit:cover}
+.ccner-profile-meta{margin:3px 0 0;color:var(--muted);font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}
+.ccner-drawer-section{border:1px solid var(--line);border-radius:18px;background:#fff;margin:0 0 10px;overflow:hidden}
+.ccner-drawer-section summary{cursor:pointer;padding:16px;font-weight:850;list-style:none}
+.ccner-drawer-section summary::-webkit-details-marker{display:none}
+.ccner-drawer-section summary::after{content:'+';float:right;font-size:1.2rem}
+.ccner-drawer-section[open] summary::after{content:'−'}
+.ccner-language-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 12px}
+.ccner-language-choice{min-height:54px;border:1px solid var(--line);border-radius:14px;background:#faf8ff;padding:9px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;color:var(--ink)}
+.ccner-language-choice small{font-size:.68rem;color:var(--muted)}
+.ccner-language-choice.selected{border-color:var(--accent);background:#eeeaff;color:var(--accent-dark);box-shadow:0 0 0 2px rgba(139,124,246,.1)}
+.ccner-security-box{padding:0 14px 14px}
+.ccner-security-box p{margin:0 0 10px;color:var(--muted);font-size:.78rem;line-height:1.45}
+.ccner-security-box button{width:100%;border:1px solid var(--line);border-radius:14px;background:#f5f1ff;padding:11px;font-weight:800}
+.ccner-signout{width:100%;min-height:52px;border:1px solid #e8d7d0;border-radius:16px;background:#fff6f2;color:#633f34;padding:10px 14px;display:flex;align-items:center;gap:10px;font-weight:900}
+.ccner-drawer-foot{display:grid;gap:10px}
+.ccner-profile-panel{display:grid;gap:0}
+@media(max-width:430px){.ccner-language-list{grid-template-columns:1fr}.ccner-drawer-panel{padding-left:14px;padding-right:14px}}
