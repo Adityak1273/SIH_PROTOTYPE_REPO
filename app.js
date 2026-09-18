@@ -23,7 +23,7 @@ function speak(text,after=null){
  if(!state.soundOn||!('speechSynthesis'in window)){after?.();return}
  state.speaking=true;stopListening(false);setStatus('Mino is talking',true);speechSynthesis.cancel();
  const u=new SpeechSynthesisUtterance(String(text));u.rate=.92;u.pitch=1.08;u.volume=1;
- const voices=speechSynthesis.getVoices(),preferred=voices.find(v=>/^en-IN$/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;
+ const wanted=String(window.CCNERLanguage?.locale||'en-IN').toLowerCase();const voices=speechSynthesis.getVoices(),preferred=voices.find(v=>String(v.lang).toLowerCase()===wanted)||voices.find(v=>String(v.lang).toLowerCase().startsWith(wanted.slice(0,2)))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;
  u.onstart=()=>{setStatus('Mino is talking',true);setMood('speaking','talking')};
  u.onend=()=>{state.speaking=false;setStatus(state.voiceArmed?'Listening for you':'Ready to play');after?.();if(state.voiceArmed)queueListening(250)};
  u.onerror=()=>{state.speaking=false;after?.();if(state.voiceArmed)queueListening(250)};
@@ -63,7 +63,7 @@ function startListening(){
  if(!state.voiceArmed||state.speaking||state.listening)return;
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!Recognition){say('Voice input is not supported on this device yet. You can still type to me.','encourage','helpful');state.voiceArmed=false;return}
- const r=new Recognition();state.recognition=r;r.lang='en-IN';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;state.listening=true;if(voiceHint)voiceHint.hidden=false;setStatus('Listening for you',true);setMood('listening','listening');let finalText='';
+ const r=new Recognition();state.recognition=r;r.lang=window.CCNERLanguage?.locale||localStorage.getItem('ccner-language')||'en-IN';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;state.listening=true;if(voiceHint)voiceHint.hidden=false;setStatus('Listening for you',true);setMood('listening','listening');let finalText='';
  r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0]?.transcript||'';if(e.results[i].isFinal)finalText+=t;else if(speechText)speechText.textContent=t}if(finalText){respond(finalText);finalText=''}};
  r.onerror=e=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(e.error!=='aborted'&&e.error!=='no-speech')setStatus('Voice ready');if(state.voiceArmed&&!state.speaking)queueListening(500)};
  r.onend=()=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(state.voiceArmed&&!state.speaking&&!state.thinking)queueListening(350)};
