@@ -64,12 +64,9 @@
     return Object.values(map).map(x=>({...x,accuracy:x.plays?x.correct/x.plays:0,avgTime:average(x.seconds)})).sort((a,b)=>b.plays-a.plays);
   }
 
-  function addLauncher(){
-    if(document.querySelector('.p1-launcher')) return;
-    const el=document.createElement('div'); el.className='p1-launcher';
-    el.innerHTML=`<button class="p1-chip" data-p1="report">📊 Weekly report</button><button class="p1-chip" data-p1="caregiver">👨‍👩‍👧 Caregiver</button><button class="p1-chip" data-p1="reminders">⏰ Reminders</button>`;
-    document.body.appendChild(el);
-  }
+  // The old floating Weekly report / Caregiver / Reminders launcher is retired.
+  // Those destinations now live in the canonical top-left You drawer.
+  function addLauncher(){}
 
   function addDrawer(){
     if(document.querySelector('.p1-drawer')) return;
@@ -178,7 +175,7 @@
   }
 
   function init(){
-    addLauncher(); avatarLife(); applyLanguage(); enhanceSessionHistory(); renderHomeMetrics(); updateSyncBadge();
+    document.querySelector('.p1-launcher')?.remove(); avatarLife(); applyLanguage(); enhanceSessionHistory(); renderHomeMetrics(); updateSyncBadge();
     document.querySelector('.p1-launcher')?.addEventListener('click',e=>{const b=e.target.closest('[data-p1]');if(b)openPanel(b.dataset.p1)});
     document.querySelector('#p1Drawer')?.addEventListener('click',e=>{const b=e.target.closest('[data-p1]');if(b){e.preventDefault();const k=b.dataset.p1;if(k==='monthly'||k==='report'||k==='caregiver'||k==='reminders'||k==='settings')openPanel(k==='report'?'report':k);else if(k==='export')exportData();else if(k==='clear')clearData();}});
   }
