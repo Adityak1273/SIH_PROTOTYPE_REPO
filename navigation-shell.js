@@ -29,12 +29,12 @@ function mount(){
 }
 function open(){
  mount();const d=$('#ccnerDrawer'),panel=d?.querySelector('.ccner-drawer-panel');if(!d||!panel)return;
- returnFocus=document.activeElement;d.hidden=false;document.body.classList.add('ccner-drawer-open');
+ returnFocus=document.activeElement;d.hidden=false;const trigger=document.querySelector('.bottom-nav [data-nav="settings"]');trigger?.setAttribute('aria-expanded','true');trigger?.setAttribute('aria-controls','ccnerDrawer');document.body.classList.add('ccner-drawer-open');
  const app=$('.app-shell');if(app)app.inert=true;
  requestAnimationFrame(()=>panel.querySelector('button')?.focus());
 }
 function close(){
- const d=$('#ccnerDrawer');if(!d)return;d.hidden=true;document.body.classList.remove('ccner-drawer-open');
+ const d=$('#ccnerDrawer');if(!d)return;d.hidden=true;const trigger=document.querySelector('.bottom-nav [data-nav="settings"]');trigger?.setAttribute('aria-expanded','false');document.body.classList.remove('ccner-drawer-open');
  const app=$('.app-shell');if(app)app.inert=false;
  if(returnFocus?.focus)returnFocus.focus();returnFocus=null;
 }
