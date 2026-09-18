@@ -2,7 +2,7 @@ create table if not exists public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   display_name text,
   role text not null default 'patient',
-  locale text not null default 'en-IN',
+  preferred_language text not null default 'en-IN',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -122,8 +122,8 @@ create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
 begin
-  insert into public.profiles (user_id, display_name, role, locale)
-  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', new.email), 'patient', coalesce(new.raw_user_meta_data->>'locale','en-IN'))
+  insert into public.profiles (user_id, display_name, role, preferred_language)
+  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', new.email), 'patient', coalesce(new.raw_user_meta_data->>'locale',new.raw_user_meta_data->>'preferred_language','en-IN'))
   on conflict (user_id) do nothing;
   return new;
 end;
