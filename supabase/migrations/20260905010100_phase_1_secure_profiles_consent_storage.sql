@@ -15,9 +15,9 @@ alter table public.profiles
   add column if not exists profile_complete boolean not null default false;
 
 alter table public.profiles drop constraint if exists profiles_role_check;
-alter table public.profiles add constraint profiles_role_check check (role in ('patient','caregiver','health_worker'));
+alter table public.profiles add constraint profiles_role_check check (role in ('patient','caregiver','health_worker','admin'));
 alter table public.profiles drop constraint if exists profiles_requested_role_check;
-alter table public.profiles add constraint profiles_requested_role_check check (requested_role is null or requested_role in ('patient','caregiver','health_worker'));
+alter table public.profiles add constraint profiles_requested_role_check check (requested_role is null or requested_role in ('patient','caregiver','health_worker','admin'));
 alter table public.profiles drop constraint if exists profiles_gender_check;
 alter table public.profiles add constraint profiles_gender_check check (gender is null or gender in ('Female','Male','Other','Prefer not to say'));
 alter table public.profiles drop constraint if exists profiles_voice_preference_check;
