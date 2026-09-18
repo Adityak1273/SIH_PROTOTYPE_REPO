@@ -11,5 +11,5 @@
 .p1-report{background:#fff;border:1px solid #eaded2;border-radius:18px;padding:18px;margin-top:12px}.p1-report h4{margin:0 0 12px}.p1-insight{padding:12px 14px;border-radius:14px;background:#f7efe8;color:#57443a;line-height:1.5}.p1-mini-chart{display:flex;align-items:end;gap:8px;height:110px;padding-top:12px}.p1-bar-col{flex:1;text-align:center;font-size:10px;color:#806e62}.p1-bar-col i{display:block;margin:0 auto 5px;width:100%;max-width:42px;background:#d78352;border-radius:8px 8px 3px 3px;min-height:4px}
 .p1-companion-pulse{animation:p1Pulse .8s ease}.p1-blink{animation:p1Blink .18s ease}.p1-gaze{transition:transform .22s ease}
 @keyframes p1Pulse{50%{transform:scale(1.045) translateY(-5px)}}@keyframes p1Blink{50%{transform:scaleY(.12)}}
-@media(max-width:700px){.p1-panel{padding:20px;border-radius:20px}.p1-grid{grid-template-columns:1fr 1fr}.p1-panel h2{font-size:24px}.p1-chip{padding:9px 11px;font-size:12px}}
+@media(max-width:700px){.p1-panel{padding:20px;border-radius:20px}.p1-grid{grid-template-columns:1fr 1fr}.p1-panel h2{font-size:24px}}
 @media(prefers-reduced-motion:reduce){.p1-companion-pulse,.p1-blink{animation:none}}
