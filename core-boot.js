@@ -20,8 +20,9 @@ function boot(){
 }
 function recover(){
  const reveal=()=>{};
- window.addEventListener('error',e=>{console.error('[CCNER]',e.error||e.message);reveal();window.dispatchEvent(new CustomEvent('ccner:runtime-error',{detail:{message:String(e.message||'Runtime error')}}))});
- window.addEventListener('unhandledrejection',e=>{console.error('[CCNER promise]',e.reason);e.preventDefault();reveal();window.dispatchEvent(new CustomEvent('ccner:runtime-error',{detail:{message:String(e.reason?.message||e.reason||'Async error')}}))});
+ const report=message=>{console.error('[CCNER runtime]',message);let b=document.getElementById('ccnerRuntimeError');if(!b){b=document.createElement('div');b.id='ccnerRuntimeError';b.className='ccner-runtime-error';b.setAttribute('role','alert');document.body.appendChild(b)}b.replaceChildren();const t=document.createElement('span');t.textContent='A feature hit a temporary error. Your saved data is safe.';const r=document.createElement('button');r.type='button';r.textContent='Reload app';r.className='action-button';r.onclick=()=>location.reload();b.append(t,r);window.dispatchEvent(new CustomEvent('ccner:runtime-error',{detail:{message:String(message)}}))};
+ window.addEventListener('error',e=>{report(e.message||'Runtime error');reveal()});
+ window.addEventListener('unhandledrejection',e=>{e.preventDefault();report(e.reason?.message||e.reason||'Async error');reveal()});
  window.addEventListener('ccner:runtime-ready',reveal,{once:true});
 }
 function authSecurity(){
