@@ -27,6 +27,13 @@ jobs:
           java-version: '21'
       - name: Install dependencies
         run: npm install --no-audit --no-fund --progress=false
+      - name: Prepare Capacitor web bundle
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp *.html *.js *.css *.json *.webmanifest dist/ 2>/dev/null || true
+          cp -r assets dist/ 2>/dev/null || true
+
       - name: Create Android project
         run: npx cap add android
       - name: Declare Android notification permissions
