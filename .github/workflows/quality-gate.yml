@@ -50,6 +50,7 @@ jobs:
           grep -q 'inert=true' navigation-shell.js
           grep -q 'overscroll-behavior:contain' styles.css
           grep -q 'data-nav="settings"' index.html
+grep -q '"webDir": "dist"' capacitor.config.json
 
       - name: Security checks
         run: |
