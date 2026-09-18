@@ -21,10 +21,10 @@ function showView(id){
 }
 function speak(text,after=null){
  if(!state.soundOn||!('speechSynthesis'in window)){after?.();return}
- state.speaking=true;stopListening(false);setStatus('Momo is talking',true);speechSynthesis.cancel();
+ state.speaking=true;stopListening(false);setStatus('Mino is talking',true);speechSynthesis.cancel();
  const u=new SpeechSynthesisUtterance(String(text));u.rate=.92;u.pitch=1.08;u.volume=1;
  const voices=speechSynthesis.getVoices(),preferred=voices.find(v=>/^en-IN$/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;
- u.onstart=()=>{setStatus('Momo is talking',true);setMood('speaking','talking')};
+ u.onstart=()=>{setStatus('Mino is talking',true);setMood('speaking','talking')};
  u.onend=()=>{state.speaking=false;setStatus(state.voiceArmed?'Listening for you':'Ready to play');after?.();if(state.voiceArmed)queueListening(250)};
  u.onerror=()=>{state.speaking=false;after?.();if(state.voiceArmed)queueListening(250)};
  speechSynthesis.speak(u);
@@ -36,11 +36,11 @@ function say(text,mood='happy',label=mood,opts={}){
 function setConversation(role,text){state.conversation.push({role,text:String(text)});state.conversation=state.conversation.slice(-8)}
 function localFallback(text){
  const l=String(text).toLowerCase();
- if(/\b(hi|hello|hey|namaste)\b/.test(l))return pick(['Hello! I was waiting for you. What shall we do together? 😸','Hi there! Momo is here and listening.','Namaste! Shall we have a little chat?']);
+ if(/\b(hi|hello|hey|namaste)\b/.test(l))return pick(['Hello! I was waiting for you. What shall we do together? 😸','Hi there! Mino is here and listening.','Namaste! Shall we have a little chat?']);
  if(/progress|score|result|performance/.test(l)){showResultsFromHistory();return 'Here is your recent progress. We can look at it together.'}
  if(/remind|medicine|water|appointment|task/.test(l))return 'I can help you keep track of reminders and daily activities.';
  if(/start|play|game|activity|begin|khel/.test(l)){startSession();return 'Absolutely! Let’s start today’s little brain adventure. 🎮'}
- if(/thank/.test(l))return pick(['You’re very welcome! 😸','Anytime! Momo is always here.','We make a good team!']);
+ if(/thank/.test(l))return pick(['You’re very welcome! 😸','Anytime! Mino is always here.','We make a good team!']);
  return pick(['Hmm, tell me a little more. I’m listening.','That sounds interesting. What happened next?','I’m right here with you. Want to tell me more?']);
 }
 async function aiReply(text){
@@ -51,7 +51,7 @@ async function aiReply(text){
  return localFallback(text);
 }
 function respond(raw){
- const text=String(raw||'').trim();if(!text)return;setConversation('user',text);state.thinking=true;setStatus('Momo is thinking',true);setMood('thinking','thinking');
+ const text=String(raw||'').trim();if(!text)return;setConversation('user',text);state.thinking=true;setStatus('Mino is thinking',true);setMood('thinking','thinking');
  if(/\b(start|play|game|activity|begin)\b/i.test(text)){state.thinking=false;startSession();return}
  aiReply(text).then(reply=>{setConversation('assistant',reply);state.thinking=false;say(reply,'happy','curious')}).catch(()=>{state.thinking=false;say(localFallback(text),'encourage','helpful')});
 }
@@ -99,7 +99,7 @@ function reminders(){
  openOverlay('Today’s reminders','<div class="reminder"><span>💊 Medicine</span><strong>08:00 · 20:00</strong></div><div class="reminder"><span>💧 Hydration</span><strong>Every 2 hours</strong></div><div class="reminder"><span>📅 Appointment</span><strong>Tomorrow · 11:30</strong></div><p class="overlay-note">Reminder delivery is controlled by the notification and security layers.</p>');
 }
 function settings(){
- openOverlay('Settings','<div class="setting-row"><span>🔊 Momo voice</span><button class="action-button" id="overlaySound" type="button">Toggle</button></div><div class="setting-row"><span>🎙️ Voice mode</span><strong>Continuous</strong></div><div class="setting-row"><span>🌐 Language</span><strong>English (India)</strong></div>');
+ openOverlay('Settings','<div class="setting-row"><span>🔊 Mino voice</span><button class="action-button" id="overlaySound" type="button">Toggle</button></div><div class="setting-row"><span>🎙️ Voice mode</span><strong>Continuous</strong></div><div class="setting-row"><span>🌐 Language</span><strong>English (India)</strong></div>');
  $('#overlaySound')?.addEventListener('click',()=>{$('#soundToggle')?.click();closeOverlay()},{once:true});
 }
 window.CCNERUI={home:()=>showView('#homeView'),progress:showResultsFromHistory,reminders,settings};
