@@ -5,7 +5,7 @@ body.ccner-drawer-open{overflow:hidden}
 .ccner-drawer{position:fixed;inset:0;z-index:12000}
 .ccner-drawer[hidden]{display:none!important}
 .ccner-drawer-backdrop{position:absolute;inset:0;background:rgba(27,22,18,.48);backdrop-filter:blur(3px)}
-.ccner-drawer-panel{position:absolute;top:0;right:0;width:min(390px,92vw);height:100%;padding:22px 18px calc(24px + env(safe-area-inset-bottom));background:var(--card);box-shadow:-24px 0 70px rgba(45,30,20,.22);display:flex;flex-direction:column;overflow:auto;overscroll-behavior:contain}
+.ccner-drawer-panel{position:absolute;top:0;left:0;right:auto;width:min(390px,92vw);height:100%;padding:22px 18px calc(24px + env(safe-area-inset-bottom));background:var(--card);box-shadow:24px 0 70px rgba(45,30,20,.22);display:flex;flex-direction:column;overflow:auto;overscroll-behavior:contain}
 .ccner-drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
 .ccner-drawer-head h2{margin:0;font-size:2rem}
 .ccner-drawer-close{width:50px;height:50px;border:1px solid var(--line);border-radius:16px;background:#fff;font-size:2rem;line-height:1;color:var(--ink)}
@@ -19,7 +19,7 @@ body.ccner-drawer-open{overflow:hidden}
 .ccner-drawer-foot span{font-weight:850;color:var(--ink);margin-bottom:3px}
 .ccner-drawer-foot small{font-size:.76rem;line-height:1.45}
 .ccner-runtime-error{position:fixed;left:14px;right:14px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:13000;padding:14px 16px;border-radius:16px;background:#fff7f1;border:1px solid #e7b59e;box-shadow:0 12px 30px rgba(50,30,20,.18);font-weight:800}
-@media(min-width:900px){.ccner-drawer-panel{width:410px}}
+@media(min-width:900px){.ccner-drawer-panel{width:410px;left:0;right:auto}}
 
 
 /* Mino Pastel UI Theme — calm, friendly, high-contrast accents */
