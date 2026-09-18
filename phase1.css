@@ -1,7 +1,4 @@
 /* Phase 1 companion/dashboard layer. Kept separate so games and the app shell can evolve independently. */
-.p1-launcher{position:fixed;right:18px;top:88px;z-index:40;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:360px}
-.p1-chip{border:1px solid rgba(73,54,43,.14);background:rgba(255,255,255,.94);border-radius:999px;padding:10px 14px;font:700 13px/1 system-ui,sans-serif;color:#4d3b31;box-shadow:0 8px 22px rgba(60,40,20,.08);cursor:pointer}
-.p1-chip:hover{transform:translateY(-1px)}
 .p1-drawer{position:fixed;inset:0;z-index:100;background:rgba(38,29,24,.32);display:flex;justify-content:flex-end;padding:14px}
 .p1-drawer[hidden]{display:none}
 .p1-panel{width:min(720px,100%);height:100%;overflow:auto;background:#fffaf5;border-radius:24px;padding:26px;box-shadow:0 20px 70px rgba(0,0,0,.2)}
@@ -14,5 +11,5 @@
 .p1-report{background:#fff;border:1px solid #eaded2;border-radius:18px;padding:18px;margin-top:12px}.p1-report h4{margin:0 0 12px}.p1-insight{padding:12px 14px;border-radius:14px;background:#f7efe8;color:#57443a;line-height:1.5}.p1-mini-chart{display:flex;align-items:end;gap:8px;height:110px;padding-top:12px}.p1-bar-col{flex:1;text-align:center;font-size:10px;color:#806e62}.p1-bar-col i{display:block;margin:0 auto 5px;width:100%;max-width:42px;background:#d78352;border-radius:8px 8px 3px 3px;min-height:4px}
 .p1-companion-pulse{animation:p1Pulse .8s ease}.p1-blink{animation:p1Blink .18s ease}.p1-gaze{transition:transform .22s ease}
 @keyframes p1Pulse{50%{transform:scale(1.045) translateY(-5px)}}@keyframes p1Blink{50%{transform:scaleY(.12)}}
-@media(max-width:700px){.p1-launcher{top:auto;bottom:86px;right:10px;left:10px;justify-content:center}.p1-panel{padding:20px;border-radius:20px}.p1-grid{grid-template-columns:1fr 1fr}.p1-panel h2{font-size:24px}.p1-chip{padding:9px 11px;font-size:12px}}
+@media(max-width:700px){.p1-panel{padding:20px;border-radius:20px}.p1-grid{grid-template-columns:1fr 1fr}.p1-panel h2{font-size:24px}.p1-chip{padding:9px 11px;font-size:12px}}
 @media(prefers-reduced-motion:reduce){.p1-companion-pulse,.p1-blink{animation:none}}
