@@ -36,6 +36,6 @@ function open(){
  const save=document.createElement('button');save.type='button';save.className='action-button primary mimo-save';save.textContent='Save';save.onclick=()=>{apply();panel.hidden=true};
  content.append(box,note,save);panel.hidden=false;document.querySelector('#closeOverlay')?.focus();
 }
-document.addEventListener('click',e=>{if(prefs().buttons==='on'&&e.target.closest('button')&&!e.target.closest('.close-button'))playNotification()});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const label=(b.dataset.drawerAction||b.textContent||'').trim();if(shouldConfirm(label)&&!window.__CCNER_CONFIRMING__){e.preventDefault();e.stopImmediatePropagation();window.__CCNER_CONFIRMING__=true;const ok=window.confirm('Are you sure you want to continue?');window.__CCNER_CONFIRMING__=false;if(!ok)return;b.click();return}if(prefs().buttons==='on'&&!b.classList.contains('close-button'))playNotification()},{capture:true});
 window.CCNERSoundAccessibility={open,apply,prefs,playNotification,shouldConfirm,keys:KEY};apply();
 })();
