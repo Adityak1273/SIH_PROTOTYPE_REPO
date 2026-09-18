@@ -131,3 +131,12 @@ button:focus-visible,input:focus-visible{outline-color:rgba(139,124,246,.42)}
 .ccner-drawer-foot{display:grid;gap:10px}
 .ccner-profile-panel{display:grid;gap:0}
 @media(max-width:430px){.ccner-language-list{grid-template-columns:1fr}.ccner-drawer-panel{padding-left:14px;padding-right:14px}}
+
+/* Top-left You menu + integrated Mino navigation. */
+.topbar{position:relative;display:flex;align-items:center;justify-content:flex-end;min-height:48px}
+.top-menu-trigger{position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:5;border:1px solid var(--line);background:rgba(255,255,255,.94);color:var(--ink);border-radius:14px;min-width:58px;height:44px;padding:0 10px;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:850;box-shadow:0 8px 20px rgba(77,64,112,.08)}
+.top-menu-trigger span{font-size:.72rem}
+.top-menu-trigger:hover{background:#f5f1ff;border-color:var(--accent)}
+.bottom-nav .nav-mino{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--muted)}
+.bottom-nav .nav-mino.active{color:var(--accent-dark)}
+@media(max-width:560px){.top-menu-trigger{left:2px;height:42px;min-width:56px}.top-menu-trigger span{font-size:.68rem}}
