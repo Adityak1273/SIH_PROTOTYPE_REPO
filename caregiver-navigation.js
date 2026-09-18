@@ -9,7 +9,7 @@ function build(){
  if(!top){
   const old=document.querySelector('.top');
   top=document.createElement('header');top.className='care-topbar';
-  const menu=document.createElement('button');menu.className='care-menu-trigger';menu.type='button';menu.setAttribute('aria-label','Open menu');menu.setAttribute('aria-expanded','false');menu.innerHTML='☰<span>Menu</span>';menu.onclick=()=>toggle(true);
+  const menu=document.createElement('button');menu.className='care-menu-trigger';menu.type='button';menu.setAttribute('aria-label','Open menu');menu.setAttribute('aria-expanded','false');menu.innerHTML='☰<span>You</span>';menu.onclick=()=>toggle(true);
   const center=document.createElement('div');center.className='care-top-center';
   const actions=document.createElement('div');actions.className='care-top-actions';
   if(old){const heading=old.firstElementChild;if(heading)center.appendChild(heading);const role=old.querySelector('.role');if(role)actions.appendChild(role);old.remove()}
@@ -24,7 +24,7 @@ function build(){
  }
  const nav=drawer.querySelector('.care-drawer-nav'),items=pageItems();nav.innerHTML='';
  items.forEach(({id,label})=>{const b=document.createElement('button');b.type='button';b.dataset.page=id;const parts=label.match(/^(\S+)\s*(.*)$/)||['','•',label];b.innerHTML='<span class="care-nav-icon">'+parts[1]+'</span><span>'+parts[2]+'</span>';b.onclick=()=>{side.querySelector('.nav button[data-page="'+CSS.escape(id)+'"]')?.click();toggle(false)};nav.appendChild(b)});
- const active=document.querySelector('.role button.active')?.textContent.trim()||'Care';const roleLabel=drawer.querySelector('#careRoleLabel');if(roleLabel)roleLabel.textContent=active+' workspace';
+ const active=document.querySelector('.role button.active')?.textContent.trim()||'Care';const heading=drawer.querySelector('#careDrawerTitle');if(heading)heading.textContent=active+' Menu';const roleLabel=drawer.querySelector('#careRoleLabel');if(roleLabel)roleLabel.textContent=active+' workspace';
 }
 function toggle(v){const d=document.getElementById('careDrawer');if(!d)return;d.hidden=!v;document.body.classList.toggle('care-drawer-open',v);document.querySelector('.care-menu-trigger')?.setAttribute('aria-expanded',String(v));if(v)document.querySelector('#careDrawer .care-drawer-nav button')?.focus()}
 const observer=new MutationObserver(()=>{const shell=document.querySelector('.shell'),side=document.querySelector('.side'),drawer=document.getElementById('careDrawer');if(shell&&side){const count=side.querySelectorAll('.nav button').length,shown=drawer?.querySelectorAll('.care-drawer-nav button').length||0;if(!document.querySelector('.care-topbar')||count!==shown)build()}});
