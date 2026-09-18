@@ -6,7 +6,7 @@ WORKDIR /app
 # no runtime npm dependency; server.js uses Node 20's built-in fetch().
 COPY package.json ./
 COPY server.js ./
-COPY prototype/phase-0/ ./prototype/phase-0/
+COPY *.html *.js *.css *.webmanifest ./
 
 ENV NODE_ENV=production
 ENV PORT=80
