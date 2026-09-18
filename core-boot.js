@@ -32,7 +32,6 @@ function recover(){
 function authSecurity(){
  loadOnce('level2-auth-v2.js','level2-auth-v2.css');
  loadOnce('security-center.js');
- loadOnce('admin-access.js','admin-access.css');
  loadOnce('auth-recovery.js');
  loadOnce('secure-sync-bridge.js');
 }
