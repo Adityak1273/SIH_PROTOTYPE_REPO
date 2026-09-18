@@ -31,6 +31,7 @@ function authSecurity(){
  loadOnce('security-center.js');
  loadOnce('admin-access.js','admin-access.css');
  loadOnce('auth-recovery.js');
+ loadOnce('secure-sync-bridge.js');
 }
 recover();authSecurity();boot();
 })();
