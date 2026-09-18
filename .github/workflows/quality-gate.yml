@@ -27,7 +27,7 @@ jobs:
         run: |
           set -e
           for f in index.html styles.css app.js core-boot.js navigation-shell.js secure-sync-bridge.js game-engine-v6.js security-center.js level2-auth-v2.js; do test -f "$f"; done
-          grep -q '"version": "0.20.2"' package.json
+          grep -q '"version": "0.20.3"' package.json
           grep -q 'game-engine-v6.js' core-boot.js
           grep -q 'navigation-shell.js' index.html
           ! grep -q 'phase4.js' index.html
@@ -36,8 +36,8 @@ jobs:
           ! grep -q 'game-set-override.js' index.html
           grep -q 'CCNER_SAFE_START_SESSION' game-engine-v6.js
           grep -q 'crypto.randomUUID' game-engine-v6.js
-          grep -q 'BUILD_VERSION.*0.20.2' server.js
-          grep -q 'BUILD_VERSION=0.20.2' Dockerfile
+          grep -q 'BUILD_VERSION.*0.20.3' server.js
+          grep -q 'BUILD_VERSION=0.20.3' Dockerfile
           grep -q 'v6Exit' game-engine-v6.js
           grep -q 'ccner:game-session-exit' game-engine-v6.js
 
@@ -49,7 +49,7 @@ jobs:
           grep -q "e.key==='Escape'" navigation-shell.js
           grep -q 'inert=true' navigation-shell.js
           grep -q 'overscroll-behavior:contain' styles.css
-          grep -q 'data-nav="settings"' index.html
+          grep -q 'id="topMenuButton"' index.html
           grep -q '"webDir": "dist"' capacitor.config.json
 
       - name: Security checks
