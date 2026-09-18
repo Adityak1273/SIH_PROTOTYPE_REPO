@@ -10,7 +10,7 @@ function apply(v=read()){
  document.body.classList.toggle('ccner-game-text-large',v.textSize==='large');
  document.body.classList.toggle('ccner-game-text-xl',v.textSize==='extra');
  document.body.classList.toggle('ccner-easy-mode',!!v.easyMode);
- document.body.classList.toggle('ccner-quiet-mode',!!v.quiet);
+ document.body.classList.toggle('ccner-quiet-mode',!!v.quiet);document.body.classList.toggle('ccner-mino-voice-off',!v.voice);const soundButton=document.querySelector('#soundToggle');if(soundButton){soundButton.textContent=v.voice?'🔊':'🔇';soundButton.setAttribute('aria-pressed',v.voice?'true':'false')}
  window.CCNER_GAME_SETTINGS=v;
  if(window.state&&typeof window.state==='object')window.state.soundOn=!!v.voice;
  if(v.voice===false&&window.CCNERMinoLive?.isRunning?.())window.CCNERMinoLive.stop();
