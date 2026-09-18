@@ -48,18 +48,7 @@ create policy privacy_consents_own_insert on public.privacy_consents for insert 
 create policy privacy_consents_own_update on public.privacy_consents for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 create policy privacy_consents_own_delete on public.privacy_consents for delete to authenticated using ((select auth.uid()) = user_id);
 
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('profile-photos','profile-photos',false,1048576,array['image/jpeg','image/png','image/webp'])
-on conflict (id) do update set public=false, file_size_limit=1048576, allowed_mime_types=array['image/jpeg','image/png','image/webp'];
-
-drop policy if exists profile_photos_select_own on storage.objects;
-drop policy if exists profile_photos_insert_own on storage.objects;
-drop policy if exists profile_photos_update_own on storage.objects;
-drop policy if exists profile_photos_delete_own on storage.objects;
-create policy profile_photos_select_own on storage.objects for select to authenticated using (bucket_id='profile-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
-create policy profile_photos_insert_own on storage.objects for insert to authenticated with check (bucket_id='profile-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
-create policy profile_photos_update_own on storage.objects for update to authenticated using (bucket_id='profile-photos' and (storage.foldername(name))[1]=(select auth.uid())::text) with check (bucket_id='profile-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
-create policy profile_photos_delete_own on storage.objects for delete to authenticated using (bucket_id='profile-photos' and (storage.foldername(name))[1]=(select auth.uid())::text);
+-- Profile photos are optional in this prototype. The remote project may not expose the Storage schema; keep avatar_path nullable and enable Storage policies only when the Storage service is provisioned.
 
 -- No anonymous CRUD path for protected patient data.
 revoke all on public.profiles, public.cognitive_sessions, public.game_results, public.daily_tasks, public.reminders from anon;
