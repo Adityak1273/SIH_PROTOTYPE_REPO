@@ -23,7 +23,7 @@ function showView(id){
 function speak(text,after=null){
  if(!state.soundOn||!('speechSynthesis'in window)){after?.();return}
  state.speaking=true;stopListening(false);setStatus('Mimo is talking',true);speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(String(text));const speechSpeed=Number(localStorage.getItem('ccner-speech-speed')||'.75');const speechVolume=Number(localStorage.getItem('ccner-volume')||'1');u.rate=Math.max(.5,Math.min(1.2,speechSpeed));u.pitch=1.08;u.volume=Math.max(0,Math.min(1,speechVolume));
+ const u=new SpeechSynthesisUtterance(String(text));const globalSpeed={slow:.6,normal:.75,fast:.95};const globalVolume={low:.45,medium:.75,high:1};const gs=localStorage.getItem('ccner-global-speech-speed');const gv=localStorage.getItem('ccner-global-volume');const speechSpeed=gs?globalSpeed[gs]||.75:Number(localStorage.getItem('ccner-speech-speed')||'.75');const speechVolume=gv?globalVolume[gv]||1:Number(localStorage.getItem('ccner-volume')||'1');u.rate=Math.max(.5,Math.min(1.2,speechSpeed));u.pitch=1.08;u.volume=Math.max(0,Math.min(1,speechVolume));
  const wanted=String(window.CCNERLanguage?.locale||'en-IN').toLowerCase();const voices=speechSynthesis.getVoices(),preferred=voices.find(v=>String(v.lang).toLowerCase()===wanted)||voices.find(v=>String(v.lang).toLowerCase().startsWith(wanted.slice(0,2)))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;
  u.onstart=()=>{setStatus('Mimo is talking',true);setMood('speaking','talking')};
  u.onend=()=>{state.speaking=false;setStatus(state.voiceArmed?'Listening for you':'Ready to play');after?.();if(localStorage.getItem('ccner-conversation-mode')==='continuous'&&state.voiceArmed)queueListening(250)};
