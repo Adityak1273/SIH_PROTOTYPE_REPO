@@ -1,0 +1,27 @@
+/* Cognitive Care NER — simple game settings */
+.ccner-game-settings{display:grid;gap:12px;margin-top:14px}
+.ccner-gs-card{background:#fffdfd;border:1px solid #e4dff0;border-radius:16px;padding:14px}
+.ccner-gs-title{font-weight:850;color:#302b3b;font-size:1rem;margin-bottom:3px}
+.ccner-gs-help{font-size:.78rem;color:#706a7d;line-height:1.35;margin-bottom:9px}
+.ccner-gs-control{display:flex;gap:7px;flex-wrap:wrap}
+.ccner-gs-option{border:1px solid #dcd5ea;background:#f7f4ff;color:#4e465b;border-radius:10px;padding:9px 12px;font:inherit;font-weight:750;cursor:pointer}
+.ccner-gs-option.selected{background:#eeeaff;border-color:#8b7cf6;color:#6655c7;box-shadow:0 0 0 2px rgba(139,124,246,.12)}
+.ccner-gs-switch{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ccner-gs-switch input{width:22px;height:22px;accent-color:#8b7cf6}
+.ccner-gs-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}
+.ccner-gs-save{background:#8b7cf6!important;color:#fff!important}
+.ccner-gs-reset{background:#eeeaff!important;color:#6655c7!important}
+.ccner-gs-note{font-size:.78rem;color:#706a7d;background:#f7f4ff;border-radius:12px;padding:10px 12px;line-height:1.4}
+.ccner-gs-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:12000;background:#302b3b;color:#fff;padding:10px 14px;border-radius:999px;font-weight:750;box-shadow:0 10px 28px rgba(48,43,59,.18)}
+body.ccner-game-text-large .game-card,.ccner-game-text-large .game-card{font-size:1.08em}
+body.ccner-game-text-large .game-prompt,body.ccner-game-text-large .v6-status{font-size:1.15em}
+body.ccner-game-text-large .v6-choice button,body.ccner-game-text-large .v6-house button,body.ccner-game-text-large .v6-next{min-height:68px;font-size:1.05em}
+body.ccner-game-text-xl .game-card,body.ccner-game-text-xl .game-card{font-size:1.18em}
+body.ccner-game-text-xl .game-prompt,body.ccner-game-text-xl .v6-status{font-size:1.25em}
+body.ccner-game-text-xl .v6-choice button,body.ccner-game-text-xl .v6-house button,body.ccner-game-text-xl .v6-next{min-height:76px;font-size:1.1em}
+body.ccner-easy-mode .game-card{border-radius:24px!important}
+body.ccner-easy-mode .game-card button{min-height:68px!important;font-size:1.06em}
+body.ccner-quiet-mode .game-card *{animation-duration:.001ms!important;transition:none!important}
+body.ccner-quiet-mode .live-dot,.ccner-quiet-mode .voice-banner{display:none!important}
+body.ccner-game-paused #gameArea{opacity:.72}
+@media(max-width:650px){.ccner-gs-option{flex:1;min-width:90px}.ccner-gs-switch{min-height:48px}}
