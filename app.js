@@ -72,10 +72,10 @@ function startListening(){
 }
 function armVoice(){const continuous=localStorage.getItem('ccner-conversation-mode')==='continuous';state.voiceArmed=true;say(continuous?'I’m listening now. You can talk naturally — I’ll keep listening after my replies. 😸':'I’m listening now. Please speak, then I’ll reply. Tap Talk again when you want to speak. 😸','listening','listening',{after:()=>{if(continuous)queueListening(150);else startListening()}})}
 function startSession(){
- const canonical=window.CCNER_SAFE_START_SESSION;
+ const canonical=window.CCNER_SAFE_START_SESSION||window.CCNER_VIDEO_GAMES?.startSession;
  if(typeof canonical==='function'&&canonical!==startSession){state.sessionStarted=true;canonical();return}
  setStatus('Loading today’s five-game training…',true);
- let tries=0;const timer=setInterval(()=>{tries++;const fn=window.CCNER_SAFE_START_SESSION;if(typeof fn==='function'&&fn!==startSession){clearInterval(timer);state.sessionStarted=true;fn()}else if(tries>=50){clearInterval(timer);state.sessionStarted=false;setStatus('Game engine could not load. Please refresh once.')}} ,100);
+ let tries=0;const timer=setInterval(()=>{tries++;const fn=window.CCNER_SAFE_START_SESSION||window.CCNER_VIDEO_GAMES?.startSession;if(typeof fn==='function'&&fn!==startSession){clearInterval(timer);state.sessionStarted=true;fn()}else if(tries>=120){clearInterval(timer);state.sessionStarted=false;setStatus('Game engine could not load. Please refresh once.')}} ,100);
 }
 function showResultsFromHistory(){
  const h=read('ccner-history',[]),s=h.at(-1);
