@@ -9,7 +9,7 @@ Use representative older adults from the intended NER user population. Obtain in
 ## Tasks
 1. Start a daily cognitive session.
 2. Complete one round of each game.
-3. Ask Momo for a tutorial and follow it.
+3. Ask Mino for a tutorial and follow it.
 4. Create a medicine/hydration/activity reminder.
 5. Confirm the reminder permission and understand the reminder message.
 6. Open progress and identify today's activity.
@@ -24,7 +24,7 @@ Use representative older adults from the intended NER user population. Obtain in
 - Number of errors/help requests.
 - Number of accidental taps.
 - Ability to read the smallest important text without assistance.
-- Ability to hear/understand Momo's speech.
+- Ability to hear/understand Mino's speech.
 - Voice recognition success rate in a quiet and typical home environment.
 - Reminder comprehension and successful acknowledgement.
 - Participant comfort/confidence rating after the session.
