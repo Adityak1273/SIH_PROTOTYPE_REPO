@@ -171,20 +171,13 @@
     const moodObserver=new MutationObserver(()=>{rig.classList.remove('p1-companion-pulse');void rig.offsetWidth;rig.classList.add('p1-companion-pulse')}); const stage=$('#stage'); if(stage)moodObserver.observe(stage,{attributes:true,attributeFilter:['class']});
   }
 
-  function installNav(){
-    document.addEventListener('click',e=>{
-      const nav=e.target.closest('[data-nav]'); if(nav){e.preventDefault(); const id=nav.dataset.nav; if(id==='reminders')openPanel('reminders'); else if(id==='settings')openPanel('settings'); else if(id==='resultsView'){ if(typeof window.showResultsFromHistory==='function')window.showResultsFromHistory(); else openPanel('report'); } else if(id==='homeView'&&typeof window.showView==='function')window.showView('#homeView'); return; }
-      const action=e.target.closest('[data-action]'); if(action&&action.dataset.action==='reminder'){openPanel('reminders');}
-    });
-  }
-
-  function enhanceSessionHistory(){window.addEventListener('ccner:session-complete',()=>{const last=sessions().at(-1);if(last)queueSync('session.completed',last);renderHomeMetrics()})}
+  function installNav(){}\n  function enhanceSessionHistory(){window.addEventListener('ccner:session-complete',()=>{const last=sessions().at(-1);if(last)queueSync('session.completed',last);renderHomeMetrics()})}
   function renderHomeMetrics(){
     const last=sessions().at(-1), el=$('#todayStatus'); if(el&&last)el.textContent=`Complete · ${Math.round(last.score||0)}%`;
   }
 
   function init(){
-    addLauncher(); addDrawer(); installNav(); avatarLife(); applyLanguage(); enhanceSessionHistory(); renderHomeMetrics(); updateSyncBadge();
+    addLauncher(); avatarLife(); applyLanguage(); enhanceSessionHistory(); renderHomeMetrics(); updateSyncBadge();
     document.querySelector('.p1-launcher')?.addEventListener('click',e=>{const b=e.target.closest('[data-p1]');if(b)openPanel(b.dataset.p1)});
     document.querySelector('#p1Drawer')?.addEventListener('click',e=>{const b=e.target.closest('[data-p1]');if(b){e.preventDefault();const k=b.dataset.p1;if(k==='monthly'||k==='report'||k==='caregiver'||k==='reminders'||k==='settings')openPanel(k==='report'?'report':k);else if(k==='export')exportData();else if(k==='clear')clearData();}});
   }
