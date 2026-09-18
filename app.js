@@ -1,48 +1,134 @@
-const $ = (s) => document.querySelector(s);
-const $$ = (s) => [...document.querySelectorAll(s)];
-function safeHistory(){try{const x=JSON.parse(localStorage.getItem('ccner-history')||'[]');return Array.isArray(x)?x:[]}catch(_){return[]}}
-const state={soundOn:true,listening:false,voiceArmed:false,speaking:false,thinking:false,recognition:null,restartTimer:null,view:'homeView',games:[],index:0,results:[],current:null,level:1,history:safeHistory(),conversation:[],sessionStarted:false};
-const catalog={
- memory:{name:'Familiar Object Memory',category:'MEMORY',intro:'Look carefully. I will hide the objects, then ask what you remember.',objects:['☕','🍌','🥄','📖','💊','💧','🧴','🍚']},
- find:{name:'Find the Object',category:'ATTENTION',intro:'Find the object I ask for. Take your time and look carefully.',objects:['☕','🍌','🥄','📖','💊','💧','🧴','🍚','🧢','🌂']},
- sequence:{name:'Sequence Recall',category:'MEMORY + DAILY ROUTINE',intro:'Watch the order, then tap the steps in the same order.',objects:['🌅','🪥','🍽️','💊','💧','📖','🚶']},
- pattern:{name:'Pattern Completion',category:'PATTERN RECOGNITION',intro:'What comes next? Spot the repeating pattern.',objects:['🍎','🥭','☕','🍌']},
- local:{name:'Local Object Memory',category:'MEMORY + FAMILIAR OBJECTS',intro:'Remember familiar everyday items. This is training, not diagnosis.',objects:['🍚','☕','🥥','🧺','🪣','🌂','🥄','📖']}
-};
+/* Cognitive Care NER — canonical app shell.
+ * Game logic is owned only by game-engine-v6.js.
+ */
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k)||'null');return v??f}catch{return f}};
+const state={soundOn:true,listening:false,voiceArmed:false,speaking:false,thinking:false,recognition:null,restartTimer:null,view:'homeView',history:read('ccner-history',[]),conversation:[],sessionStarted:false,level:1};
+window.state=state;
 const stage=$('#stage'),speechText=$('#speechText'),thought=$('#thought'),statusPill=$('#statusPill'),statusText=$('#statusText'),moodText=$('#moodText'),chatInput=$('#chatInput'),voiceHint=$('#voiceHint');
-const pick=a=>a[Math.floor(Math.random()*a.length)],shuffle=a=>[...a].sort(()=>Math.random()-.5);
-function setMood(m,label=m){if(stage)stage.className=`stage mood-${m}`;if(moodText)moodText.textContent=`Mood: ${label}`}
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function setMood(m,label=m){if(stage)stage.className='stage mood-'+m;if(moodText)moodText.textContent='Mood: '+label}
 function setStatus(t,busy=false){if(statusText)statusText.textContent=t;if(statusPill)statusPill.classList.toggle('busy',busy)}
-function showView(id){$$('.view').forEach(v=>v.hidden=true);const t=$(id);if(!t)return;t.hidden=false;state.view=id.slice(1);updateNav();window.scrollTo({top:0,behavior:'smooth'})}
-function updateNav(){ $$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===state.view));const nav=$('.bottom-nav');if(nav)nav.hidden=state.view==='gameView'}
-function speak(text,after=null){if(!state.soundOn||!('speechSynthesis'in window)){if(after)after();return}state.speaking=true;stopListening(false);setStatus('Momo is talking',true);window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.92;u.pitch=1.08;u.volume=1;const voices=window.speechSynthesis.getVoices();const preferred=voices.find(v=>/^en-IN$/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;u.onstart=()=>{setStatus('Momo is talking',true);setMood('speaking','talking')};u.onend=()=>{state.speaking=false;setStatus(state.voiceArmed?'Listening for you':'Ready to play');if(after)after();if(state.voiceArmed)queueListening(250)};u.onerror=()=>{state.speaking=false;if(after)after();if(state.voiceArmed)queueListening(250)};window.speechSynthesis.speak(u)}
-function say(text,mood='happy',label=mood,opts={}){if(speechText)speechText.textContent=text;if(thought)thought.textContent=({thinking:'Let me think…',excited:'Ooooh! Let’s do it!',encourage:'One step at a time.',speaking:'I’m talking…',listening:'Your turn — I’m listening.'}[mood]||'I’m listening…');setMood(mood,label);if(!opts.silent)speak(text,opts.after)}
-function setConversation(role,text){state.conversation.push({role,text});state.conversation=state.conversation.slice(-8)}
-function localFallback(text){const l=text.toLowerCase();if(/\b(hi|hello|hey|namaste)\b/.test(l))return pick(['Hello! I was waiting for you. What shall we do together? 😸','Hi there! Tell me what is on your mind. I’m listening.','Namaste! Momo is here. Shall we have a little chat?']);if(/start|play|game|activity|khel/.test(l))return 'Absolutely! I’ll start today’s little brain adventure for you. 🎮';if(/progress|score|result|performance/.test(l)){showResultsFromHistory();return 'Here is your recent progress. We can look at it together.'}if(/remind|medicine|water|appointment|task/.test(l))return 'I can help you keep track of medicine, water, appointments and daily activities.';if(/thank/.test(l))return pick(['You’re very welcome! We make a good team. 😸','Anytime! Momo is always on your side.','Hehe, my whiskers are smiling.']);return pick(['Hmm, tell me a little more. I’m listening.','That sounds interesting. What happened next?','I understand. We can take it one small step at a time.','I’m right here with you. Want to tell me more?','Oh! My ears are fully open. Go on.'])}
-async function aiReply(text){try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:state.conversation,level:state.level,screen:state.view,game:state.current?catalog[state.current.key]?.name:null,language:window.CCNERLanguage?.locale||'en-IN',languageName:window.CCNERLanguage?.language||'English'})});if(!r.ok)throw new Error('AI unavailable');const d=await r.json();if(d?.reply)return d.reply}catch(_){}return localFallback(text)}
-function respond(raw){const text=String(raw||'').trim();if(!text)return;setConversation('user',text);state.thinking=true;setStatus('Momo is thinking',true);setMood('thinking','thinking');if(/\b(start|play|game|activity|begin)\b/i.test(text)){state.thinking=false;startSession();return}aiReply(text).then(reply=>{setConversation('assistant',reply);state.thinking=false;say(reply,'happy','curious')})}
+function updateNav(active='homeView'){
+ $$('.bottom-nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===active));
+ const nav=$('.bottom-nav');if(nav)nav.hidden=active==='gameView';
+}
+function showView(id){
+ $$('.view').forEach(v=>v.hidden=true);const t=$(id);if(!t)return;t.hidden=false;
+ state.view=id.slice(1);updateNav(state.view);window.scrollTo?.({top:0,behavior:'smooth'});
+}
+function speak(text,after=null){
+ if(!state.soundOn||!('speechSynthesis'in window)){after?.();return}
+ state.speaking=true;stopListening(false);setStatus('Momo is talking',true);speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(String(text));u.rate=.92;u.pitch=1.08;u.volume=1;
+ const voices=speechSynthesis.getVoices(),preferred=voices.find(v=>/^en-IN$/i.test(v.lang))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;
+ u.onstart=()=>{setStatus('Momo is talking',true);setMood('speaking','talking')};
+ u.onend=()=>{state.speaking=false;setStatus(state.voiceArmed?'Listening for you':'Ready to play');after?.();if(state.voiceArmed)queueListening(250)};
+ u.onerror=()=>{state.speaking=false;after?.();if(state.voiceArmed)queueListening(250)};
+ speechSynthesis.speak(u);
+}
+function say(text,mood='happy',label=mood,opts={}){
+ if(speechText)speechText.textContent=String(text);if(thought)thought.textContent=({thinking:'Let me think…',excited:'Ooooh! Let’s do it!',encourage:'One step at a time.',speaking:'I’m talking…',listening:'Your turn — I’m listening.'}[mood]||'I’m listening…');
+ setMood(mood,label);if(!opts.silent)speak(text,opts.after);
+}
+function setConversation(role,text){state.conversation.push({role,text:String(text)});state.conversation=state.conversation.slice(-8)}
+function localFallback(text){
+ const l=String(text).toLowerCase();
+ if(/\b(hi|hello|hey|namaste)\b/.test(l))return pick(['Hello! I was waiting for you. What shall we do together? 😸','Hi there! Momo is here and listening.','Namaste! Shall we have a little chat?']);
+ if(/progress|score|result|performance/.test(l)){showResultsFromHistory();return 'Here is your recent progress. We can look at it together.'}
+ if(/remind|medicine|water|appointment|task/.test(l))return 'I can help you keep track of reminders and daily activities.';
+ if(/start|play|game|activity|begin|khel/.test(l)){startSession();return 'Absolutely! Let’s start today’s little brain adventure. 🎮'}
+ if(/thank/.test(l))return pick(['You’re very welcome! 😸','Anytime! Momo is always here.','We make a good team!']);
+ return pick(['Hmm, tell me a little more. I’m listening.','That sounds interesting. What happened next?','I’m right here with you. Want to tell me more?']);
+}
+async function aiReply(text){
+ try{
+  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:state.conversation,level:state.level,screen:state.view,game:null,language:window.CCNERLanguage?.locale||'en-IN',languageName:window.CCNERLanguage?.language||'English'})});
+  if(!r.ok)throw Error('AI unavailable');const d=await r.json();if(d?.reply)return String(d.reply).slice(0,1200);
+ }catch(_){}
+ return localFallback(text);
+}
+function respond(raw){
+ const text=String(raw||'').trim();if(!text)return;setConversation('user',text);state.thinking=true;setStatus('Momo is thinking',true);setMood('thinking','thinking');
+ if(/\b(start|play|game|activity|begin)\b/i.test(text)){state.thinking=false;startSession();return}
+ aiReply(text).then(reply=>{setConversation('assistant',reply);state.thinking=false;say(reply,'happy','curious')}).catch(()=>{state.thinking=false;say(localFallback(text),'encourage','helpful')});
+}
 function queueListening(delay=350){if(!state.voiceArmed||state.speaking)return;clearTimeout(state.restartTimer);state.restartTimer=setTimeout(startListening,delay)}
-function stopListening(keepArmed=true){const r=state.recognition;state.recognition=null;try{r?.stop()}catch(_){}state.listening=false;if(voiceHint)voiceHint.hidden=true;if(!keepArmed)clearTimeout(state.restartTimer)}
-function startListening(){if(!state.voiceArmed||state.speaking||state.listening)return;const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Recognition){say('Voice input is not supported on this device yet. You can still talk to me by typing.','encourage','helpful');state.voiceArmed=false;return}const r=new Recognition();state.recognition=r;r.lang='en-IN';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;state.listening=true;if(voiceHint)voiceHint.hidden=false;setStatus('Listening for you',true);setMood('listening','listening');let finalText='';r.onresult=e=>{let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0]?.transcript||'';if(e.results[i].isFinal)finalText+=t;else interim+=t}if(interim&&speechText)speechText.textContent=interim;if(finalText){respond(finalText);finalText=''}};r.onerror=e=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(e.error!=='aborted'&&e.error!=='no-speech')setStatus('Voice ready');if(state.voiceArmed&&!state.speaking)queueListening(500)};r.onend=()=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(state.voiceArmed&&!state.speaking&&!state.thinking)queueListening(350)};try{r.start()}catch(_){state.listening=false;queueListening(700)}}
+function stopListening(keepArmed=true){
+ const r=state.recognition;state.recognition=null;try{r?.stop()}catch{}state.listening=false;if(voiceHint)voiceHint.hidden=true;if(!keepArmed)clearTimeout(state.restartTimer);
+}
+function startListening(){
+ if(!state.voiceArmed||state.speaking||state.listening)return;
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition){say('Voice input is not supported on this device yet. You can still type to me.','encourage','helpful');state.voiceArmed=false;return}
+ const r=new Recognition();state.recognition=r;r.lang='en-IN';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;state.listening=true;if(voiceHint)voiceHint.hidden=false;setStatus('Listening for you',true);setMood('listening','listening');let finalText='';
+ r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0]?.transcript||'';if(e.results[i].isFinal)finalText+=t;else if(speechText)speechText.textContent=t}if(finalText){respond(finalText);finalText=''}};
+ r.onerror=e=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(e.error!=='aborted'&&e.error!=='no-speech')setStatus('Voice ready');if(state.voiceArmed&&!state.speaking)queueListening(500)};
+ r.onend=()=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(state.voiceArmed&&!state.speaking&&!state.thinking)queueListening(350)};
+ try{r.start()}catch{state.listening=false;queueListening(700)}
+}
 function armVoice(){state.voiceArmed=true;say('I’m listening now. You can keep talking naturally — no need to press Talk again. 😸','listening','listening',{after:()=>queueListening(150)})}
-function adaptiveLevel(){if(!state.history.length)return 1;const last=state.history.at(-1),a=Number(last.accuracy||0),l=Number(last.level||1);return a>=.85?Math.min(3,l+1):a<.6?Math.max(1,l-1):l}
-function startSession(){if(state.sessionStarted)return;state.sessionStarted=true;state.level=adaptiveLevel();state.games=shuffle(Object.keys(catalog));state.index=0;state.results=[];$('#todayStatus').textContent='In progress';showView('#gameView');say('Game time! Five little challenges, one after another. Just follow my voice and tap what feels right. 😸','excited','excited',{after:()=>setTimeout(loadGame,700)})}
-function loadGame(){const key=state.games[state.index],game=catalog[key];state.current={key,started:performance.now(),answered:false,score:0,correct:0,seconds:0};$('#gameCategory').textContent=game.category;$('#gameTitle').textContent=game.name;$('#gameCounter').textContent=`${state.index+1} of 5`;$('#progressBar').style.width=`${state.index/5*100}%`;$('#gamePrompt').textContent=game.intro;$('#gameArea').innerHTML='';$('#gameFeedback').textContent='';$('#gameMomoText').textContent=state.level===3?'A little extra challenge today!':'No rush. I’m right here with you.';say(game.intro,'happy','ready',{after:()=>setTimeout(()=>runGame(key),650)})}
-function runGame(key){const fn={memory:gameMemory,find:gameFind,sequence:gameSequence,pattern:gamePattern,local:gameLocal}[key];if(fn&&!state.current?.answered)fn()}
-function finishGame(correct=false,skipped=false){if(!state.current||state.current.answered)return;state.current.answered=true;state.current.correct=correct?1:0;state.current.score=correct?100:0;state.current.seconds=(performance.now()-state.current.started)/1000;state.results.push({...state.current,name:catalog[state.current.key].name,skipped});if(window.CognitiveCareCompanion)window.CognitiveCareCompanion.onGameEvent({type:correct?'correct':'incorrect'});setMood(correct?'celebrate':'encourage',correct?'happy':'encouraging');setStatus(correct?'Nice one!':'Good try — let’s keep going.');setTimeout(()=>{if(state.index<4){state.index++;loadGame()}else finishSession()},650)}
-function renderChoices(items,onPick){const area=$('#gameArea');area.innerHTML=`<div class="answer-grid">${items.map((x,i)=>`<button class="answer-tile" data-i="${i}" type="button" aria-label="Choice ${i+1}">${x}</button>`).join('')}</div>`;$$('.answer-tile').forEach(b=>b.onclick=()=>{b.classList.add('chosen');onPick(items[Number(b.dataset.i)])})}
-function gameMemory(){const n=state.level+2,items=shuffle(catalog.memory.objects).slice(0,n),seconds=Math.max(3.2,6-state.level);$('#gamePrompt').textContent=`Remember ${n} objects. Look carefully…`;$('#gameArea').innerHTML=`<div class="memory-show">${items.map(x=>`<div class="object-tile">${x}</div>`).join('')}</div>`;say('Eyes here… remember these little things!','thinking','watching');setTimeout(()=>{if(state.current?.answered)return;const target=pick(items),d=shuffle(catalog.memory.objects.filter(x=>!items.includes(x))).slice(0,Math.min(3,items.length));$('#gamePrompt').textContent='Which object was shown?';renderChoices(shuffle([target,...d]),a=>finishGame(a===target))},seconds*1000)}
-function gameFind(){const items=shuffle(catalog.find.objects).slice(0,state.level+4),target=pick(items);$('#gamePrompt').textContent=`Find the ${target} and tap it.`;renderChoices(items,a=>finishGame(a===target));say(`Can you find ${target}? Detective eyes! 👀`,'happy','playful')}
-function gameSequence(){const seq=shuffle(catalog.sequence.objects).slice(0,state.level+2);$('#gamePrompt').textContent='Watch the sequence…';$('#gameArea').innerHTML=`<div class="sequence-grid">${seq.map((x,i)=>`<button class="sequence-tile" data-i="${i}" type="button">${x}</button>`).join('')}</div>`;const tiles=$$('.sequence-tile');let fi=0;const flash=()=>{tiles.forEach(t=>t.classList.remove('active'));if(fi<seq.length){tiles[fi].classList.add('active');fi++;setTimeout(flash,650);return}setTimeout(()=>{tiles.forEach(t=>{t.textContent='?';t.classList.remove('active')});$('#gamePrompt').textContent='Tap the sequence in the same order.';let pos=0;tiles.forEach(tile=>tile.onclick=()=>{if(state.current?.answered)return;const chosenIndex=Number(tile.dataset.i);if(chosenIndex===pos){tile.textContent=seq[pos];tile.classList.add('chosen');pos++;if(pos===seq.length)finishGame(true)}else finishGame(false)})},400)};flash();say('Watch closely… then copy my order!','thinking','focused')}
-function gamePattern(){const [a,b]=pick([['🍎','🥭'],['☕','💧'],['🍚','🥥'],['🥄','🍌']]);const seq=state.level===1?[a,b,a,b]:state.level===2?[a,b,a,b,a]:[a,b,a,b,a,b];$('#gamePrompt').textContent='What comes next?';$('#gameArea').innerHTML=`<div class="pattern">${seq.map(x=>`<span>${x}</span>`).join('')}<span class="pattern-question">?</span></div>`;const wrong=pick(catalog.pattern.objects.filter(x=>x!==a&&x!==b));renderChoices(shuffle([a,b,wrong]),answer=>finishGame(answer===a));say('Hmm… I can see a rhythm. What comes next?','thinking','thinking')}
-function gameLocal(){const n=state.level+2,items=shuffle(catalog.local.objects).slice(0,n),seconds=Math.max(3,5.5-state.level*.6);$('#gamePrompt').textContent='Remember these familiar everyday items.';$('#gameArea').innerHTML=`<div class="memory-show">${items.map(x=>`<div class="object-tile">${x}</div>`).join('')}</div>`;say('Familiar everyday things. Take a good look!','happy','friendly');setTimeout(()=>{if(state.current?.answered)return;const target=pick(items),choices=shuffle([target,...shuffle(catalog.local.objects.filter(x=>!items.includes(x))).slice(0,3)]);$('#gamePrompt').textContent='Which one did you see?';renderChoices(choices,a=>finishGame(a===target))},seconds*1000)}
-function finishSession(){state.sessionStarted=false;const correct=state.results.reduce((s,r)=>s+r.correct,0),avg=state.results.reduce((s,r)=>s+r.seconds,0)/Math.max(1,state.results.length),session={date:new Date().toISOString(),score:correct*20,accuracy:correct/5,avgTime:avg,level:state.level,results:state.results};state.history.push(session);state.history=state.history.slice(-8);try{localStorage.setItem('ccner-history',JSON.stringify(state.history))}catch(_){}renderResults(session);showView('#resultsView');$('#todayStatus').textContent='Complete';say(correct>=4?'Wonderful! Momo is doing a tiny victory dance. 😸':'You finished all five! That matters. We can keep practicing together.','celebrate',correct>=4?'proud':'encouraging')}
-function renderResults(s){$('#overallScore').textContent=`${s.score}%`;$('#overallAccuracy').textContent=`${Math.round(s.accuracy*100)}%`;$('#gamesCompleted').textContent=`${s.results.length} / 5`;$('#avgTime').textContent=`${s.avgTime.toFixed(1)}s`;$('#resultRows').innerHTML=s.results.map(r=>`<div class="result-row"><div><div class="result-name">${r.name}</div><div class="result-detail">${r.correct?'Correct':'Needs another try'} · ${r.seconds.toFixed(1)}s</div></div><span class="score-pill">${r.score}%</span></div>`).join('');const prev=state.history.at(-2);$('#trendBadge').textContent=!prev?'First session':s.score>prev.score?'Improving ↑':s.score<prev.score?'Different day ↔':'Steady →'}
-function showResultsFromHistory(){const s=state.history.at(-1);if(s){renderResults(s);showView('#resultsView')}else openOverlay('Progress','<p>You have not completed a session yet. Start today’s five-game workout and your progress will appear here.</p>')}
-function openOverlay(title,body){const p=$('#overlayPanel'),c=$('#overlayContent');if(!p||!c)return;c.innerHTML=`<p class="eyebrow">MOMO</p><h3>${title}</h3>${body}`;p.hidden=false}
+function startSession(){
+ const canonical=window.CCNER_SAFE_START_SESSION;
+ if(typeof canonical==='function'&&canonical!==startSession){state.sessionStarted=true;canonical();return}
+ setStatus('Loading today’s five-game training…',true);
+ let tries=0;const timer=setInterval(()=>{tries++;const fn=window.CCNER_SAFE_START_SESSION;if(typeof fn==='function'&&fn!==startSession){clearInterval(timer);state.sessionStarted=true;fn()}else if(tries>=50){clearInterval(timer);state.sessionStarted=false;setStatus('Game engine could not load. Please refresh once.')}} ,100);
+}
+function showResultsFromHistory(){
+ const h=read('ccner-history',[]),s=h.at(-1);
+ if(!s){openOverlay('Progress','<p>You have not completed a session yet. Start today’s five-game workout and your progress will appear here.</p>');return}
+ state.history=h;
+ $('#overallScore')?.replaceChildren(document.createTextNode(Math.round(Number(s.score||0))+'%'));
+ $('#overallAccuracy')?.replaceChildren(document.createTextNode(Math.round(Number(s.accuracy||0)*100)+'%'));
+ $('#gamesCompleted')?.replaceChildren(document.createTextNode('5 / 5'));
+ $('#avgTime')?.replaceChildren(document.createTextNode((Number(s.avgTime||0)).toFixed(1)+'s'));
+ const rows=$('#resultRows');if(rows)rows.textContent='';
+ (s.results||[]).forEach(r=>{const e=document.createElement('div');e.className='result-row';const left=document.createElement('div'),name=document.createElement('div'),detail=document.createElement('div'),score=document.createElement('span');name.className='result-name';name.textContent=r.game||r.name||'Game';detail.className='result-detail';detail.textContent=(r.correct?'Correct':'Needs practice')+' · '+(Number(r.seconds||0)).toFixed(1)+'s';score.className='score-pill';score.textContent=r.correct?'100%':'0%';left.append(name,detail);e.append(left,score);rows?.append(e)});
+ const prev=h.at(-2);$('#trendBadge')?.replaceChildren(document.createTextNode(!prev?'First session':Number(s.score)>Number(prev.score)?'Improving ↑':Number(s.score)<Number(prev.score)?'Different day ↔':'Steady →'));
+ showView('#resultsView');
+}
+function openOverlay(title,body){
+ const p=$('#overlayPanel'),c=$('#overlayContent');if(!p||!c)return;c.textContent='';
+ const head=document.createElement('p');head.className='eyebrow';head.textContent='MOMO';const h=document.createElement('h3');h.textContent=title;c.append(head,h);
+ const wrap=document.createElement('div');wrap.innerHTML=body;c.append(wrap);p.hidden=false;$('#closeOverlay')?.focus();
+}
 function closeOverlay(){const p=$('#overlayPanel');if(p)p.hidden=true}
-function reminders(){openOverlay('Today’s reminders','<div class="reminder"><span>💊 Medicine</span><strong>08:00 · 20:00</strong></div><div class="reminder"><span>💧 Hydration</span><strong>Every 2 hours</strong></div><div class="reminder"><span>📅 Appointment</span><strong>Tomorrow · 11:30</strong></div><p class="overlay-note">Reminder scheduling will connect to the secure backend in the next phase.</p>')}
-function settings(){openOverlay('Settings','<div class="setting-row"><span>🔊 Momo voice</span><button class="action-button" id="overlaySound">Toggle</button></div><div class="setting-row"><span>🎙️ Voice mode</span><strong>Continuous</strong></div><div class="setting-row"><span>🌐 Language</span><strong>English (India)</strong></div><p class="overlay-note">Regional languages and offline voice fallback are part of the NER customization layer.</p>');$('#overlaySound').onclick=()=>{$('#soundToggle').click();closeOverlay()}}
-$('#soundToggle')?.addEventListener('click',()=>{state.soundOn=!state.soundOn;$('#soundToggle').textContent=state.soundOn?'🔊':'🔇';if(!state.soundOn)window.speechSynthesis?.cancel()});$('#homeButton')?.addEventListener('click',()=>{state.sessionStarted=false;stopListening(false);state.voiceArmed=false;showView('#homeView');say('Back home! What shall we do next? 😸','happy','ready')});$$('[data-action="start"]').forEach(b=>b.addEventListener('click',startSession));$$('[data-action="talk"]').forEach(b=>b.addEventListener('click',armVoice));$$('[data-action="reminder"]').forEach(b=>b.addEventListener('click',reminders));$$('[data-action="progress"]').forEach(b=>b.addEventListener('click',showResultsFromHistory));$('#sendButton')?.addEventListener('click',()=>{respond(chatInput.value);chatInput.value=''});chatInput?.addEventListener('keydown',e=>{if(e.key==='Enter'){respond(chatInput.value);chatInput.value=''}});$('#closeOverlay')?.addEventListener('click',closeOverlay);$('#overlayPanel')?.addEventListener('click',e=>{if(e.target.id==='overlayPanel')closeOverlay()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeOverlay()});$('#playAgain')?.addEventListener('click',startSession);$('#backHome')?.addEventListener('click',()=>showView('#homeView'));$('.bottom-nav button').forEach(b=>b.addEventListener('click',()=>{const n=b.dataset.nav;if(n==='homeView')showView('#homeView');if(n==='resultsView')showResultsFromHistory();if(n==='startSession')startSession();if(n==='reminders')reminders();if(n==='settings')settings()}));
-window.CognitiveCareCompanion={onGameEvent(e){if(e.type==='correct')say(pick(['Yes!','Lovely!','You got it!','That was sharp!']),'celebrate','proud');else if(e.type==='incorrect')say(pick(['That’s okay. Let’s keep going.','No worries — next one!','Good try. I’m with you.']),'encourage','encouraging')}};
-setMood('happy','happy');setStatus('Ready to play');updateNav();
+function reminders(){
+ openOverlay('Today’s reminders','<div class="reminder"><span>💊 Medicine</span><strong>08:00 · 20:00</strong></div><div class="reminder"><span>💧 Hydration</span><strong>Every 2 hours</strong></div><div class="reminder"><span>📅 Appointment</span><strong>Tomorrow · 11:30</strong></div><p class="overlay-note">Reminder delivery is controlled by the notification and security layers.</p>');
+}
+function settings(){
+ openOverlay('Settings','<div class="setting-row"><span>🔊 Momo voice</span><button class="action-button" id="overlaySound" type="button">Toggle</button></div><div class="setting-row"><span>🎙️ Voice mode</span><strong>Continuous</strong></div><div class="setting-row"><span>🌐 Language</span><strong>English (India)</strong></div>');
+ $('#overlaySound')?.addEventListener('click',()=>{$('#soundToggle')?.click();closeOverlay()},{once:true});
+}
+window.CCNERUI={home:()=>showView('#homeView'),progress:showResultsFromHistory,reminders,settings};
+window.CCNERGameShell={showView,setStatus,setMood,say,openOverlay,closeOverlay};
+window.CCNERCompanion=window.CognitiveCareCompanion={onGameEvent:e=>say(e?.type==='correct'?pick(['Yes!','Lovely!','You got it!']):'That’s okay. Let’s keep going.',e?.type==='correct'?'celebrate':'encourage',e?.type==='correct'?'proud':'encouraging')};
+window.startSession=startSession;window.respond=respond;window.armVoice=armVoice;window.queueListening=queueListening;window.stopListening=stopListening;window.showView=showView;window.setStatus=setStatus;window.setMood=setMood;window.say=say;window.showResultsFromHistory=showResultsFromHistory;window.openPanel=(name)=>({reminders,settings,progress:showResultsFromHistory}[name]||(()=>{}))();
+function bind(){
+ $('#soundToggle')?.addEventListener('click',()=>{state.soundOn=!state.soundOn;$('#soundToggle').textContent=state.soundOn?'🔊':'🔇';if(!state.soundOn)stopListening(false)});
+ $('#homeButton')?.addEventListener('click',()=>showView('#homeView'));
+ $('#closeOverlay')?.addEventListener('click',closeOverlay);
+ $('#overlayPanel')?.addEventListener('click',e=>{if(e.target.id==='overlayPanel')closeOverlay()});
+ $('#playAgain')?.addEventListener('click',startSession);
+ $('#backHome')?.addEventListener('click',()=>showView('#homeView'));
+ $('#sendButton')?.addEventListener('click',()=>{respond(chatInput?.value);if(chatInput)chatInput.value=''});
+ chatInput?.addEventListener('keydown',e=>{if(e.key==='Enter'){respond(chatInput.value);chatInput.value=''}});
+ $$('.quick-actions [data-action="start"]').forEach(b=>b.addEventListener('click',startSession));
+ $$('.quick-actions [data-action="talk"]').forEach(b=>b.addEventListener('click',armVoice));
+ $$('.quick-actions [data-action="reminder"]').forEach(b=>b.addEventListener('click',reminders));
+ $$('.quick-actions [data-action="progress"]').forEach(b=>b.addEventListener('click',showResultsFromHistory));
+ $$('.bottom-nav button').forEach(b=>b.addEventListener('click',()=>{
+   const n=b.dataset.nav;
+   if(n==='homeView')showView('#homeView');
+   else if(n==='resultsView')showResultsFromHistory();
+   else if(n==='startSession')startSession();
+   else if(n==='reminders')reminders();
+   else if(n==='settings')window.CCNERNavigation?.open?.()||settings();
+ }));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeOverlay()});
+ setMood('happy','happy');setStatus('Ready to play');updateNav('homeView');
+}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
+})();
