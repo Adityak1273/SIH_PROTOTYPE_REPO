@@ -109,6 +109,7 @@ window.startSession=startSession;window.respond=respond;window.armVoice=armVoice
 function bind(){
  $('#soundToggle')?.addEventListener('click',()=>{state.soundOn=!state.soundOn;$('#soundToggle').textContent=state.soundOn?'🔊':'🔇';if(!state.soundOn)stopListening(false)});
  $('#homeButton')?.addEventListener('click',()=>showView('#homeView'));
+ $('#topMenuButton')?.addEventListener('click',()=>window.CCNERNavigation?.open?.());
  $('#closeOverlay')?.addEventListener('click',closeOverlay);
  $('#overlayPanel')?.addEventListener('click',e=>{if(e.target.id==='overlayPanel')closeOverlay()});
  $('#playAgain')?.addEventListener('click',startSession);
@@ -125,6 +126,7 @@ function bind(){
    else if(n==='resultsView')showResultsFromHistory();
    else if(n==='startSession')startSession();
    else if(n==='reminders')reminders();
+   else if(n==='mino')window.CCNERNavigation?.mino?.()||window.CCNERLevel3?.openMino?.();
    else if(n==='settings')window.CCNERNavigation?.open?.()||settings();
  }));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeOverlay()});
