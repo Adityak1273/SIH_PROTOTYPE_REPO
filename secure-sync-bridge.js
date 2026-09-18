@@ -9,14 +9,14 @@ const read=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||'null')??f}cat
 const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}};
 let pending=false;
 function auth(){return {sb:window.CCNERAuth?.client?.(),profile:window.CCNERAuth?.getProfile?.()}};
-function sessionOps(ids,userId){const history=read(H,[]);const wanted=new Set(Array.isArray(ids)?ids.map(String):[]);return history.filter(x=>wanted.has(String(x?.id||x?.sessionId||x?.date))).map(x=>({client_operation_id:'session:'+String(x.id||x.sessionId||x.date),user_id:userId,operation:'upsert',resource:'training_session',payload:x}));}
-function routineOps(userId){return read(L6,[]).filter(x=>x?.status==='pending').map(x=>({client_operation_id:String(x.id),user_id:userId,operation:String(x.op||'upsert'),resource:String(x.resource||'routine'),payload:x.payload??{}}))}
+function sessionOps(ids,userId){const history=read(H,[]);const wanted=new Set(Array.isArray(ids)?ids.map(String):[]);return history.filter(x=>wanted.has(String(x?.id||x?.sessionId||x?.date))).map(x=>({client_event_id:'session:'+String(x.id||x.sessionId||x.date),user_id:userId,operation:'upsert',entity_type:'training_session',payload:x,client_created_at:x.date||x.startedAt||new Date().toISOString()}));}
+function routineOps(userId){return read(L6,[]).filter(x=>x?.status==='pending').map(x=>({client_event_id:String(x.id),user_id:userId,operation:String(x.op||'upsert'),entity_type:String(x.resource||'routine'),payload:x.payload??{},client_created_at:x.createdAt||new Date().toISOString()}))}
 async function upload(detail={}){
  if(pending)return;const {sb,profile}=auth();if(!sb||!profile?.user_id)return;
  const ids=Array.isArray(detail.ids)?detail.ids:[];const ops=[...sessionOps(ids,profile.user_id),...routineOps(profile.user_id)];if(!ops.length)return;
  pending=true;
  try{
-  const {error}=await sb.from('sync_queue').upsert(ops,{onConflict:'user_id,client_operation_id'});
+  const {error}=await sb.from('sync_queue').upsert(ops,{onConflict:'user_id,client_event_id'});
   if(error)throw error;
   const at=new Date().toISOString();
   if(ids.length){const q=read(P6,[]);const set=new Set(ids.map(String));write(P6,q.map(x=>set.has(String(x.id))?{...x,status:'synced',syncedAt:at}:x));}
