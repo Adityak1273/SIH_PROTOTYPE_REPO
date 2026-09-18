@@ -1,0 +1,11 @@
+/* Cognitive Care NER — progress settings */
+#ccnerProgressSettingsRoot{display:grid;gap:12px;margin-top:14px}
+#ccnerProgressSettingsRoot .ccner-gs-card{background:#fffdfd;border:1px solid #e4dff0;border-radius:16px;padding:14px}
+#ccnerProgressSettingsRoot .ccner-gs-title{font-weight:850;color:#302b3b;font-size:1rem;margin-bottom:3px}
+#ccnerProgressSettingsRoot .ccner-gs-help{font-size:.78rem;color:#706a7d;line-height:1.35;margin-bottom:9px}
+#ccnerProgressSettingsRoot .ccner-gs-control{display:flex;gap:7px;flex-wrap:wrap}
+#ccnerProgressSettingsRoot .ccner-gs-option{border:1px solid #dcd5ea;background:#f7f4ff;color:#4e465b;border-radius:10px;padding:9px 12px;font:inherit;font-weight:750;cursor:pointer}
+#ccnerProgressSettingsRoot .ccner-gs-option.selected{background:#eeeaff;border-color:#8b7cf6;color:#6655c7}
+#ccnerProgressSettingsRoot .ccner-gs-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
+#ccnerProgressSettingsRoot .ccner-gs-switch input{width:22px;height:22px;accent-color:#8b7cf6}
+@media(max-width:650px){#ccnerProgressSettingsRoot .ccner-gs-option{flex:1;min-width:85px}}
