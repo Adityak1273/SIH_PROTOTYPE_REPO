@@ -97,7 +97,10 @@ function openOverlay(title,body){
 }
 function closeOverlay(){const p=$('#overlayPanel');if(p)p.hidden=true}
 function reminders(){
- openOverlay('Today’s reminders','<div class="reminder"><span>💊 Medicine</span><strong>08:00 · 20:00</strong></div><div class="reminder"><span>💧 Hydration</span><strong>Every 2 hours</strong></div><div class="reminder"><span>📅 Appointment</span><strong>Tomorrow · 11:30</strong></div><p class="overlay-note">Reminder delivery is controlled by the notification and security layers.</p>');
+ const enabled=localStorage.getItem('ccner-reminders')!=='off',time=localStorage.getItem('ccner-reminder-time')||'09:00';
+ if(!enabled){openOverlay('Today’s reminders','<p class="overlay-note">Daily reminders are turned off. You can turn them on in Mimo Settings.</p>');return}
+ const [hh,mm]=time.split(':').map(Number),label=new Date(2000,0,1,hh||9,mm||0).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+ openOverlay('Today’s reminders','<div class="reminder"><span>🔔 Daily Mimo reminder</span><strong>'+label+'</strong></div><div class="reminder"><span>💊 Medicine</span><strong>08:00 · 20:00</strong></div><div class="reminder"><span>💧 Hydration</span><strong>Every 2 hours</strong></div><div class="reminder"><span>📅 Appointment</span><strong>Tomorrow · 11:30</strong></div><p class="overlay-note">Your Mimo setting controls the daily reminder preference and preferred time.</p>');
 }
 function settings(){
  openOverlay('Settings','<div class="setting-row"><span>🔊 Mimo voice</span><button class="action-button" id="overlaySound" type="button">Toggle</button></div><div class="setting-row"><span>🎙️ Voice mode</span><strong>Continuous</strong></div><div class="setting-row"><span>🌐 Language</span><strong>English (India)</strong></div>');
