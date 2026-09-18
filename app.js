@@ -78,8 +78,8 @@ function startSession(){
  let tries=0;const timer=setInterval(()=>{tries++;const fn=window.CCNER_SAFE_START_SESSION||window.CCNER_VIDEO_GAMES?.startSession;if(typeof fn==='function'&&fn!==startSession){clearInterval(timer);state.sessionStarted=true;fn()}else if(tries>=120){clearInterval(timer);state.sessionStarted=false;setStatus('Game engine could not load. Please refresh once.')}} ,100);
 }
 function showResultsFromHistory(){
- const h=read('ccner-history',[]),s=h.at(-1);
- if(!s){openOverlay('Progress','<p>You have not completed a session yet. Start today’s five-game workout and your progress will appear here.</p>');return}
+ const raw=read('ccner-history',[]),h=window.CCNERProgressSettings?.filterHistory?.(raw)||raw,s=h.at(-1);
+ if(!s){openOverlay('Progress','<p>No completed sessions are available for the selected period. Start today’s five-game workout and your progress will appear here.</p><p class="overlay-note">Open Progress settings to change the period.</p>');return}
  state.history=h;
  $('#overallScore')?.replaceChildren(document.createTextNode(Math.round(Number(s.score||0))+'%'));
  $('#overallAccuracy')?.replaceChildren(document.createTextNode(Math.round(Number(s.accuracy||0)*100)+'%'));
@@ -87,7 +87,7 @@ function showResultsFromHistory(){
  $('#avgTime')?.replaceChildren(document.createTextNode((Number(s.avgTime||0)).toFixed(1)+'s'));
  const rows=$('#resultRows');if(rows)rows.textContent='';
  (s.results||[]).forEach(r=>{const e=document.createElement('div');e.className='result-row';const left=document.createElement('div'),name=document.createElement('div'),detail=document.createElement('div'),score=document.createElement('span');name.className='result-name';name.textContent=r.game||r.name||'Game';detail.className='result-detail';detail.textContent=(r.correct?'Correct':'Needs practice')+' · '+(Number(r.seconds||0)).toFixed(1)+'s';score.className='score-pill';score.textContent=r.correct?'100%':'0%';left.append(name,detail);e.append(left,score);rows?.append(e)});
- const prev=h.at(-2);$('#trendBadge')?.replaceChildren(document.createTextNode(!prev?'First session':Number(s.score)>Number(prev.score)?'Improving ↑':Number(s.score)<Number(prev.score)?'Different day ↔':'Steady →'));
+ const prev=h.at(-2);$('#trendBadge')?.replaceChildren(document.createTextNode(!prev?'First session':Number(s.score)>Number(prev.score)?'Improving ↑':Number(s.score)<Number(prev.score)?'Different day ↔':'Steady →'));const detail=window.CCNERProgressSettings?.read?.().detail||'simple';const rowsBox=$('#resultRows');if(rowsBox)rowsBox.hidden=detail!=='detailed';
  showView('#resultsView');
 }
 function openOverlay(title,body){
