@@ -1,53 +1,48 @@
-/* Cognitive Care NER — canonical navigation shell.
- * One navigation owner for Home, Progress, Play, Reminders and You.
- * Drawer behavior follows accessible disclosure/drawer patterns: aria-expanded,
- * Escape-to-close, focus restoration and inert background while open.
+/* Cognitive Care NER — canonical app drawer.
+ * One accessible slide-out shell for profile, dashboard, Mino, games, reminders,
+ * progress, family mode, sound/accessibility, language and sign-out.
  */
 (()=>{'use strict';
 if(window.__CCNER_NAV_SHELL__)return;window.__CCNER_NAV_SHELL__=true;
-const $=s=>document.querySelector(s);
-let returnFocus=null;
-function mount(){
- if($('#ccnerDrawer'))return;
- const d=document.createElement('aside');
- d.id='ccnerDrawer';d.className='ccner-drawer';d.hidden=true;
- d.setAttribute('aria-labelledby','ccnerDrawerTitle');
- d.innerHTML=`<div class="ccner-drawer-backdrop" data-drawer-close></div>
- <section class="ccner-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="ccnerDrawerTitle">
-  <header class="ccner-drawer-head"><div><p class="eyebrow">COGNITIVE CARE NER</p><h2 id="ccnerDrawerTitle">You</h2></div><button type="button" class="ccner-drawer-close" data-drawer-close aria-label="Close menu">×</button></header>
-  <nav class="ccner-drawer-nav" aria-label="Account and app navigation">
-   <button type="button" data-drawer-action="home">⌂ <span>Home</span></button>
-   <button type="button" data-drawer-action="progress">▣ <span>Progress</span></button>
-   <button type="button" data-drawer-action="reminders">◷ <span>Reminders</span></button>
-   <button type="button" data-drawer-action="settings">⚙ <span>Settings</span></button>
-   <button type="button" data-drawer-action="security">🔐 <span>Privacy & security</span></button>
-  </nav>
-  <div class="ccner-drawer-foot"><span>Training performance only</span><small>Not a diagnosis or clinical stage.</small></div>
- </section>`;
- document.body.appendChild(d);
- d.addEventListener('click',e=>{const action=e.target.closest('[data-drawer-action]')?.dataset.drawerAction;if(action)activate(action);if(e.target.closest('[data-drawer-close]'))close()});
-}
-function open(){
- mount();const d=$('#ccnerDrawer'),panel=d?.querySelector('.ccner-drawer-panel');if(!d||!panel)return;
- returnFocus=document.activeElement;d.hidden=false;const trigger=document.querySelector('.bottom-nav [data-nav="settings"]');trigger?.setAttribute('aria-expanded','true');trigger?.setAttribute('aria-controls','ccnerDrawer');document.body.classList.add('ccner-drawer-open');
- const app=$('.app-shell');if(app)app.inert=true;
- requestAnimationFrame(()=>panel.querySelector('button')?.focus());
-}
-function close(){
- const d=$('#ccnerDrawer');if(!d)return;d.hidden=true;const trigger=document.querySelector('.bottom-nav [data-nav="settings"]');trigger?.setAttribute('aria-expanded','false');document.body.classList.remove('ccner-drawer-open');
- const app=$('.app-shell');if(app)app.inert=false;
- if(returnFocus?.focus)returnFocus.focus();returnFocus=null;
-}
-function activate(action){
- close();
- if(action==='home')return window.CCNERNavigation?.home?.();
- if(action==='progress')return window.CCNERNavigation?.progress?.();
- if(action==='reminders')return window.CCNERNavigation?.reminders?.();
- if(action==='settings')return window.CCNERNavigation?.settings?.();
- if(action==='security')return window.CCNERSecurity?.open?.();
-}
-window.CCNERNavigation={open,close,home:()=>window.CCNERUI?.home?.(),progress:()=>window.CCNERUI?.progress?.(),reminders:()=>window.CCNERUI?.reminders?.(),settings:()=>window.CCNERUI?.settings?.()};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];let returnFocus=null;
+const langs=()=>window.CCNERLanguageController?.getLanguages?.()||[];
+const profile=()=>window.CCNERAuth?.getProfile?.()||{};
+const user=()=>window.CCNERAuth?.client?.()?.auth?null:null;
+function initials(p){const n=String(p.full_name||p.display_name||'User').trim().split(/\s+/).filter(Boolean);return (n[0]?.[0]||'U')+(n[1]?.[0]||'')}
+function mount(){if($('#ccnerDrawer'))return;const d=document.createElement('aside');d.id='ccnerDrawer';d.className='ccner-drawer';d.hidden=true;d.setAttribute('aria-labelledby','ccnerDrawerTitle');d.innerHTML=`
+<div class="ccner-drawer-backdrop" data-drawer-close></div>
+<section class="ccner-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="ccnerDrawerTitle">
+<header class="ccner-drawer-head"><div class="ccner-profile"><div id="ccnerProfileAvatar" class="ccner-profile-avatar" aria-hidden="true">U</div><div><p class="eyebrow">COGNITIVE CARE NER</p><h2 id="ccnerDrawerTitle">You</h2><p id="ccnerProfileMeta">Your account</p></div></div><button type="button" class="ccner-drawer-close" data-drawer-close aria-label="Close menu">×</button></header>
+<nav class="ccner-drawer-nav" aria-label="App menu">
+<button type="button" data-drawer-action="dashboard">⌂ <span>Dashboard</span></button>
+<button type="button" data-drawer-action="profile">👤 <span>Profile</span></button>
+<button type="button" data-drawer-action="mino">🐶 <span>Mino</span></button>
+<button type="button" data-drawer-action="games">🎮 <span>Game settings</span></button>
+<button type="button" data-drawer-action="reminders">⏰ <span>Reminders</span></button>
+<button type="button" data-drawer-action="progress">📈 <span>Progress</span></button>
+<button type="button" data-drawer-action="family">👨‍👩‍👧 <span>Family mode</span></button>
+<button type="button" data-drawer-action="sound">🔊 <span>Sound & accessibility</span></button>
+</nav>
+<details class="ccner-drawer-section" name="drawer-settings"><summary>🌐 Language</summary><div id="ccnerLanguageList" class="ccner-language-list"></div></details>
+<details class="ccner-drawer-section" name="drawer-settings"><summary>🔐 Privacy & security</summary><div class="ccner-security-box"><p>Your account uses authenticated access and protected cloud sync.</p><button type="button" data-drawer-action="security">Open privacy & security</button></div></details>
+<div class="ccner-drawer-foot"><button type="button" class="ccner-signout" data-drawer-action="signout">↪ <span>Sign out</span></button><small>Training performance only. Not a diagnosis or clinical stage.</small></div>
+</section></aside>`;document.body.appendChild(d);wire(d);refreshProfile();renderLanguages()}
+function wire(d){d.addEventListener('click',e=>{const action=e.target.closest('[data-drawer-action]')?.dataset.drawerAction;if(action)activate(action);if(e.target.closest('[data-drawer-close]'))close()});}
+function refreshProfile(){const p=profile(),a=$('#ccnerProfileAvatar'),m=$('#ccnerProfileMeta');if(a){a.textContent=initials(p);const avatar=p.avatar_url||p.photo_url||p.profile_photo;if(avatar){a.textContent='';const img=document.createElement('img');img.src=avatar;img.alt='';img.referrerPolicy='no-referrer';a.appendChild(img)}}if(m)m.textContent=p.full_name||p.display_name||'Your account'}
+function renderLanguages(){const box=$('#ccnerLanguageList');if(!box)return;box.replaceChildren();const current=window.CCNERLanguageController?.getLanguage?.()||localStorage.getItem('ccner-language')||'en-IN';langs().forEach(l=>{const b=document.createElement('button');b.type='button';b.className='ccner-language-choice'+(l.id===current?' selected':'');b.dataset.lang=l.id;const name=document.createElement('span');name.textContent=l.native||l.name;const small=document.createElement('small');small.textContent=l.name;b.append(name,small);b.onclick=()=>{window.CCNERLanguageController?.setLanguage?.(l.id);renderLanguages();setTimeout(()=>{const d=$('#ccnerDrawer');if(d&&!d.hidden)close();},80)};box.appendChild(b)})}
+function open(){mount();refreshProfile();renderLanguages();const d=$('#ccnerDrawer'),panel=d?.querySelector('.ccner-drawer-panel');if(!d||!panel)return;returnFocus=document.activeElement;d.hidden=false;const trigger=document.querySelector('.bottom-nav [data-nav="settings"]');trigger?.setAttribute('aria-expanded','true');trigger?.setAttribute('aria-controls','ccnerDrawer');document.body.classList.add('ccner-drawer-open');const app=$('.app-shell');if(app)app.inert=true;requestAnimationFrame(()=>panel.querySelector('[data-drawer-action="dashboard"]')?.focus())}
+function close(){const d=$('#ccnerDrawer');if(!d)return;d.hidden=true;document.body.classList.remove('ccner-drawer-open');const trigger=document.querySelector('.bottom-nav [data-nav="settings"]');trigger?.setAttribute('aria-expanded','false');const app=$('.app-shell');if(app)app.inert=false;if(returnFocus?.focus)returnFocus.focus();returnFocus=null}
+function overlay(title,build){const panel=$('#overlayPanel'),content=$('#overlayContent');if(!panel||!content)return;content.replaceChildren();const ey=document.createElement('p');ey.className='eyebrow';ey.textContent='MINO';const h=document.createElement('h3');h.textContent=title;content.append(ey,h);build(content);panel.hidden=false;$('#closeOverlay')?.focus()}
+function button(label,fn){const b=document.createElement('button');b.type='button';b.className='action-button';b.textContent=label;b.onclick=fn;return b}
+function profilePanel(){const p=profile();overlay('Profile',c=>{const wrap=document.createElement('div');wrap.className='ccner-profile-panel';const fields=[['Name',p.full_name||p.display_name||'Not set'],['Role',p.role||'patient'],['Language',window.CCNERLanguage?.language||'English'],['Region',p.region||'Not set']];fields.forEach(([k,v])=>{const row=document.createElement('div');row.className='setting-row';const a=document.createElement('span');a.textContent=k;const b=document.createElement('strong');b.textContent=v;row.append(a,b);wrap.append(row)});c.append(wrap,button('Close',()=>window.CCNERUI?.closeOverlay?.()))})}
+function minoPanel(){overlay('Mino settings',c=>{const row=document.createElement('div');row.className='setting-row';const s=document.createElement('span');s.textContent='🔊 Mino voice';const b=button(window.state?.soundOn===false?'Off':'On',()=>{$('#soundToggle')?.click();b.textContent=window.state?.soundOn===false?'Off':'On'});row.append(s,b);const row2=document.createElement('div');row2.className='setting-row';const a=document.createElement('span');a.textContent='🎙️ Live voice';const live=button(window.CCNERMinoLive?.isRunning?.()?'Stop':'Start',()=>{if(window.CCNERMinoLive?.isRunning?.()){window.CCNERMinoLive.stop();live.textContent='Start'}else{window.CCNERMinoLive?.start?.();live.textContent='Stop'}});row2.append(a,live);c.append(row,row2)})}
+function gamePanel(){overlay('Game settings',c=>{const keys=[['ccner-game-sound','Game sounds'],['ccner-game-hints','Gentle hints'],['ccner-game-large','Large game controls']];keys.forEach(([k,label])=>{const row=document.createElement('label');row.className='setting-row';const s=document.createElement('span');s.textContent=label;const i=document.createElement('input');i.type='checkbox';i.checked=localStorage.getItem(k)!=='off';i.onchange=()=>localStorage.setItem(k,i.checked?'on':'off');row.append(s,i);c.append(row)})})}
+function familyPanel(){overlay('Family mode',c=>{const p=document.createElement('p');p.textContent='Family mode keeps the companion experience simple while making caregiver alerts and progress easier to reach.';const row=document.createElement('label');row.className='setting-row';const s=document.createElement('span');s.textContent='Family mode';const i=document.createElement('input');i.type='checkbox';i.checked=localStorage.getItem('ccner-family-mode')==='on';i.onchange=()=>localStorage.setItem('ccner-family-mode',i.checked?'on':'off');row.append(s,i);const b=button('Open dashboard',()=>{window.CCNERLevel3?.refresh?.();window.CCNERUI?.closeOverlay?.()});c.append(p,row,b)})}
+function soundPanel(){overlay('Sound & accessibility',c=>{const row=document.createElement('div');row.className='setting-row';const s=document.createElement('span');s.textContent='Mino voice';const b=button(window.state?.soundOn===false?'Off':'On',()=>$('#soundToggle')?.click());row.append(s,b);const p=document.createElement('p');p.className='overlay-note';p.textContent='Your selected language is also used for speech input when the device supports it.';c.append(row,p)})}
+function activate(action){close();if(action==='dashboard')return window.CCNERUI?.home?.();if(action==='profile')return profilePanel();if(action==='mino')return minoPanel();if(action==='games')return gamePanel();if(action==='reminders')return window.CCNERUI?.reminders?.();if(action==='progress')return window.CCNERUI?.progress?.();if(action==='family')return familyPanel();if(action==='sound')return soundPanel();if(action==='security')return window.CCNERSecurity?.open?.();if(action==='signout')return window.CCNERAuth?.signOut?.()}
+window.CCNERNavigation={open,close,home:()=>window.CCNERUI?.home?.(),progress:()=>window.CCNERUI?.progress?.(),reminders:()=>window.CCNERUI?.reminders?.(),settings:open,refresh:()=>{refreshProfile();renderLanguages()}};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ccnerDrawer')?.hidden)close()});
-document.addEventListener('DOMContentLoaded',mount,{once:true});
-if(document.readyState!=='loading')mount();
+window.addEventListener('ccner:profile-ready',()=>{refreshProfile();renderLanguages()});
+window.addEventListener('ccner:language-change',()=>renderLanguages());
+document.addEventListener('DOMContentLoaded',mount,{once:true});if(document.readyState!=='loading')mount();
 })();
