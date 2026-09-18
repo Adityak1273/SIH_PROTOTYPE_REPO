@@ -48,7 +48,7 @@ jobs:
           grep -q "const ROOT=__dirname" server.js
           grep -q 'styles.css?v=0.20.0' index.html
           grep -q 'core-boot.js?v=0.20.0' index.html
-          grep -q 'level2-auth.js?v=0.18.15' core-boot.js
+          grep -q 'level2-auth-v2.js?v=0.18.15' core-boot.js
           grep -q 'security-center.js?v=0.19.1' core-boot.js
           grep -q '"webDir": "."' capacitor.config.json
           grep -q 'dockerfile: Dockerfile' zopday.yaml
