@@ -1,6 +1,6 @@
 # Cognitive Care NER — Mobile App
 
-The project is now structured as an **installable Android app** using Capacitor. The existing elderly-friendly UI, Momo companion, five-game continuous session, scoring, and offline web shell are bundled into the native Android container.
+The project is now structured as an **installable Android app** using Capacitor. The existing elderly-friendly UI, Mino companion, five-game continuous session, scoring, and offline web shell are bundled into the native Android container.
 
 ## Local Android build
 
