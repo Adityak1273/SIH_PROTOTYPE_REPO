@@ -23,7 +23,7 @@ async function syncSession(detail){
  const session=sessionRow(detail,profile.user_id);if(!session)return false;
  const {error:e1}=await sb.from('cognitive_sessions').upsert(session,{onConflict:'id'});if(e1)throw e1;
  const rows=gameRows(detail,profile.user_id);
- if(rows.length){const {error:e2}=await sb.from('game_results').upsert(rows,{onConflict:'id'});if(e2)throw e2}
+ if(rows.length){const existing=await sb.from('game_results').select('id,game_id').eq('session_id',session.id).eq('user_id',profile.user_id);if(existing.error)throw existing.error;const byGame=new Map((existing.data||[]).map(x=>[String(x.game_id),x.id]));for(const row of rows){const id=byGame.get(row.game_id);const q=id?sb.from('game_results').update(row).eq('id',id):sb.from('game_results').insert(row);const {error:e2}=await q;if(e2)throw e2}}
  const event={user_id:profile.user_id,client_event_id:'session:'+session.id,entity_type:'cognitive_session',operation:'upsert',payload:{session,game_results:rows},client_created_at:new Date().toISOString(),synced_at:new Date().toISOString(),processed_at:new Date().toISOString()};
  const {error:e3}=await sb.from('sync_queue').upsert(event,{onConflict:'user_id,client_event_id'});if(e3)throw e3;
  window.dispatchEvent(new CustomEvent('ccner:sync-complete',{detail:{count:1+rows.length,sessionId:session.id}}));return true;
