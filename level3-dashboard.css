@@ -3,3 +3,15 @@
 .topbar>div:first-child{display:none!important}.topbar{justify-content:flex-end;min-height:48px}.l3-head{display:none!important}
 /* Put Quick Actions at the top of the dashboard. */
 #level3Dashboard>.l3-quick{order:-1}
+/* Mino dashboard: keep the full animated puppy inside its own scaled viewport. */
+.l3-momo-rig{position:relative;width:136px;height:136px;display:grid;place-items:center;overflow:visible;transform:none!important}
+.l3-momo-rig>.momo-rig{position:relative;width:340px;height:360px;flex:0 0 340px;transform:scale(.40);transform-origin:50% 86%;margin:0;filter:drop-shadow(0 12px 8px rgba(92,58,40,.13))}
+.l3-modal-avatar .l3-momo-rig{width:190px;height:190px}
+.l3-modal-avatar .l3-momo-rig>.momo-rig{transform:scale(.52)}
+@media(max-width:560px){
+ .l3-momo-mini{min-height:125px}
+ .l3-momo-rig{width:125px;height:125px}
+ .l3-momo-rig>.momo-rig{transform:scale(.34)}
+ .l3-modal-avatar .l3-momo-rig{width:190px;height:150px}
+ .l3-modal-avatar .l3-momo-rig>.momo-rig{transform:scale(.42)}
+}
