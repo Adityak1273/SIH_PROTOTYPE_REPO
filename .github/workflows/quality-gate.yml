@@ -15,13 +15,13 @@ jobs:
       - name: JavaScript syntax check
         run: |
           set -e
-          for f in prototype/phase-0/*.js; do node --check "$f"; done
+          for f in ./*.js; do node --check "$f"; done
       - name: JSON/config validation
         run: |
-          node -e "JSON.parse(require('fs').readFileSync('package.json','utf8')); JSON.parse(require('fs').readFileSync('capacitor.config.json','utf8')); JSON.parse(require('fs').readFileSync('prototype/phase-0/manifest.webmanifest','utf8'));"
+          node -e "JSON.parse(require('fs').readFileSync('package.json','utf8')); JSON.parse(require('fs').readFileSync('capacitor.config.json','utf8')); JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8'));"
       - name: Required production assets
         run: |
-          test -f prototype/phase-0/notification-bridge.js
+          test -f notification-bridge.js
           test -f prototype/phase-0/security-center.js
           test -f prototype/phase-0/usability-validation.js
           test -f prototype/phase-0/level2-auth.js
@@ -37,19 +37,19 @@ jobs:
           grep -q '^ENV PORT=80$' Dockerfile
           grep -q '^ENV BUILD_VERSION=0.18.4$' Dockerfile
           grep -q "BUILD_VERSION.*0.18.4" server.js
-          grep -q 'styles.css?v=0.18.4' prototype/phase-0/index.html
-          grep -q 'core-boot.js?v=0.18.4' prototype/phase-0/index.html
-          grep -q 'level2-auth.js?v=0.18.4' prototype/phase-0/core-boot.js
-          grep -q 'security-center.js?v=0.18.4' prototype/phase-0/core-boot.js
-          ! grep -q 'phase8-video-override.js' prototype/phase-0/core-boot.js
-          ! grep -q 'phase8-compat.js' prototype/phase-0/core-boot.js
+          grep -q 'styles.css?v=0.20.0' index.html
+          grep -q 'core-boot.js?v=0.20.0' index.html
+          grep -q 'level2-auth.js?v=0.18.15' core-boot.js
+          grep -q 'security-center.js?v=0.19.1' core-boot.js
+          ! grep -q 'phase8-video-override.js' core-boot.js
+          ! grep -q 'phase8-compat.js' core-boot.js
           grep -q 'dockerfile: Dockerfile' zopday.yaml
           grep -q '"80:80"' zopday.yaml
           grep -q '"8080:80"' docker-compose.yml
       - name: Video game session checks
         run: |
           set -e
-          grep -q "Sequence Memory" prototype/phase-0/game-engine-adaptive.js
+          grep -q "Sequence Memory" game-engine-adaptive.js
           grep -q "Stroop Test" prototype/phase-0/game-engine-adaptive.js
           grep -q "Around the House Sorting" prototype/phase-0/game-engine-adaptive.js
           grep -q "Pattern Recognition" prototype/phase-0/game-engine-adaptive.js
@@ -63,7 +63,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const root='prototype/phase-0';
+          const root='.';
           const text=fs.readFileSync(`${root}/index.html`,'utf8')+'\n'+fs.readFileSync(`${root}/core-boot.js`,'utf8');
           const refs=[...text.matchAll(/(?:src|href)=["']\.\/([^?"']+)/g)].map(m=>m[1]);
           for(const ref of refs){
