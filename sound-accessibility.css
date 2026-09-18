@@ -1,0 +1,8 @@
+.ccner-access-large-text body{font-size:18px}
+.ccner-access-xl-text body{font-size:20px}
+.ccner-access-large-text h1,.ccner-access-large-text h2,.ccner-access-large-text h3,.ccner-access-xl-text h1,.ccner-access-xl-text h2,.ccner-access-xl-text h3{line-height:1.25}
+.ccner-access-large-buttons button,.ccner-access-large-buttons .action-button{min-height:52px}
+.ccner-high-contrast body{background:#fff!important;color:#111!important}
+.ccner-high-contrast .card,.ccner-high-contrast .companion-card,.ccner-high-contrast .game-card,.ccner-high-contrast .results-card,.ccner-high-contrast .info-grid article,.ccner-high-contrast .home-strip,.ccner-high-contrast .voice-banner{border-color:#222!important}
+.ccner-high-contrast button,.ccner-high-contrast input,.ccner-high-contrast select,.ccner-high-contrast textarea{border:2px solid #111!important;color:#111!important}
+.ccner-high-contrast .eyebrow,.ccner-high-contrast .subtitle,.ccner-high-contrast .overlay-note{color:#222!important}
