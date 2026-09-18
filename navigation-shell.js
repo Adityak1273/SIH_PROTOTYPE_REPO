@@ -1,6 +1,6 @@
 /* Cognitive Care NER — canonical app drawer.
- * One accessible slide-out shell for profile, dashboard, Mimo, games, reminders,
- * progress, family mode, sound/accessibility, language and sign-out.
+ * One accessible slide-out shell for profile, dashboard, games, reminders,
+ * progress, care team, sound/accessibility, language and sign-out.
  */
 (()=>{'use strict';
 if(window.__CCNER_NAV_SHELL__)return;window.__CCNER_NAV_SHELL__=true;
@@ -16,8 +16,6 @@ function mount(){if($('#ccnerDrawer'))return;const d=document.createElement('asi
 <nav class="ccner-drawer-nav" aria-label="App menu">
 <button type="button" data-drawer-action="dashboard">⌂ <span>Dashboard</span></button>
 <button type="button" data-drawer-action="profile">👤 <span>Profile</span></button>
-<button type="button" data-drawer-action="mino">🐶 <span>Mimo</span></button>
-<button type="button" data-drawer-action="mimo-settings">⚙️ <span>Mimo Settings</span></button>
 <button type="button" data-drawer-action="games">🎮 <span>Game settings</span></button>
 <button type="button" data-drawer-action="reminders">⏰ <span>Reminders</span></button>
 <button type="button" data-drawer-action="progress">📈 <span>Progress</span></button>
