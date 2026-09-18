@@ -171,7 +171,8 @@
     const moodObserver=new MutationObserver(()=>{rig.classList.remove('p1-companion-pulse');void rig.offsetWidth;rig.classList.add('p1-companion-pulse')}); const stage=$('#stage'); if(stage)moodObserver.observe(stage,{attributes:true,attributeFilter:['class']});
   }
 
-  function installNav(){}\n  function enhanceSessionHistory(){window.addEventListener('ccner:session-complete',()=>{const last=sessions().at(-1);if(last)queueSync('session.completed',last);renderHomeMetrics()})}
+  function installNav(){}
+  function enhanceSessionHistory(){window.addEventListener('ccner:session-complete',()=>{const last=sessions().at(-1);if(last)queueSync('session.completed',last);renderHomeMetrics()})}
   function renderHomeMetrics(){
     const last=sessions().at(-1), el=$('#todayStatus'); if(el&&last)el.textContent=`Complete · ${Math.round(last.score||0)}%`;
   }
