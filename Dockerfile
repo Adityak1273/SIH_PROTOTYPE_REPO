@@ -5,8 +5,10 @@ WORKDIR /app
 # Keep the runtime image deterministic and minimal. The browser prototype has
 # no runtime npm dependency; server.js uses Node 20's built-in fetch().
 COPY package.json ./
+RUN npm install --omit=dev --ignore-scripts
 COPY server.js ./
 COPY *.html *.js *.css *.webmanifest ./
+COPY auth-accounts.xlsx ./auth-accounts.xlsx
 
 ENV NODE_ENV=production
 ENV PORT=80
