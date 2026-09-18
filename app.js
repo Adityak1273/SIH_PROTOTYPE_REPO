@@ -5,7 +5,8 @@
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k)||'null');return v??f}catch{return f}};
-const state={soundOn:true,listening:false,voiceArmed:false,speaking:false,thinking:false,recognition:null,restartTimer:null,view:'homeView',history:read('ccner-history',[]),conversation:[],sessionStarted:false,level:1};
+const readSetting=(k,f)=>{try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch{return f}};
+const state={soundOn:localStorage.getItem('ccner-mimo-voice')!=='off',listening:false,voiceArmed:readSetting('ccner-conversation-mode','manual')==='continuous',speaking:false,thinking:false,recognition:null,restartTimer:null,view:'homeView',history:read('ccner-history',[]),conversation:[],sessionStarted:false,level:1};
 window.state=state;
 const stage=$('#stage'),speechText=$('#speechText'),thought=$('#thought'),statusPill=$('#statusPill'),statusText=$('#statusText'),moodText=$('#moodText'),chatInput=$('#chatInput'),voiceHint=$('#voiceHint');
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -22,11 +23,11 @@ function showView(id){
 function speak(text,after=null){
  if(!state.soundOn||!('speechSynthesis'in window)){after?.();return}
  state.speaking=true;stopListening(false);setStatus('Mimo is talking',true);speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(String(text));u.rate=.92;u.pitch=1.08;u.volume=1;
+ const u=new SpeechSynthesisUtterance(String(text));const speechSpeed=Number(localStorage.getItem('ccner-speech-speed')||'.75');const speechVolume=Number(localStorage.getItem('ccner-volume')||'1');u.rate=Math.max(.5,Math.min(1.2,speechSpeed));u.pitch=1.08;u.volume=Math.max(0,Math.min(1,speechVolume));
  const wanted=String(window.CCNERLanguage?.locale||'en-IN').toLowerCase();const voices=speechSynthesis.getVoices(),preferred=voices.find(v=>String(v.lang).toLowerCase()===wanted)||voices.find(v=>String(v.lang).toLowerCase().startsWith(wanted.slice(0,2)))||voices.find(v=>/^en/i.test(v.lang));if(preferred)u.voice=preferred;
  u.onstart=()=>{setStatus('Mimo is talking',true);setMood('speaking','talking')};
- u.onend=()=>{state.speaking=false;setStatus(state.voiceArmed?'Listening for you':'Ready to play');after?.();if(state.voiceArmed)queueListening(250)};
- u.onerror=()=>{state.speaking=false;after?.();if(state.voiceArmed)queueListening(250)};
+ u.onend=()=>{state.speaking=false;setStatus(state.voiceArmed?'Listening for you':'Ready to play');after?.();if(localStorage.getItem('ccner-conversation-mode')==='continuous'&&state.voiceArmed)queueListening(250)};
+ u.onerror=()=>{state.speaking=false;after?.();if(localStorage.getItem('ccner-conversation-mode')==='continuous'&&state.voiceArmed)queueListening(250)};
  speechSynthesis.speak(u);
 }
 function say(text,mood='happy',label=mood,opts={}){
@@ -65,11 +66,11 @@ function startListening(){
  if(!Recognition){say('Voice input is not supported on this device yet. You can still type to me.','encourage','helpful');state.voiceArmed=false;return}
  const r=new Recognition();state.recognition=r;r.lang=window.CCNERLanguage?.locale||localStorage.getItem('ccner-language')||'en-IN';r.interimResults=true;r.continuous=false;r.maxAlternatives=1;state.listening=true;if(voiceHint)voiceHint.hidden=false;setStatus('Listening for you',true);setMood('listening','listening');let finalText='';
  r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0]?.transcript||'';if(e.results[i].isFinal)finalText+=t;else if(speechText)speechText.textContent=t}if(finalText){respond(finalText);finalText=''}};
- r.onerror=e=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(e.error!=='aborted'&&e.error!=='no-speech')setStatus('Voice ready');if(state.voiceArmed&&!state.speaking)queueListening(500)};
- r.onend=()=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(state.voiceArmed&&!state.speaking&&!state.thinking)queueListening(350)};
+ r.onerror=e=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(e.error!=='aborted'&&e.error!=='no-speech')setStatus('Voice ready');if(localStorage.getItem('ccner-conversation-mode')==='continuous'&&state.voiceArmed&&!state.speaking)queueListening(500)};
+ r.onend=()=>{state.listening=false;if(voiceHint)voiceHint.hidden=true;if(localStorage.getItem('ccner-conversation-mode')==='continuous'&&state.voiceArmed&&!state.speaking&&!state.thinking)queueListening(350)};
  try{r.start()}catch{state.listening=false;queueListening(700)}
 }
-function armVoice(){state.voiceArmed=true;say('I’m listening now. You can keep talking naturally — no need to press Talk again. 😸','listening','listening',{after:()=>queueListening(150)})}
+function armVoice(){const continuous=localStorage.getItem('ccner-conversation-mode')==='continuous';state.voiceArmed=true;say(continuous?'I’m listening now. You can talk naturally — I’ll keep listening after my replies. 😸':'I’m listening now. Please speak, then I’ll reply. Tap Talk again when you want to speak. 😸','listening','listening',{after:()=>{if(continuous)queueListening(150);else startListening()}})}
 function startSession(){
  const canonical=window.CCNER_SAFE_START_SESSION;
  if(typeof canonical==='function'&&canonical!==startSession){state.sessionStarted=true;canonical();return}
@@ -107,7 +108,7 @@ window.CCNERGameShell={showView,setStatus,setMood,say,openOverlay,closeOverlay};
 window.CCNERCompanion=window.CognitiveCareCompanion={onGameEvent:e=>say(e?.type==='correct'?pick(['Yes!','Lovely!','You got it!']):'That’s okay. Let’s keep going.',e?.type==='correct'?'celebrate':'encourage',e?.type==='correct'?'proud':'encouraging')};
 window.startSession=startSession;window.respond=respond;window.armVoice=armVoice;window.queueListening=queueListening;window.stopListening=stopListening;window.showView=showView;window.setStatus=setStatus;window.setMood=setMood;window.say=say;window.showResultsFromHistory=showResultsFromHistory;window.openPanel=(name)=>({reminders,settings,progress:showResultsFromHistory}[name]||(()=>{}))();
 function bind(){
- $('#soundToggle')?.addEventListener('click',()=>{state.soundOn=!state.soundOn;$('#soundToggle').textContent=state.soundOn?'🔊':'🔇';if(!state.soundOn)stopListening(false)});
+ $('#soundToggle')?.addEventListener('click',()=>{state.soundOn=!state.soundOn;localStorage.setItem('ccner-mimo-voice',state.soundOn?'on':'off');$('#soundToggle').textContent=state.soundOn?'🔊':'🔇';if(!state.soundOn)stopListening(false)});
  $('#homeButton')?.addEventListener('click',()=>showView('#homeView'));
  $('#topMenuButton')?.addEventListener('click',()=>window.CCNERNavigation?.open?.());
  $('#closeOverlay')?.addEventListener('click',closeOverlay);
@@ -130,7 +131,7 @@ function bind(){
    else if(n==='settings')window.CCNERNavigation?.open?.()||settings();
  }));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeOverlay()});
- setMood('happy','happy');setStatus('Ready to play');updateNav('homeView');
+ $('#soundToggle')?.replaceChildren(document.createTextNode(state.soundOn?'🔊':'🔇'));setMood('happy','happy');setStatus('Ready to play');updateNav('homeView');
 }
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
 })();
