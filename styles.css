@@ -20,3 +20,92 @@ body.ccner-drawer-open{overflow:hidden}
 .ccner-drawer-foot small{font-size:.76rem;line-height:1.45}
 .ccner-runtime-error{position:fixed;left:14px;right:14px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:13000;padding:14px 16px;border-radius:16px;background:#fff7f1;border:1px solid #e7b59e;box-shadow:0 12px 30px rgba(50,30,20,.18);font-weight:800}
 @media(min-width:900px){.ccner-drawer-panel{width:410px}}
+
+
+/* Mino Pastel UI Theme — calm, friendly, high-contrast accents */
+:root{
+  --bg:#f4f1fb;
+  --card:#fffdfd;
+  --ink:#302b3b;
+  --muted:#706a7d;
+  --accent:#8b7cf6;
+  --accent-dark:#6655c7;
+  --soft:#eeeaff;
+  --line:#e4dff0;
+  --mint:#a9dfcf;
+  --peach:#ffc7ad;
+  --sky:#b9dcf6;
+  --yellow:#f7dfa0;
+  --shadow:0 22px 60px rgba(77,64,112,.12);
+}
+body{
+  background:
+    radial-gradient(circle at 8% 5%,rgba(255,221,204,.72) 0 16%,transparent 38%),
+    radial-gradient(circle at 92% 12%,rgba(201,229,249,.72) 0 15%,transparent 36%),
+    radial-gradient(circle at 55% 100%,rgba(213,201,249,.55) 0 18%,transparent 42%),
+    var(--bg);
+  color:var(--ink);
+}
+.eyebrow{color:var(--accent-dark)}
+.icon-button{border-color:var(--line);background:rgba(255,255,255,.9)}
+button:focus-visible,input:focus-visible{outline-color:rgba(139,124,246,.42)}
+.companion-card,.game-card,.results-card,.info-grid article,.mini-companion,.home-strip{
+  border-color:var(--line);
+  box-shadow:var(--shadow);
+}
+.stage{
+  background:linear-gradient(145deg,#fff7f1 0%,#f4efff 52%,#edf8f5 100%);
+}
+.stage:before{background:radial-gradient(ellipse,rgba(255,199,173,.7) 0,transparent 70%)}
+.thought{background:rgba(255,255,255,.92)}
+.spark{color:var(--accent)}
+.speech{background:rgba(255,255,255,.92);border-color:var(--line)}
+.speech-name,.strip-arrow{color:var(--accent-dark)}
+.action-button,.send-button{border-color:var(--line);background:#fff}
+.action-button.primary,.send-button{
+  background:linear-gradient(135deg,#9789fb,#7f70e8);
+  border-color:#8172e9;
+  color:#fff;
+  box-shadow:0 10px 24px rgba(127,112,232,.2);
+}
+.action-button:hover{box-shadow:0 10px 24px rgba(127,112,232,.16)}
+.voice-banner{background:#fff6f2;border-color:#f3d8c9}
+.voice-orb{background:#ffe3d5}
+.voice-live{background:#eeeaff;color:var(--accent-dark)}
+.chat-row input{border-color:var(--line);background:#fff}
+.info-grid article:nth-child(1){background:#fff8f4}
+.info-grid article:nth-child(2){background:#f5f1ff}
+.info-grid article:nth-child(3){background:#f0faf7}
+.home-strip{background:linear-gradient(90deg,#fff5ef,#f6f2ff)}
+.progress-track{background:#e7e2ef}
+.progress-track i{background:linear-gradient(90deg,#a996ff,#7dcbad)}
+.answer-tile:hover,.answer-tile.chosen{border-color:var(--accent);background:#f5f1ff}
+.sequence-tile.active{background:#a89bfa;box-shadow:0 12px 25px rgba(139,124,246,.24)}
+.sequence-tile.chosen{border-color:var(--accent);background:#f5f1ff}
+.live-dot{background:#eaf8f3;color:#328268}
+.result-grid article:nth-child(1){background:#f6f2ff}
+.result-grid article:nth-child(2){background:#f0faf7}
+.result-grid article:nth-child(3){background:#fff7f0}
+.result-grid article:nth-child(4){background:#f1f8ff}
+.score-pill{background:#eeeaff;color:#5e4fba}
+.trend-badge{background:#f2eff8}
+.disclaimer,.ccner-drawer-foot{background:#f5f2f8}
+.overlay-panel{background:rgba(48,43,59,.38)}
+.overlay-inner{background:#fffdfd;border-color:var(--line)}
+.bottom-nav{
+  background:rgba(255,253,255,.92);
+  border-color:var(--line);
+  box-shadow:0 18px 50px rgba(77,64,112,.18);
+}
+.bottom-nav button.active{background:#eeeaff;color:var(--accent-dark)}
+.bottom-nav .create-icon{
+  background:linear-gradient(135deg,#a996ff,#7dcbad);
+  color:#fff;
+}
+.ccner-drawer-backdrop{background:rgba(48,43,59,.42)}
+.ccner-drawer-panel{background:#fffdfd}
+.ccner-drawer-nav button{border-color:var(--line);background:#fff}
+.ccner-drawer-nav button:hover,.ccner-drawer-nav button:focus-visible{background:#f5f1ff;border-color:var(--accent)}
+.ccner-drawer-nav button:first-child{background:#f5f1ff}
+.ccner-runtime-error{background:#fff5ef;border-color:#f0c9b5}
+
