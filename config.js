@@ -1,5 +1,6 @@
 // Public client configuration. Never put service-role or private secrets here.
 window.CCNER_CONFIG = {
+  AUTH_ENDPOINT: 'https://sih-prototype-repo.zopcloud.zop.dev/api/auth',
   AI_ENDPOINT: 'https://sih-prototype-repo.zopcloud.zop.dev/api/chat',
   GEMINI_TOKEN_ENDPOINT: 'https://sih-prototype-repo.zopcloud.zop.dev/api/gemini-token',
   GEMINI_LIVE_MODEL: 'gemini-3.8-live',
