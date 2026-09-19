@@ -142,3 +142,21 @@ button:focus-visible,input:focus-visible{outline-color:rgba(139,124,246,.42)}
 @media(max-width:560px){.top-menu-trigger{left:2px;height:42px;min-width:56px}.top-menu-trigger span{font-size:.68rem}}
 
 .mimo-day-picker{gap:8px}.mimo-day-buttons{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px}.mimo-day-buttons .btn{min-width:0;padding:10px 4px;font-size:13px}.mimo-day-buttons .btn.primary{font-weight:700}.mimo-reminder-card{gap:12px}.mimo-reminder-card .mimo-reminder-actions{display:flex;gap:6px;flex-wrap:wrap}.mimo-reminder-list{display:grid;gap:10px}@media(max-width:520px){.mimo-day-buttons{grid-template-columns:repeat(4,1fr)}}
+
+
+/* Patient drawer controls — language/privacy reliability */
+.ccner-language-help{padding:0 14px 10px;color:var(--muted);font-size:.78rem;line-height:1.45}
+.ccner-language-section[open] .ccner-language-choice{cursor:pointer}
+.ccner-language-choice{position:relative;z-index:2;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.ccner-security-section summary[data-open-security]{cursor:pointer}
+#securityCenter.p2-panel{position:fixed;inset:0;z-index:14000;display:grid;place-items:center;padding:18px;background:rgba(48,43,59,.42);backdrop-filter:blur(4px)}
+#securityCenter .p2-sheet{width:min(760px,94vw);max-height:88vh;overflow:auto;background:#fffdfd;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow);color:var(--ink)}
+#securityCenter .p2-close{float:right;width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:1.6rem;color:var(--ink);cursor:pointer}
+#securityCenter .p2-eyebrow{color:var(--accent-dark);font-size:.75rem;font-weight:900;letter-spacing:.12em}
+#securityCenter .ph-card{display:grid;gap:14px}
+#securityCenter .ph-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#faf8ff}
+#securityCenter .ph-row small{display:block;color:var(--muted);margin-top:3px}
+#securityCenter .ph-actions{display:flex;flex-wrap:wrap;gap:9px}
+#securityCenter .ph-btn{border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:#eeeaff;color:var(--ink);font-weight:800;cursor:pointer}
+#securityCenter .ph-btn.secondary{background:#fff}
+@media(max-width:560px){#securityCenter{padding:10px!important}#securityCenter .p2-sheet{padding:16px;border-radius:20px;max-height:92vh}.ccner-language-list{grid-template-columns:1fr 1fr}}
