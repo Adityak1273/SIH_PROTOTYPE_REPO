@@ -1,7 +1,7 @@
 /* Cognitive Care NER — simple showcase authentication.
  * Uses a server-side Excel account registry. No OTP and no Supabase dependency.
  */
-(()=>{'use strict';if(window.__CCNER_AUTH_V4__)return;window.__CCNER_AUTH_V3__=true;
+(()=>{'use strict';if(window.__CCNER_AUTH_V4__)return;window.__CCNER_AUTH_V4__=true;
 const ENDPOINT=window.CCNER_CONFIG?.AUTH_ENDPOINT||'https://sih-prototype-repo.zopcloud.zop.dev/api/auth';let user=null,profile=null,gate=null,selectedRole='patient';
 const TOKEN_KEY='ccner-local-auth-token';
 const DEMO_ACCOUNTS=[
