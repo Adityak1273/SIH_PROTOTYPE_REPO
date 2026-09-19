@@ -95,7 +95,9 @@
     const perf=document.querySelector('#resultsView .results-card .eyebrow');if(perf)perf.textContent=en.performance;
     const heading=document.querySelector('#resultsView .results-card h3');if(heading)heading.textContent=en.todaysGames;
     captureDom(document);
-    // Pass 2: apply the selected locale from the canonical source.
+    // Translate all ordinary shell text while its canonical English nodes are still intact.
+    translateDom(document);
+    // Pass 2: apply the selected locale to the small set of explicit dashboard fields.
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
     set('pageTitle',t.title);set('voiceHint',t.ready);set('todayStatus',t.activity);set('sendButton',t.send);set('playAgain',t.playAgain);set('backHome',t.home);
     if(chat)chat.placeholder=t.placeholder;if(subtitle)subtitle.textContent=t.subtitle;
@@ -105,7 +107,6 @@
     [t.activity,t.games,t.focus].forEach((v,i)=>{const e=info[i]?.querySelector('span');if(e)e.textContent=v});
     if(strip)strip.textContent=t.noPressure;if(safety)safety.textContent=t.safety;
     if(resultEyebrow)resultEyebrow.textContent=t.session;if(perf)perf.textContent=t.performance;if(heading)heading.textContent=t.todaysGames;
-    translateDom(document);
     updateVoiceLanguage();patchSpeech();patchRecognition();
   }
   function installLanguageCard(){const home=document.getElementById('homeView');if(!home||document.getElementById('ccnerLanguageCard')||document.getElementById('ccnerRegionalLanguageCard'))return;const card=document.createElement('section');card.id='ccnerLanguageCard';card.className='language-card';card.innerHTML=`<div><p class="eyebrow">${esc(text().language)}</p><h3>${esc(text().choose)}</h3><div class="language-options">${Object.entries(LANGS).map(([k,v])=>`<button type="button" class="language-option" data-lang="${k}">${esc(v.native)}<small>${esc(v.name)}</small></button>`).join('')}</div><p id="languageSaved" class="language-saved" aria-live="polite"></p></div>`;home.appendChild(card);card.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>setLanguage(b.dataset.lang)));highlight()}
