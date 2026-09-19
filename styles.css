@@ -140,3 +140,5 @@ button:focus-visible,input:focus-visible{outline-color:rgba(139,124,246,.42)}
 .bottom-nav .nav-mino{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--muted)}
 .bottom-nav .nav-mino.active{color:var(--accent-dark)}
 @media(max-width:560px){.top-menu-trigger{left:2px;height:42px;min-width:56px}.top-menu-trigger span{font-size:.68rem}}
+
+.mimo-day-picker{gap:8px}.mimo-day-buttons{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px}.mimo-day-buttons .btn{min-width:0;padding:10px 4px;font-size:13px}.mimo-day-buttons .btn.primary{font-weight:700}.mimo-reminder-card{gap:12px}.mimo-reminder-card .mimo-reminder-actions{display:flex;gap:6px;flex-wrap:wrap}.mimo-reminder-list{display:grid;gap:10px}@media(max-width:520px){.mimo-day-buttons{grid-template-columns:repeat(4,1fr)}}
