@@ -74,31 +74,37 @@
   function apply(){
     document.documentElement.lang=locale;
     const t=text(),en=T['en-IN'];
-    // Always write the English canonical source first. This prevents a previous
-    // language from becoming the "original" when the user switches languages.
-    const core=[
-      ['pageTitle',en.title,t.title],['voiceHint',en.ready,t.ready],['todayStatus',en.activity,t.activity],
-    ];
-    core.forEach(([id,canonical,localized])=>setCoreText(id,canonical,localized));
-    setCoreAttr('chatInput','placeholder',en.placeholder,t.placeholder);
-    const subtitle=document.querySelector('.subtitle');if(subtitle){subtitle.textContent=en.subtitle;subtitle.textContent=t.subtitle}
     const buttons=[...document.querySelectorAll('.quick-actions button')];
-    [en.start,en.talk,en.reminders,en.progress].forEach((v,i)=>{if(buttons[i]){buttons[i].textContent=v;buttons[i].textContent=[t.start,t.talk,t.reminders,t.progress][i]}});
-    const vb=document.querySelector('.voice-banner');if(vb){const strong=vb.querySelector('strong'),p=vb.querySelector('p');if(strong){strong.textContent=en.hands;strong.textContent=t.hands}if(p){p.textContent=en.handsText;p.textContent=t.handsText}}
-    const send=document.getElementById('sendButton');if(send){send.textContent=en.send;send.textContent=t.send}
-    const labels=document.querySelectorAll('.section-label .eyebrow');if(labels[0]){labels[0].textContent=en.today;labels[0].textContent=t.today}
-    const routine=document.querySelector('.section-label h2');if(routine){routine.textContent=en.routine;routine.textContent=t.routine}
     const info=document.querySelectorAll('.info-grid article');
-    [en.activity,en.games,en.focus].forEach((v,i)=>{const e=info[i]?.querySelector('span');if(e){e.textContent=v;e.textContent=[t.activity,t.games,t.focus][i]}});
-    const strip=document.querySelector('.home-strip strong');if(strip){strip.textContent=en.noPressure;strip.textContent=t.noPressure}
-    const safety=document.querySelector('.phase4-safety');if(safety){safety.textContent=en.safety;safety.textContent=t.safety}
-    const resultEyebrow=document.querySelector('#resultsView .result-hero .eyebrow');if(resultEyebrow){resultEyebrow.textContent=en.session;resultEyebrow.textContent=t.session}
-    const perf=document.querySelector('#resultsView .results-card .eyebrow');if(perf){perf.textContent=en.performance;perf.textContent=t.performance}
-    const heading=document.querySelector('#resultsView .results-card h3');if(heading){heading.textContent=en.todaysGames;heading.textContent=t.todaysGames}
-    const again=document.getElementById('playAgain');if(again){again.textContent=en.playAgain;again.textContent=t.playAgain}
-    const home=document.getElementById('backHome');if(home){home.textContent=en.home;home.textContent=t.home}
-    // Capture the canonical English DOM before translating the rest of the shell.
+    // Pass 1: restore/write canonical English source strings only.
+    const core=[
+      ['pageTitle',en.title],['voiceHint',en.ready],['todayStatus',en.activity],
+      ['sendButton',en.send],['playAgain',en.playAgain],['backHome',en.home]
+    ];
+    core.forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v});
+    const chat=document.getElementById('chatInput');if(chat)chat.placeholder=en.placeholder;
+    const subtitle=document.querySelector('.subtitle');if(subtitle)subtitle.textContent=en.subtitle;
+    [en.start,en.talk,en.reminders,en.progress].forEach((v,i)=>{if(buttons[i])buttons[i].textContent=v});
+    const vb=document.querySelector('.voice-banner');if(vb){const strong=vb.querySelector('strong'),p=vb.querySelector('p');if(strong)strong.textContent=en.hands;if(p)p.textContent=en.handsText}
+    const labels=document.querySelectorAll('.section-label .eyebrow');if(labels[0])labels[0].textContent=en.today;
+    const routine=document.querySelector('.section-label h2');if(routine)routine.textContent=en.routine;
+    [en.activity,en.games,en.focus].forEach((v,i)=>{const e=info[i]?.querySelector('span');if(e)e.textContent=v});
+    const strip=document.querySelector('.home-strip strong');if(strip)strip.textContent=en.noPressure;
+    const safety=document.querySelector('.phase4-safety');if(safety)safety.textContent=en.safety;
+    const resultEyebrow=document.querySelector('#resultsView .result-hero .eyebrow');if(resultEyebrow)resultEyebrow.textContent=en.session;
+    const perf=document.querySelector('#resultsView .results-card .eyebrow');if(perf)perf.textContent=en.performance;
+    const heading=document.querySelector('#resultsView .results-card h3');if(heading)heading.textContent=en.todaysGames;
     captureDom(document);
+    // Pass 2: apply the selected locale from the canonical source.
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+    set('pageTitle',t.title);set('voiceHint',t.ready);set('todayStatus',t.activity);set('sendButton',t.send);set('playAgain',t.playAgain);set('backHome',t.home);
+    if(chat)chat.placeholder=t.placeholder;if(subtitle)subtitle.textContent=t.subtitle;
+    [t.start,t.talk,t.reminders,t.progress].forEach((v,i)=>{if(buttons[i])buttons[i].textContent=v});
+    if(vb){const strong=vb.querySelector('strong'),p=vb.querySelector('p');if(strong)strong.textContent=t.hands;if(p)p.textContent=t.handsText}
+    if(labels[0])labels[0].textContent=t.today;if(routine)routine.textContent=t.routine;
+    [t.activity,t.games,t.focus].forEach((v,i)=>{const e=info[i]?.querySelector('span');if(e)e.textContent=v});
+    if(strip)strip.textContent=t.noPressure;if(safety)safety.textContent=t.safety;
+    if(resultEyebrow)resultEyebrow.textContent=t.session;if(perf)perf.textContent=t.performance;if(heading)heading.textContent=t.todaysGames;
     translateDom(document);
     updateVoiceLanguage();patchSpeech();patchRecognition();
   }
