@@ -7,8 +7,8 @@ if(window.__ccnerCoreBoot)return;window.__ccnerCoreBoot=true;
 const loaded=new Set();
 function load(src,css){
  if(loaded.has(src))return;loaded.add(src);
- if(css&&!document.querySelector('link[data-ccner="'+css+'"]')){const l=document.createElement('link');l.rel='stylesheet';l.dataset.ccner=css;l.href='./'+css+'?v=0.20.8';document.head.appendChild(l)}
- const s=document.createElement('script');s.src='./'+src+'?v=0.20.8';s.defer=true;document.head.appendChild(s);
+ if(css&&!document.querySelector('link[data-ccner="'+css+'"]')){const l=document.createElement('link');l.rel='stylesheet';l.dataset.ccner=css;l.href='./'+css+'?v=0.20.9';document.head.appendChild(l)}
+ const s=document.createElement('script');s.src='./'+src+'?v=0.20.9';s.defer=true;document.head.appendChild(s);
 }
 function loadOnce(src,css){load(src,css)}
 function boot(){
