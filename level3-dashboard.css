@@ -15,3 +15,9 @@
  .l3-modal-avatar .l3-momo-rig{width:190px;height:150px}
  .l3-modal-avatar .l3-momo-rig>.momo-rig{transform:scale(.42)}
 }
+/* Mimo modal touch/click reliability */
+body.l3-modal-open{overflow:hidden;touch-action:none}
+.l3-modal{pointer-events:auto;touch-action:auto;-webkit-tap-highlight-color:transparent}
+.l3-modal-card{z-index:1;pointer-events:auto;touch-action:auto;-webkit-overflow-scrolling:touch}
+.l3-close{z-index:20;pointer-events:auto;position:absolute;touch-action:manipulation;cursor:pointer}
+.l3-mode button,.l3-voice button,.l3-input button{touch-action:manipulation;pointer-events:auto}
